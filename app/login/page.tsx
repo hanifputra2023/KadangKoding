@@ -540,10 +540,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
                       />
                       <span>Ingat sesi masuk 30 hari</span>
                     </label>
-                    <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60 flex items-center gap-1">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      Rolling refresh aktif
-                    </span>
+                    
                   </div>
                 )}
               </div>
