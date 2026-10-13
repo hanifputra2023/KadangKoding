@@ -894,53 +894,58 @@ export default function CollectorPage() {
       )}
 
       {/* Schedule Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap bg-slate-50 border border-slate-200/90 p-2 rounded-xl">
-        <span className="text-xs font-bold text-slate-500 ml-1 mr-1 uppercase tracking-wider shrink-0">Jadwal:</span>
-        <button
-          onClick={() => { setScheduleFilter('today'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'today'
-              ? 'bg-emerald-800 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-            }`}
-        >
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Hari Ini</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'today' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
-            {todayCount}
-          </span>
-        </button>
-        <button
-          onClick={() => { setScheduleFilter('tomorrow'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'tomorrow'
-              ? 'bg-blue-800 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-            }`}
-        >
-          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Besok</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'tomorrow' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
-            {tomorrowCount}
-          </span>
-        </button>
-        <button
-          onClick={() => { setScheduleFilter('upcoming'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'upcoming'
-              ? 'bg-slate-800 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-            }`}
-        >
-          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Mendatang</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'upcoming' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
-            {upcomingCount}
-          </span>
-        </button>
-        <button
-          onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${scheduleFilter === 'all'
-              ? 'bg-slate-800 text-white shadow-xs'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-        >
-          Semua Jadwal ({catFiltered.length})
-        </button>
+      <div className="bg-slate-50 border border-slate-200/90 p-2 rounded-xl space-y-2">
+        <span className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider block">Jadwal:</span>
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+          <button
+            onClick={() => { setScheduleFilter('today'); setAvailPage(1) }}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between gap-1.5 ${scheduleFilter === 'today'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+          >
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Hari Ini</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${scheduleFilter === 'today' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {todayCount}
+            </span>
+          </button>
+          <button
+            onClick={() => { setScheduleFilter('tomorrow'); setAvailPage(1) }}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between gap-1.5 ${scheduleFilter === 'tomorrow'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+          >
+            <span className="flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Besok</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${scheduleFilter === 'tomorrow' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {tomorrowCount}
+            </span>
+          </button>
+          <button
+            onClick={() => { setScheduleFilter('upcoming'); setAvailPage(1) }}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between gap-1.5 ${scheduleFilter === 'upcoming'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+          >
+            <span className="flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Mendatang</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${scheduleFilter === 'upcoming' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {upcomingCount}
+            </span>
+          </button>
+          <button
+            onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
+            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-between gap-1.5 ${scheduleFilter === 'all'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+          >
+            <span>Semua Jadwal</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${scheduleFilter === 'all' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {catFiltered.length}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Filter & Search bar */}
@@ -1437,12 +1442,12 @@ export default function CollectorPage() {
     return (
       <div className="space-y-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Rute Aktif (Nearest-Neighbor)</h1>
             <p className="text-xs sm:text-sm text-slate-500">Rekomendasi urutan penjemputan untuk efisiensi bahan bakar.</p>
           </div>
           {route && (
-            <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-full">
+            <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-full whitespace-nowrap">
               Jarak: {route.total_distance_km?.toFixed(1) ?? '0'} km • Total: {route.total_weight_kg ?? '0'} kg
             </span>
           )}
@@ -1621,20 +1626,27 @@ export default function CollectorPage() {
 
     return (
       <div className="max-w-3xl mx-auto space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-              Current Stop: Verifikasi Timbangan
-            </h1>
-            <p className="text-xs text-slate-500">
-              {isStopAlreadyCompleted
-                ? 'Stop ini sudah selesai diverifikasi sebelumnya.'
-                : 'Timbang sampah organik langsung di lokasi warung dan ambil foto bukti timbangan.'}
-            </p>
-          </div>
-          <button className="ws-btn-outline text-xs self-start sm:self-auto" onClick={() => setView('route-map')}>
-            {IC.chevronLeft} Kembali ke Peta Rute
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-xs text-slate-400">
+          <button
+            onClick={() => setView('route-map')}
+            className="flex items-center gap-1 hover:text-emerald-700 transition-colors font-medium"
+          >
+            {IC.chevronLeft} Peta Rute
           </button>
+          <span>/</span>
+          <span className="text-slate-700 font-semibold">Current Stop</span>
+        </nav>
+
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+            Current Stop: Verifikasi Timbangan
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isStopAlreadyCompleted
+              ? 'Stop ini sudah selesai diverifikasi sebelumnya.'
+              : 'Timbang sampah organik langsung di lokasi warung dan ambil foto bukti timbangan.'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1725,13 +1737,13 @@ export default function CollectorPage() {
                         onClick={() => p && startTrip(p.id)}
                         className="ws-btn-primary w-full justify-center text-xs py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold shadow-xs flex items-center gap-2 transition-all mt-1"
                       >
-                        <span className="text-slate-600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" /><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></svg></span>
-                        <span>{loading ? 'Mengubah status...' : 'Mulai Menuju Lokasi Warung (Kirim OTW)'}</span>
+
+                        <span>{loading ? 'Mengubah status...' : 'Mulai Menuju Lokasi Warung'}</span>
                       </button>
                     </div>
 
                     <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-5 text-center space-y-1.5">
-                      <span className="text-slate-500"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg></span>
+                      <span className="flex items-center justify-center w-ful"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg></span>
                       <h4 className="text-xs font-bold text-slate-700">Form Eksekusi Timbangan Terkunci</h4>
                       <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
                         Form timbangan & upload foto bukti akan otomatis terbuka setelah Anda menekan tombol <strong>Mulai Menuju Lokasi Warung</strong> di atas.

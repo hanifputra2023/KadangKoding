@@ -16,6 +16,40 @@ interface ProfileViewProps {
   onProfileUpdated?: (updated: { name: string; phone_number?: string }) => void
 }
 
+// ─── Inline Icons ─────────────────────────────────────────────────────────────
+
+const EyeIcon = ({ open }: { open: boolean }) => open ? (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+) : (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)
+
+const CheckIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const CopyIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+)
+
+const Spinner = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+  </svg>
+)
+
 export default function ProfileView({
   role,
   userId,
@@ -30,14 +64,14 @@ export default function ProfileView({
 }: ProfileViewProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'password'>(initialTab)
 
-  // Profile Edit State
+  // Profile form state
   const [name, setName] = useState(userName)
   const [phone, setPhone] = useState(userPhone)
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
 
-  // Password Edit State
+  // Password form state
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showNewPassword, setShowNewPassword] = useState(false)
@@ -46,45 +80,90 @@ export default function ProfileView({
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
 
-  // Inline Logout Confirm State (NO MODAL)
+  // UI state
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [copiedId, setCopiedId] = useState(false)
+
+  const roleLabel: Record<string, string> = {
+    warung: 'Mitra Warung',
+    collector: 'Kurir / Kolektor',
+    admin: 'Administrator Sistem',
+  }
+
+  const roleBadgeIcon = (r: string) => {
+    if (r === 'warung') {
+      return (
+        <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      )
+    }
+    if (r === 'collector') {
+      return (
+        <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      )
+    }
+    return (
+      <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    )
+  }
 
   const initials = (name || userName || 'WS')
-    .split(' ')
+    .trim()
+    .split(/\s+/)
     .filter(Boolean)
     .map((n) => n[0])
     .join('')
     .slice(0, 2)
     .toUpperCase()
 
+  const isProfileChanged = name.trim() !== userName.trim() || phone.trim() !== (userPhone || '').trim()
+
+  const handleCopyId = () => {
+    if (!userId) return
+    navigator.clipboard.writeText(userId)
+    setCopiedId(true)
+    setTimeout(() => setCopiedId(false), 2000)
+  }
+
+  const handleResetProfile = () => {
+    setName(userName)
+    setPhone(userPhone || '')
+    setProfileError(null)
+    setProfileSuccess(null)
+  }
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setProfileSuccess(null)
     setProfileError(null)
-
     const trimmedName = name.trim()
     if (!trimmedName) {
       setProfileError('Nama lengkap tidak boleh kosong')
       return
     }
-
     setProfileSaving(true)
     try {
       const res = await apiUpdateProfile({
         name: trimmedName,
         phone_number: phone.trim() || undefined,
       })
-
       if (res.error) {
         setProfileError(res.error)
       } else {
-        setProfileSuccess('Nama dan profil berhasil diperbarui!')
-        if (onProfileUpdated) {
-          onProfileUpdated({ name: trimmedName, phone_number: phone.trim() })
-        }
+        setProfileSuccess('Profil akun berhasil diperbarui')
+        onProfileUpdated?.({ name: trimmedName, phone_number: phone.trim() })
       }
     } catch {
-      setProfileError('Terjadi kesalahan saat menyimpan profil')
+      setProfileError('Terjadi kendala jaringan, silakan coba lagi')
     } finally {
       setProfileSaving(false)
     }
@@ -94,475 +173,619 @@ export default function ProfileView({
     e.preventDefault()
     setPasswordSuccess(null)
     setPasswordError(null)
-
     if (newPassword.length < 6) {
-      setPasswordError('Kata sandi baru minimal 6 karakter')
+      setPasswordError('Kata sandi baru minimal harus 6 karakter')
       return
     }
-
     if (newPassword !== confirmPassword) {
       setPasswordError('Konfirmasi kata sandi tidak cocok')
       return
     }
-
     setPasswordSaving(true)
     try {
       const res = await apiUpdatePassword(newPassword)
       if (res.error) {
         setPasswordError(res.error)
       } else {
-        setPasswordSuccess('Kata sandi berhasil diperbarui! Gunakan kata sandi baru untuk login berikutnya.')
+        setPasswordSuccess('Kata sandi berhasil diperbarui dengan aman')
         setNewPassword('')
         setConfirmPassword('')
       }
     } catch {
-      setPasswordError('Terjadi kesalahan saat memperbarui kata sandi')
+      setPasswordError('Gagal memperbarui kata sandi, silakan coba lagi')
     } finally {
       setPasswordSaving(false)
     }
   }
 
+  // Password strength calculation
+  const getPasswordStrength = (pwd: string) => {
+    if (!pwd) return { score: 0, label: '', color: 'bg-slate-200' }
+    let score = 0
+    if (pwd.length >= 6) score += 1
+    if (pwd.length >= 8) score += 1
+    if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) score += 1
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1
+
+    if (score <= 1) return { score: 1, label: 'Lemah', color: 'bg-rose-500' }
+    if (score === 2) return { score: 2, label: 'Cukup', color: 'bg-amber-500' }
+    if (score === 3) return { score: 3, label: 'Kuat', color: 'bg-emerald-500' }
+    return { score: 4, label: 'Sangat Kuat', color: 'bg-emerald-700' }
+  }
+
+  const pwdStrength = getPasswordStrength(newPassword)
+  const isPwdLengthValid = newPassword.length >= 6
+  const isPwdMatchValid = confirmPassword.length > 0 && newPassword === confirmPassword
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-12 animate-in fade-in duration-200">
-      {/* Top Navigation Bar with Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            <span>Kembali ke Dashboard</span>
-          </button>
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-          <span className="text-xs font-medium text-slate-400 hidden sm:inline">
-            Pengaturan Akun & Profil
+    <div className="max-w-2xl mx-auto pb-20 space-y-5 px-1 sm:px-0">
+
+      {/* ─── Breadcrumb Navigation ────────────────────────────────────────── */}
+      <nav className="flex items-center justify-between text-xs text-slate-500 pt-1">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-emerald-800 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all font-medium shadow-2xs group cursor-pointer"
+        >
+          <svg className="w-4 h-4 text-slate-400 group-hover:text-emerald-800 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          <span>Kembali ke Dashboard</span>
+        </button>
+
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+            Akun Terverifikasi
           </span>
         </div>
+      </nav>
 
-        {/* Role Badge */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Portal {role.toUpperCase()}
-          </span>
-        </div>
-      </div>
+      {/* ─── Hero Profile Header Card ────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-950 via-emerald-800 to-emerald-900 text-white p-5 sm:p-7 shadow-md border border-emerald-700/40">
+        {/* Subtle Decorative Ambient Glow */}
+        <div className="absolute -top-16 -right-16 w-52 h-52 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Hero Profile Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-3xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-        {/* Background decorative circles */}
-        <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 blur-xl pointer-events-none" />
-        <div className="absolute right-32 -bottom-16 w-40 h-40 rounded-full bg-emerald-400/20 blur-xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
-          {/* Large Avatar */}
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/40 flex items-center justify-center text-white text-2xl sm:text-3xl font-black shadow-inner shrink-0">
-            {initials}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+          {/* Avatar with Ring & Status Indicator */}
+          <div className="relative shrink-0">
+            <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/10 backdrop-blur-md border border-white/25 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg ring-4 ring-emerald-600/30">
+              {initials}
+            </div>
+            <div
+              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-400 border-2 border-emerald-950 ring-2 ring-emerald-300/60 flex items-center justify-center shadow-xs"
+              title="Status: Aktif"
+            >
+              <CheckIcon className="w-3 h-3 text-emerald-950 stroke-[3]" />
+            </div>
           </div>
 
-          {/* User Details */}
-          <div className="flex-1 min-w-0">
+          {/* User Primary Details */}
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white truncate max-w-full">
                 {name || userName}
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/20 border border-white/30 text-white backdrop-blur-xs">
-                {userRole}
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-900/90 text-emerald-100 border border-emerald-600/50 shadow-2xs">
+                {roleBadgeIcon(role)}
+                {roleLabel[role] ?? userRole}
               </span>
             </div>
-            <p className="text-emerald-100 text-xs sm:text-sm mt-1 truncate">
-              {userEmail || 'Email terdaftar'}
+
+            <p className="text-xs sm:text-sm text-emerald-100/80 mt-1 truncate">
+              {userEmail || 'Belum ada email terdaftar'}
             </p>
-            {userId && (
-              <p className="text-[10px] text-emerald-200/80 font-mono mt-2">
-                User ID: {userId.slice(0, 18)}...
-              </p>
-            )}
+
+            {/* Quick Metadata Chips */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3 pt-3 border-t border-emerald-700/40 text-xs">
+              {userPhone ? (
+                <div className="inline-flex items-center gap-1.5 text-emerald-100/90 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-700/40">
+                  <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  <span>{userPhone}</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1.5 text-emerald-200/60 bg-emerald-900/40 px-2.5 py-1 rounded-lg border border-emerald-700/30">
+                  <span>Nomor WA belum diisi</span>
+                </div>
+              )}
+
+              {userId && (
+                <button
+                  type="button"
+                  onClick={handleCopyId}
+                  className="inline-flex items-center gap-1.5 text-emerald-100/90 bg-emerald-900/60 hover:bg-emerald-900/90 px-2.5 py-1 rounded-lg border border-emerald-700/40 transition cursor-pointer"
+                  title="Klik untuk menyalin ID Pengguna"
+                >
+                  <span className="font-mono text-[11px] text-emerald-200">ID: {userId.slice(0, 8)}…</span>
+                  {copiedId ? (
+                    <span className="text-[10px] text-emerald-300 font-bold">Tersalin!</span>
+                  ) : (
+                    <CopyIcon className="w-3 h-3 text-emerald-300" />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Navigation (Ganti Nama vs Ganti Password) */}
-      <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-xs flex gap-1">
-        <button
-          type="button"
-          onClick={() => setActiveTab('profile')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-            activeTab === 'profile'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-          }`}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <span>Informasi Profil & Nama</span>
-        </button>
+      {/* ─── Modern Segmented Navigation Tabs ────────────────────────────── */}
+      <div className="bg-slate-100/90 p-1.5 rounded-xl border border-slate-200/90 shadow-2xs">
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            type="button"
+            onClick={() => setActiveTab('profile')}
+            className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              activeTab === 'profile'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>Informasi Akun</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('password')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-            activeTab === 'password'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-          }`}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          <span>Keamanan & Password</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('password')}
+            className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              activeTab === 'password'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span>Kata Sandi & Keamanan</span>
+          </button>
+        </div>
       </div>
 
-      {/* Tab 1: Form Ganti Nama & Kontak */}
+      {/* ─── TAB CONTENT 1: Informasi Profil ──────────────────────────────── */}
       {activeTab === 'profile' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-base sm:text-lg font-bold text-slate-900">
-              Edit Nama & Kontak Profil
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Perbarui nama tampilan Anda yang terlihat oleh mitra dan sistem WarungSirkular.
-            </p>
-          </div>
-
-          {/* Success / Error Alerts */}
-          {profileSuccess && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-start gap-2.5">
-              <svg className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
               <div>
-                <p className="font-semibold">{profileSuccess}</p>
-                <p className="text-[11px] text-emerald-600 mt-0.5">Perubahan langsung aktif di seluruh portal akun Anda.</p>
+                <h2 className="text-base font-bold text-slate-900">Data Pribadi & Kontak</h2>
+                <p className="text-xs text-slate-500">Perbarui identitas profil dan kontak yang dapat dihubungi</p>
               </div>
             </div>
-          )}
+          </div>
 
-          {profileError && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-2.5">
-              <svg className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span>{profileError}</span>
-            </div>
-          )}
+          <form onSubmit={handleSaveProfile} className="p-5 sm:p-6 space-y-5">
+            {/* Success Alert */}
+            {profileSuccess && (
+              <div className="flex items-center gap-3 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs sm:text-sm animate-fadeIn">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <CheckIcon className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 font-medium">{profileSuccess}</div>
+                <button
+                  type="button"
+                  onClick={() => setProfileSuccess(null)}
+                  className="text-emerald-700 hover:text-emerald-900 text-xs font-semibold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            {/* Input Nama Lengkap */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Nama Lengkap / Nama Tampilan <span className="text-rose-500">*</span>
+            {/* Error Alert */}
+            {profileError && (
+              <div className="flex items-center gap-3 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs sm:text-sm animate-fadeIn">
+                <div className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 font-bold">
+                  !
+                </div>
+                <div className="flex-1 font-medium">{profileError}</div>
+                <button
+                  type="button"
+                  onClick={() => setProfileError(null)}
+                  className="text-rose-700 hover:text-rose-900 text-xs font-semibold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Input: Nama Lengkap */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
+                Nama Lengkap <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Pak Budi Santoso"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all"
+                  placeholder="Nama lengkap kamu"
+                  className="w-full pl-10 pr-3.5 py-2.5 sm:py-3 rounded-xl border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 bg-white transition shadow-2xs"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Nama ini akan muncul pada kartu order, laporan, dan riwayat penjemputan.
-              </p>
+              <p className="text-[11px] text-slate-500">Nama resmi yang digunakan pada faktur, riwayat transaksi, dan rute pangkalan.</p>
             </div>
 
-            {/* Input Nomor Telepon */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            {/* Input: Nomor WhatsApp */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
                 Nomor WhatsApp / Telepon
               </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Contoh: 081234567890"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all"
-              />
-              <p className="text-[11px] text-slate-400 mt-1">
-                Digunakan untuk koordinasi jemputan antara mitra Warung dan Collector.
-              </p>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full pl-10 pr-3.5 py-2.5 sm:py-3 rounded-xl border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 bg-white transition shadow-2xs"
+                />
+              </div>
+              <p className="text-[11px] text-slate-500">Digunakan untuk notifikasi jadwal jemputan sampah dan verifikasi langsung via WhatsApp.</p>
             </div>
 
-            {/* Read-Only Info: Email */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Alamat Email Terdaftar
-              </label>
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-600 cursor-not-allowed">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                <span className="truncate">{userEmail || 'email@warungsirkular.id'}</span>
-                <span className="ml-auto text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
-                  Akun Utama
+            {/* Read-only: Email Akun */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Alamat Email (Akun Utama)
+                </label>
+                <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                  Permanen
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Email digunakan untuk login identitas dan tidak dapat diubah sembarangan.
-              </p>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </div>
+                <div className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-600 truncate select-none flex items-center">
+                  {userEmail || '—'}
+                </div>
+                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400" title="Email terdaftar tidak dapat diubah">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400">Email terdaftar sebagai identitas otentikasi Supabase dan tidak dapat diganti secara langsung.</p>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-2">
+            {/* Read-only: User ID card */}
+            {userId && (
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                <div className="min-w-0 pr-2">
+                  <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Unique User ID</span>
+                  <span className="font-mono text-slate-700 text-[11px] truncate block">{userId}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyId}
+                  className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-300 text-slate-600 hover:text-emerald-800 text-xs font-medium flex items-center gap-1.5 transition shrink-0 cursor-pointer"
+                >
+                  {copiedId ? (
+                    <>
+                      <CheckIcon className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-semibold">Disalin</span>
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="w-3.5 h-3.5" />
+                      <span>Salin</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Form Actions */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
               <button
                 type="submit"
-                disabled={profileSaving}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md hover:shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={profileSaving || !name.trim()}
+                className="w-full sm:flex-1 py-3 px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.99] text-white text-sm font-semibold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {profileSaving ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-1 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <Spinner className="w-4 h-4 text-white" />
                     <span>Menyimpan Perubahan...</span>
                   </>
                 ) : (
                   <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span>Simpan Perubahan Nama & Profil</span>
+                    <CheckIcon className="w-4 h-4 text-white" />
+                    <span>Simpan Perubahan Profil</span>
                   </>
                 )}
               </button>
+
+              {isProfileChanged && (
+                <button
+                  type="button"
+                  onClick={handleResetProfile}
+                  disabled={profileSaving}
+                  className="w-full sm:w-auto py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-sm font-semibold transition cursor-pointer"
+                >
+                  Batal
+                </button>
+              )}
             </div>
           </form>
         </div>
       )}
 
-      {/* Tab 2: Form Ganti Password */}
+      {/* ─── TAB CONTENT 2: Kata Sandi & Keamanan ─────────────────────────── */}
       {activeTab === 'password' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-base sm:text-lg font-bold text-slate-900">
-              Ganti Kata Sandi (Password)
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Pastikan akun Anda tetap aman dengan menggunakan kata sandi yang kuat dan unik.
-            </p>
-          </div>
-
-          {/* Success / Error Alerts */}
-          {passwordSuccess && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-start gap-2.5">
-              <svg className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-200">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
               <div>
-                <p className="font-semibold">{passwordSuccess}</p>
-                <p className="text-[11px] text-emerald-600 mt-0.5">Sesi aktif Anda tetap berlaku.</p>
+                <h2 className="text-base font-bold text-slate-900">Perbarui Kata Sandi</h2>
+                <p className="text-xs text-slate-500">Amankan akun Anda dengan kata sandi baru yang kuat</p>
               </div>
             </div>
-          )}
+          </div>
 
-          {passwordError && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-2.5">
-              <svg className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span>{passwordError}</span>
-            </div>
-          )}
+          <form onSubmit={handleSavePassword} className="p-5 sm:p-6 space-y-5">
+            {/* Success Alert */}
+            {passwordSuccess && (
+              <div className="flex items-center gap-3 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs sm:text-sm animate-fadeIn">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <CheckIcon className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1 font-medium">{passwordSuccess}</div>
+                <button
+                  type="button"
+                  onClick={() => setPasswordSuccess(null)}
+                  className="text-emerald-700 hover:text-emerald-900 text-xs font-semibold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
-          <form onSubmit={handleSavePassword} className="space-y-4">
-            {/* Password Baru */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            {/* Error Alert */}
+            {passwordError && (
+              <div className="flex items-center gap-3 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs sm:text-sm animate-fadeIn">
+                <div className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 font-bold">
+                  !
+                </div>
+                <div className="flex-1 font-medium">{passwordError}</div>
+                <button
+                  type="button"
+                  onClick={() => setPasswordError(null)}
+                  className="text-rose-700 hover:text-rose-900 text-xs font-semibold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Input: Kata Sandi Baru */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
                 Kata Sandi Baru <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </div>
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimal 6 karakter"
-                  className="w-full pl-4 pr-11 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all"
+                  placeholder="Ketik minimal 6 karakter"
+                  className="w-full pl-10 pr-11 py-2.5 sm:py-3 rounded-xl border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 bg-white transition shadow-2xs"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowNewPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                  aria-label="Lihat kata sandi"
+                  onClick={() => setShowNewPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+                  title={showNewPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
                 >
-                  {showNewPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  <EyeIcon open={showNewPassword} />
                 </button>
               </div>
+
+              {/* Password strength visual meter */}
+              {newPassword.length > 0 && (
+                <div className="space-y-1 pt-1">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-500">Kekuatan Sandi:</span>
+                    <span className="font-semibold text-slate-700">{pwdStrength.label}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5 h-1.5">
+                    {[1, 2, 3, 4].map((step) => (
+                      <div
+                        key={step}
+                        className={`rounded-full transition-all duration-300 ${
+                          pwdStrength.score >= step ? pwdStrength.color : 'bg-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Konfirmasi Password Baru */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            {/* Input: Konfirmasi Kata Sandi */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
                 Konfirmasi Kata Sandi Baru <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Ketik ulang kata sandi baru"
-                  className="w-full pl-4 pr-11 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-11 py-2.5 sm:py-3 rounded-xl border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 bg-white transition shadow-2xs"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                  aria-label="Lihat konfirmasi kata sandi"
+                  onClick={() => setShowConfirmPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+                  title={showConfirmPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
                 >
-                  {showConfirmPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  <EyeIcon open={showConfirmPassword} />
                 </button>
               </div>
             </div>
 
-            {/* Checklist validasi */}
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5 text-xs">
+            {/* Checklist Validation */}
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] ${
-                  newPassword.length >= 6 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
-                }`}>
-                  ✓
-                </span>
-                <span className={newPassword.length >= 6 ? 'text-emerald-800 font-medium' : 'text-slate-500'}>
+                <div
+                  className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] ${
+                    isPwdLengthValid ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-200 text-slate-400'
+                  }`}
+                >
+                  {isPwdLengthValid ? '✓' : '•'}
+                </div>
+                <span className={isPwdLengthValid ? 'text-emerald-800 font-medium' : 'text-slate-500'}>
                   Minimal 6 karakter
                 </span>
               </div>
+
               <div className="flex items-center gap-2">
-                <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] ${
-                  confirmPassword && newPassword === confirmPassword ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
-                }`}>
-                  ✓
-                </span>
-                <span className={confirmPassword && newPassword === confirmPassword ? 'text-emerald-800 font-medium' : 'text-slate-500'}>
-                  Konfirmasi kata sandi cocok
+                <div
+                  className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] ${
+                    isPwdMatchValid ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-200 text-slate-400'
+                  }`}
+                >
+                  {isPwdMatchValid ? '✓' : '•'}
+                </div>
+                <span className={isPwdMatchValid ? 'text-emerald-800 font-medium' : 'text-slate-500'}>
+                  Kata sandi baru dan konfirmasi cocok
                 </span>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={passwordSaving || newPassword.length < 6 || newPassword !== confirmPassword}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md hover:shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {passwordSaving ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-1 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Memperbarui Kata Sandi...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                    <span>Perbarui Kata Sandi</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={passwordSaving || !isPwdLengthValid || !isPwdMatchValid}
+              className="w-full py-3 px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.99] text-white text-sm font-semibold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {passwordSaving ? (
+                <>
+                  <Spinner className="w-4 h-4 text-white" />
+                  <span>Memperbarui Kata Sandi...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span>Perbarui Kata Sandi Sekarang</span>
+                </>
+              )}
+            </button>
           </form>
         </div>
       )}
 
-      {/* Bagian Sesi & Log Out (Inline Confirmation, NO MODAL) */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-rose-200/80 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-              Sesi & Keluar Akun
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl">
-              Keluar dari sesi akun Anda pada perangkat ini. Untuk mengakses kembali data jemputan dan modul WarungSirkular, Anda harus login kembali.
-            </p>
-          </div>
-
-          {!showLogoutConfirm && (
-            <button
-              type="button"
-              onClick={() => setShowLogoutConfirm(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold border border-rose-200 transition-colors shrink-0"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              <span>Keluar dari Akun (Log Out)</span>
-            </button>
-          )}
-        </div>
-
-        {/* Inline confirmation banner (No modal dialog!) */}
-        {showLogoutConfirm && (
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 animate-in fade-in slide-in-from-top-1 duration-150">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-rose-950">
-                  Konfirmasi: Apakah Anda yakin ingin keluar?
-                </p>
-                <p className="text-[11px] text-rose-700 mt-0.5">
-                  Semua data yang belum tersimpan pada form aktif akan direset.
+      {/* ─── Danger Zone: Sesi Akun / Logout ──────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-5 sm:p-6">
+          {!showLogoutConfirm ? (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-slate-900">Sesi Login Akun</h3>
+                <p className="text-xs text-slate-500">
+                  Keluar dari sesi ini untuk mengamankan akun jika perangkat digunakan bersama.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>Keluar dari Akun</span>
+              </button>
+            </div>
+          ) : (
+            <div className="p-4 sm:p-5 rounded-xl bg-rose-50 border border-rose-200 space-y-3.5 animate-fadeIn">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <h4 className="text-sm font-bold text-rose-950">Konfirmasi Keluar dari Akun</h4>
+                  <p className="text-xs text-rose-700">
+                    Apakah Anda yakin ingin keluar dari sesi ini? Anda harus memasukkan email dan kata sandi kembali untuk mengakses sistem.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-semibold transition cursor-pointer shadow-2xs"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
                   onClick={onLogout}
-                  className="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
@@ -571,9 +794,10 @@ export default function ProfileView({
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
     </div>
   )
 }
