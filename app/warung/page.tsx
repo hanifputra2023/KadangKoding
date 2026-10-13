@@ -1811,7 +1811,7 @@ export default function WarungPage() {
 
     if (!tracked) {
       return (
-        <div className="max-w-md mx-auto ws-card p-8 text-center space-y-4">
+        <div className="max-w-md mx-auto ws-card p-6 sm:p-8 text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
           </div>
@@ -1819,12 +1819,12 @@ export default function WarungPage() {
           <p className="text-xs text-slate-500">
             Saat ini tidak ada permohonan penjemputan sampah yang sedang berlangsung.
           </p>
-          <div className="flex gap-2 pt-2">
-            <button className="ws-btn-primary flex-1 justify-center text-xs" onClick={() => setView('create-step1')}>
-              + Buat Pickup Baru
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <button className="ws-btn-primary w-full sm:flex-1 justify-center text-xs py-2.5 px-4 font-semibold shadow-xs" onClick={() => setView('create-step1')}>
+              {IC.plus} <span>Buat Pickup Baru</span>
             </button>
-            <button className="ws-btn-outline flex-1 justify-center text-xs" onClick={() => setView('history')}>
-              Lihat Riwayat
+            <button className="ws-btn-outline w-full sm:flex-1 justify-center text-xs py-2.5 px-4 font-semibold shadow-xs" onClick={() => setView('history')}>
+              <span>Lihat Riwayat</span>
             </button>
           </div>
         </div>
@@ -1845,33 +1845,66 @@ export default function WarungPage() {
 
     return (
       <div className="space-y-5 max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Status Pelacakan Penjemputan</h1>
-            <p className="text-xs text-slate-500 font-mono">ID: #{tracked.id.slice(-6).toUpperCase()} • Kategori: {tracked.waste_categories?.category_name ?? 'Organik'}</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 pb-2 border-b border-slate-100 sm:border-0 sm:pb-0">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Status Pelacakan Penjemputan</h1>
+              <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${
+                realtimeStatus === 'connected'
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : realtimeStatus === 'error'
+                  ? 'text-rose-600 bg-rose-50 border-rose-200'
+                  : 'text-amber-600 bg-amber-50 border-amber-200'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  realtimeStatus === 'connected'
+                    ? 'bg-emerald-500 animate-pulse'
+                    : realtimeStatus === 'error'
+                    ? 'bg-rose-500'
+                    : 'bg-amber-400 animate-pulse'
+                }`} />
+                {realtimeStatus === 'connected'
+                  ? 'Live · Auto-update aktif'
+                  : realtimeStatus === 'error'
+                  ? 'Realtime terputus'
+                  : 'Menghubungkan...'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
+              <span className="font-bold text-slate-700">ID: #{tracked.id.slice(-6).toUpperCase()}</span>
+              <span>•</span>
+              <span className="text-slate-600 font-sans font-medium">Kategori: {tracked.waste_categories?.category_name ?? 'Organik'}</span>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button className="ws-btn-outline text-xs" onClick={() => setView('history')}>
-              Daftar Semua Request
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              className="ws-btn-outline w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold shadow-xs"
+              onClick={() => setView('history')}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span>Daftar Semua Request</span>
             </button>
-            {isCompleted && (
-              <button className="ws-btn-primary text-xs" onClick={() => setView('create-step1')}>
-                + Buat Request Baru
-              </button>
-            )}
+            <button
+              className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold shadow-xs"
+              onClick={() => setView('create-step1')}
+            >
+              {IC.plus} <span>Buat Request Baru</span>
+            </button>
           </div>
         </div>
 
         {isCompleted && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shrink-0">✓</div>
+              <div className="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
               <div>
-                <h4 className="text-xs font-bold text-emerald-900">Penjemputan Telah Selesai</h4>
+                <h4 className="text-xs sm:text-sm font-bold text-emerald-950">Penjemputan Telah Selesai</h4>
                 <p className="text-xs text-emerald-700">Sampah berhasil ditimbang dan diambil oleh kurir mitra.</p>
               </div>
             </div>
-            <div className="text-left sm:text-right">
+            <div className="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-emerald-200/60 w-full sm:w-auto">
               <span className="text-xs font-bold text-emerald-900 block">Berat Aktual: {tracked.actual_weight_kg ?? tracked.estimated_weight_kg} kg</span>
               <span className="text-[11px] text-emerald-700 font-semibold">+{Math.round(Number(tracked.actual_weight_kg ?? tracked.estimated_weight_kg) * 17)} Poin Daur Ulang</span>
             </div>
@@ -1880,7 +1913,7 @@ export default function WarungPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-5">
-            <div className="ws-card p-6">
+            <div className="ws-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold text-slate-900">Progress Alur Penjemputan</h3>
                 <StatusBadge pickup={tracked} />
@@ -1888,29 +1921,32 @@ export default function WarungPage() {
 
               <div className="space-y-6">
                 {steps.map((s, i) => (
-                  <div key={s.label} className="flex gap-4">
+                  <div key={s.label} className="flex gap-3.5 sm:gap-4">
                     <div className="flex flex-col items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${s.done ? 'bg-emerald-700 text-white' : s.active ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
-                        {s.done ? '✓' : i + 1}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${s.done ? 'bg-emerald-700 text-white' : s.active ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                        {s.done ? (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        ) : i + 1}
                       </div>
                       {i < steps.length - 1 && <div className={`w-0.5 h-12 ${s.done ? 'bg-emerald-600' : 'bg-slate-200'}`} />}
                     </div>
-                    <div>
-                      <p className={`text-xs font-bold ${s.active ? 'text-emerald-800' : 'text-slate-800'}`}>{s.label}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
+                    <div className="pt-0.5 min-w-0">
+                      <p className={`text-xs sm:text-sm font-bold ${s.active ? 'text-emerald-800' : 'text-slate-800'}`}>{s.label}</p>
+                      <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               {isPending && (
-                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+                <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <span className="text-xs text-slate-400">Ingin membatalkan jadwal?</span>
                   <button
                     onClick={() => cancelPickup(tracked.id)}
-                    className="text-xs font-semibold text-rose-600 hover:underline"
+                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline inline-flex items-center gap-1.5"
                   >
-                    Batalkan Permohonan
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <span>Batalkan Permohonan</span>
                   </button>
                 </div>
               )}
@@ -1919,19 +1955,34 @@ export default function WarungPage() {
 
           {/* Real Leaflet Map for Pickup Tracking */}
           <div className="space-y-5">
-            <div className="ws-card p-4">
-              <h4 className="text-xs font-bold text-slate-900 mb-2">Lokasi Penjemputan</h4>
-              <div className="h-56 rounded-lg overflow-hidden border border-slate-200">
+            <div className="ws-card p-4 sm:p-5">
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900 mb-2.5 flex items-center gap-2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>Lokasi Penjemputan</span>
+              </h4>
+              <div className="h-52 sm:h-56 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
                 <ClientMap
                   center={[Number(tracked.latitude) || -7.4726, Number(tracked.longitude) || 110.2198]}
                   zoom={14}
-                  height="h-56"
+                  height="h-52 sm:h-56"
                   markers={[{ id: tracked.id, lat: Number(tracked.latitude) || -7.4726, lng: Number(tracked.longitude) || 110.2198, label: 'Lokasi Warung Anda' }]}
                 />
               </div>
-              <div className="mt-3 text-xs space-y-1 text-slate-600">
-                <p><strong>Jadwal:</strong> {new Date(tracked.pickup_window_start).toLocaleDateString('id-ID')} ({new Date(tracked.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB)</p>
-                <p><strong>Estimasi Muatan:</strong> {tracked.estimated_weight_kg} kg</p>
+              <div className="mt-3.5 text-xs space-y-1.5 text-slate-600 bg-slate-50/70 p-3 rounded-lg border border-slate-100">
+                <p className="flex justify-between items-center">
+                  <span className="text-slate-500">Jadwal:</span>
+                  <span className="font-semibold text-slate-800 text-right">{new Date(tracked.pickup_window_start).toLocaleDateString('id-ID')} ({new Date(tracked.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB)</span>
+                </p>
+                <p className="flex justify-between items-center">
+                  <span className="text-slate-500">Estimasi Muatan:</span>
+                  <span className="font-semibold text-emerald-800">{tracked.estimated_weight_kg} kg</span>
+                </p>
+                {tracked.actual_weight_kg != null && (
+                  <p className="flex justify-between items-center">
+                    <span className="text-slate-500">Berat Aktual:</span>
+                    <span className="font-bold text-emerald-900">{tracked.actual_weight_kg} kg</span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -2024,7 +2075,7 @@ export default function WarungPage() {
       searchPlaceholder="Cari jemputan, status, kategori..."
     >
       {/* Indikator status realtime */}
-      {view !== 'history' && (
+      {view !== 'history' && view !== 'pickup-status' && (
         <div className="flex items-center justify-end mb-2">
           <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
             realtimeStatus === 'connected'

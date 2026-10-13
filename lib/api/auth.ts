@@ -41,6 +41,12 @@ export async function apiLogin(
   const { data, error } = await sb.auth.signInWithPassword({ email, password })
   if (error || !data.user) return { user: null, error: 'Email atau password salah' }
 
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('ws_last_session_refresh', String(Date.now()))
+    } catch {}
+  }
+
   const profile = await fetchProfile(data.user.id)
   if (!profile) {
     await sb.auth.signOut()
@@ -52,11 +58,47 @@ export async function apiLogin(
 
 export async function apiLogout(): Promise<void> {
   const sb = createClient()
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('ws_last_session_refresh')
+    } catch {}
+  }
   await sb.auth.signOut()
 }
 
 export async function apiGetMe(): Promise<AuthUser | null> {
   const sb = createClient()
+
+  // 1. Ambil sesi aktif yang tersimpan
+  const {
+    data: { session },
+    error: sessionErr,
+  } = await sb.auth.getSession()
+
+  if (sessionErr || !session) return null
+
+  // 2. Rolling Session (Perpanjangan Otomatis 30 Hari):
+  // Setiap kali user membuka website (misal 1 hari dalam seminggu atau kapan pun dalam 30 hari),
+  // refreshSession() dipanggil untuk memperbarui token dan memajukan masa aktif cookie 30 hari lagi.
+  // Dibatasi jeda 15 menit agar tidak berlebihan saat navigasi halaman.
+  if (typeof window !== 'undefined') {
+    try {
+      const LAST_REFRESH_KEY = 'ws_last_session_refresh'
+      const lastRefresh = parseInt(localStorage.getItem(LAST_REFRESH_KEY) || '0', 10)
+      const now = Date.now()
+      const FIFTEEN_MINUTES = 15 * 60 * 1000
+
+      if (now - lastRefresh > FIFTEEN_MINUTES) {
+        const { error: refreshErr } = await sb.auth.refreshSession()
+        if (!refreshErr) {
+          localStorage.setItem(LAST_REFRESH_KEY, String(now))
+        }
+      }
+    } catch {
+      // Abaikan jika ada gangguan koneksi sementara, sesi lokal tetap berjalan
+    }
+  }
+
   const {
     data: { user },
     error,
