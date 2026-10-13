@@ -996,25 +996,34 @@ export default function WarungPage() {
       <div className="flex-1 flex flex-col gap-5 min-w-0">
         {/* Welcome banner */}
         <div className="ws-card overflow-hidden bg-white">
-          <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white gap-4">
-            <div className="space-y-3">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-                Welcome back, {me?.name?.split(' ')[0] ?? 'Partner'}!
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
-                Warung Anda telah mendaur ulang <strong className="text-emerald-700">{totalWeight.toFixed(1)} kg</strong> sampah organik. Bersama mewujudkan ekonomi sirkular!
-              </p>
-              <div className="flex flex-wrap gap-2.5 pt-1">
-                <button className="ws-btn-primary" onClick={() => setView('create-step1')}>
-                  {IC.plus} Buat Pickup Request
-                </button>
-                <button className="ws-btn-outline" onClick={() => setView('history')}>
-                  Lihat Riwayat
-                </button>
+          <div className="relative p-5 sm:p-6 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-3 max-w-xl flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="sm:hidden w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                  </div>
+                  <h2 className="text-lg sm:text-2xl font-bold text-slate-900 truncate">
+                    Welcome back, {me?.name?.split(' ')[0] ?? 'Partner'}!
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Warung Anda telah mendaur ulang <strong className="text-emerald-700">{totalWeight.toFixed(1)} kg</strong> sampah organik. Bersama mewujudkan ekonomi sirkular!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  <button className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold shadow-xs" onClick={() => setView('create-step1')}>
+                    {IC.plus} <span>Buat Pickup Request</span>
+                  </button>
+                  <button className="ws-btn-outline w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold" onClick={() => setView('history')}>
+                    <span>Lihat Riwayat</span>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-emerald-100/70 flex items-center justify-center shrink-0 shadow-inner text-emerald-600">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+
+              {/* Large leaf illustration on desktop only */}
+              <div className="hidden sm:flex w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-emerald-100/70 items-center justify-center shrink-0 shadow-inner text-emerald-600">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              </div>
             </div>
           </div>
         </div>
@@ -1263,14 +1272,15 @@ export default function WarungPage() {
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-3 border-t border-slate-100">
           <button
-            className="ws-btn-primary text-xs"
+            className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-5 font-semibold transition-all shadow-xs"
             disabled={!categoryId || !weight || !photoUrl}
             onClick={() => setView('create-step2')}
             style={{ opacity: !categoryId || !weight || !photoUrl ? 0.5 : 1 }}
           >
-            Lanjut: Pilih Waktu {IC.chevronRight}
+            <span>Lanjut: Pilih Waktu</span>
+            {IC.chevronRight}
           </button>
         </div>
       </div>
@@ -1414,11 +1424,11 @@ export default function WarungPage() {
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-4 border-t border-slate-100 mt-4">
-            <button className="ws-btn-outline text-xs" onClick={() => setView('create-step1')}>
-              {IC.chevronLeft} Kembali
+            <button className="ws-btn-outline w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold" onClick={() => setView('create-step1')}>
+              {IC.chevronLeft} <span>Kembali</span>
             </button>
             <button
-              className="ws-btn-primary text-xs"
+              className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-5 font-semibold transition-all shadow-xs"
               disabled={!selectedTimeSlot}
               style={{ opacity: !selectedTimeSlot ? 0.5 : 1 }}
               onClick={() => {
@@ -1431,7 +1441,8 @@ export default function WarungPage() {
                 setView('create-step3')
               }}
             >
-              Lanjut: Lokasi {IC.chevronRight}
+              <span>Lanjut: Lokasi</span>
+              {IC.chevronRight}
             </button>
           </div>
         </div>
@@ -1607,14 +1618,39 @@ export default function WarungPage() {
       { value: 'cancelled', label: 'Dibatalkan' },
     ]
     return (
-    <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Pickup History</h1>
-          <p className="text-xs sm:text-sm text-slate-500">Semua riwayat permohonan daur ulang warung Anda.</p>
+    <div className="space-y-4 sm:space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">Pickup History</h1>
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+              realtimeStatus === 'connected'
+                ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                : realtimeStatus === 'error'
+                ? 'text-rose-600 bg-rose-50 border-rose-200'
+                : 'text-amber-600 bg-amber-50 border-amber-200'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                realtimeStatus === 'connected'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : realtimeStatus === 'error'
+                  ? 'bg-rose-500'
+                  : 'bg-amber-400 animate-pulse'
+              }`} />
+              {realtimeStatus === 'connected'
+                ? 'Live · Auto-update aktif'
+                : realtimeStatus === 'error'
+                ? 'Realtime terputus'
+                : 'Menghubungkan...'}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Semua riwayat permohonan daur ulang warung Anda.</p>
         </div>
-        <button className="ws-btn-primary text-xs" onClick={() => setView('create-step1')}>
-          {IC.plus} Request Baru
+        <button
+          className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold shadow-xs shrink-0"
+          onClick={() => setView('create-step1')}
+        >
+          {IC.plus} <span>Request Baru</span>
         </button>
       </div>
 
@@ -1988,28 +2024,30 @@ export default function WarungPage() {
       searchPlaceholder="Cari jemputan, status, kategori..."
     >
       {/* Indikator status realtime */}
-      <div className="flex items-center justify-end mb-2">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-          realtimeStatus === 'connected'
-            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-            : realtimeStatus === 'error'
-            ? 'text-rose-600 bg-rose-50 border-rose-200'
-            : 'text-amber-600 bg-amber-50 border-amber-200'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${
+      {view !== 'history' && (
+        <div className="flex items-center justify-end mb-2">
+          <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
             realtimeStatus === 'connected'
-              ? 'bg-emerald-500 animate-pulse'
+              ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
               : realtimeStatus === 'error'
-              ? 'bg-rose-500'
-              : 'bg-amber-400 animate-pulse'
-          }`}></span>
-          {realtimeStatus === 'connected'
-            ? 'Live · Auto-update aktif'
-            : realtimeStatus === 'error'
-            ? 'Realtime terputus · Polling aktif'
-            : 'Menghubungkan realtime...'}
-        </span>
-      </div>
+              ? 'text-rose-600 bg-rose-50 border-rose-200'
+              : 'text-amber-600 bg-amber-50 border-amber-200'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              realtimeStatus === 'connected'
+                ? 'bg-emerald-500 animate-pulse'
+                : realtimeStatus === 'error'
+                ? 'bg-rose-500'
+                : 'bg-amber-400 animate-pulse'
+            }`}></span>
+            {realtimeStatus === 'connected'
+              ? 'Live · Auto-update aktif'
+              : realtimeStatus === 'error'
+              ? 'Realtime terputus · Polling aktif'
+              : 'Menghubungkan realtime...'}
+          </span>
+        </div>
+      )}
 
       {view === 'dashboard' && renderDashboard()}
       {view === 'create-step1' && renderStep1()}

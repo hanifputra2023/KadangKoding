@@ -9,8 +9,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WarungSirkular",
-  description: "Platform Pengelolaan Sampah Warung & Kurir",
+  title: "WarungSirkular - Ekosistem Sirkular Sampah Organik",
+  description: "Platform pengelolaan sampah organik terintegrasi untuk mitra warung dan kurir logistik pangkalan budidaya maggot BSF.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

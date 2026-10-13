@@ -352,15 +352,12 @@ export default function AppShell({
       >
         {/* Logo */}
         <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white shrink-0 shadow-xs">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
+          <div className="flex md:flex-col items-center gap-2.5 md:gap-1.5 text-left md:text-center w-full">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-center p-1 shrink-0 overflow-hidden">
+              <img src="/logo.png" alt="WarungSirkular" className="w-full h-full object-contain" />
             </div>
-            <div className="md:hidden flex flex-col">
-              <span className="font-bold text-emerald-950 text-sm leading-tight">WarungSirkular</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-emerald-950 text-xs sm:text-sm md:text-[11px] leading-tight">WarungSirkular</span>
               <span className="text-[10px] text-slate-400 capitalize">{role} Portal</span>
             </div>
           </div>
@@ -440,15 +437,13 @@ export default function AppShell({
             <button
               type="button"
               onClick={() => onNavigate(navItems[0].view)}
-              className="md:hidden flex items-center gap-1.5 shrink-0 active:scale-95 transition-transform"
+              className="md:hidden flex items-center gap-2 shrink-0 active:scale-95 transition-transform"
               title="Kembali ke Beranda"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white shadow-xs">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
+              <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-center p-0.5 shrink-0 overflow-hidden">
+                <img src="/logo.png" alt="WarungSirkular" className="w-full h-full object-contain" />
               </div>
+              <span className="font-bold text-emerald-950 text-xs tracking-tight">WarungSirkular</span>
             </button>
 
             <div className="h-4 w-px bg-slate-200 md:hidden shrink-0" />

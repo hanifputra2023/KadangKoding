@@ -1817,8 +1817,13 @@ export default function CollectorPage() {
                       {/* Petunjuk kelengkapan form timbangan */}
                       {(!actualWeight || !proofUrl) && (
                         <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 space-y-1">
-                          <p className="font-semibold flex items-center gap-1">
-                            <span>⚠️</span> Syarat untuk menyelesaikan penjemputan:
+                          <p className="font-semibold flex items-center gap-1.5">
+                            <svg className="w-4 h-4 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                              <line x1="12" y1="9" x2="12" y2="13" />
+                              <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                            <span>Syarat untuk menyelesaikan penjemputan:</span>
                           </p>
                           <div className="flex flex-col gap-0.5 pl-3 text-[10px]">
                             <span className={actualWeight && Number(actualWeight) > 0 ? 'text-emerald-700 font-bold' : 'text-amber-700'}>

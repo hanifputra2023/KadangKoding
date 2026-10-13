@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from 'react'
 import { apiUpdateProfile, apiUpdatePassword } from '@/lib/api/auth'
@@ -222,17 +222,7 @@ export default function ProfileView({
 
       {/* ─── Breadcrumb Navigation ────────────────────────────────────────── */}
       <nav className="flex items-center justify-between text-xs text-slate-500 pt-1">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-emerald-800 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all font-medium shadow-2xs group cursor-pointer"
-        >
-          <svg className="w-4 h-4 text-slate-400 group-hover:text-emerald-800 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-          <span>Kembali ke Dashboard</span>
-        </button>
+        
 
         <div className="flex items-center gap-2">
           <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -248,23 +238,42 @@ export default function ProfileView({
         <div className="absolute -top-16 -right-16 w-52 h-52 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-52 h-52 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
-          {/* Avatar with Ring & Status Indicator */}
-          <div className="relative shrink-0">
-            <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/10 backdrop-blur-md border border-white/25 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg ring-4 ring-emerald-600/30">
-              {initials}
+        <div className="relative z-10 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 text-left">
+          {/* Avatar and Mobile Info Header */}
+          <div className="flex items-center sm:items-start gap-3.5 sm:gap-6 w-full sm:w-auto">
+            {/* Avatar with Ring & Status Indicator */}
+            <div className="relative shrink-0">
+              <div className="w-16 h-16 sm:w-22 sm:h-22 rounded-2xl bg-white/10 backdrop-blur-md border border-white/25 text-white font-black text-xl sm:text-3xl flex items-center justify-center shadow-lg ring-4 ring-emerald-600/30">
+                {initials}
+              </div>
+              <div
+                className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-400 border-2 border-emerald-950 ring-2 ring-emerald-300/60 flex items-center justify-center shadow-xs"
+                title="Status: Aktif"
+              >
+                <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-950 stroke-[3]" />
+              </div>
             </div>
-            <div
-              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-400 border-2 border-emerald-950 ring-2 ring-emerald-300/60 flex items-center justify-center shadow-xs"
-              title="Status: Aktif"
-            >
-              <CheckIcon className="w-3 h-3 text-emerald-950 stroke-[3]" />
+
+            {/* Mobile inline details */}
+            <div className="min-w-0 flex-1 sm:hidden">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h1 className="text-lg font-bold tracking-tight text-white truncate">
+                  {name || userName}
+                </h1>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-900/90 text-emerald-100 border border-emerald-600/50">
+                  {roleBadgeIcon(role)}
+                  <span>{roleLabel[role] ?? userRole}</span>
+                </span>
+              </div>
+              <p className="text-xs text-emerald-100/80 truncate mt-0.5">
+                {userEmail || 'Belum ada email'}
+              </p>
             </div>
           </div>
 
-          {/* User Primary Details */}
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+          {/* Desktop User Primary Details */}
+          <div className="min-w-0 flex-1 w-full">
+            <div className="hidden sm:flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white truncate max-w-full">
                 {name || userName}
               </h1>
@@ -274,18 +283,18 @@ export default function ProfileView({
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-emerald-100/80 mt-1 truncate">
+            <p className="hidden sm:block text-xs sm:text-sm text-emerald-100/80 mt-1 truncate">
               {userEmail || 'Belum ada email terdaftar'}
             </p>
 
             {/* Quick Metadata Chips */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3 pt-3 border-t border-emerald-700/40 text-xs">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3 pt-2.5 sm:pt-3 border-t border-emerald-700/40 text-xs w-full">
               {userPhone ? (
                 <div className="inline-flex items-center gap-1.5 text-emerald-100/90 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-700/40">
-                  <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                   </svg>
-                  <span>{userPhone}</span>
+                  <span className="truncate">{userPhone}</span>
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-1.5 text-emerald-200/60 bg-emerald-900/40 px-2.5 py-1 rounded-lg border border-emerald-700/30">
