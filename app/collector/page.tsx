@@ -1819,7 +1819,7 @@ export default function CollectorPage() {
                         disabled={loading || !actualWeight || !proofUrl}
                         onClick={() => p && submitComplete(p.id)}
                       >
-                        {loading ? 'Menyimpan...' : 'Selesaikan Penjemputan Stop Ini (Step 4)'}
+                        {loading ? 'Menyimpan...' : 'Selesaikan Penjemputan Stop Ini'}
                       </button>
                       {p && (
                         <button
