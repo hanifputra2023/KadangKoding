@@ -134,7 +134,25 @@ const IC = {
   ),
 }
 
-function StatusBadge({ status }: { status: string }) {
+/**
+ * Hitung status pickup secara real-time di UI.
+ * Jika status masih 'pending' tapi waktu jendela sudah lewat
+ * atau sudah dibuat lebih dari 24 jam → tampilkan sebagai 'expired'.
+ * Database akan diupdate oleh cron (1x/hari), tapi UI langsung akurat.
+ */
+function resolveStatus(pickup: Pick<Pickup, 'status' | 'pickup_window_end' | 'created_at'>): string {
+  if (pickup.status !== 'pending') return pickup.status
+  const now = new Date()
+  const windowEnd = pickup.pickup_window_end ? new Date(pickup.pickup_window_end) : null
+  const createdAt = pickup.created_at ? new Date(pickup.created_at) : null
+  const expiredByWindow = windowEnd && windowEnd < now
+  const expiredByAge = createdAt && (now.getTime() - createdAt.getTime()) > 24 * 60 * 60 * 1000
+  if (expiredByWindow || expiredByAge) return 'expired'
+  return 'pending'
+}
+
+function StatusBadge({ pickup }: { pickup: Pick<Pickup, 'status' | 'pickup_window_end' | 'created_at'> }) {
+  const status = resolveStatus(pickup)
   const map: Record<string, string> = {
     completed: 'ws-badge-completed',
     pending: 'ws-badge-pending',
@@ -142,10 +160,15 @@ function StatusBadge({ status }: { status: string }) {
     failed: 'ws-badge-failed',
     in_progress: 'ws-badge-in-progress',
     assigned: 'ws-badge-assigned',
+    expired: 'ws-badge-cancelled',
+  }
+  const label: Record<string, string> = {
+    in_progress: 'In Progress',
+    expired: 'Expired',
   }
   return (
     <span className={map[status] ?? 'ws-badge-pending'}>
-      {status === 'in_progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1)}
+      {label[status] ?? (status.charAt(0).toUpperCase() + status.slice(1))}
     </span>
   )
 }
@@ -700,8 +723,10 @@ export default function WarungPage() {
     pickups.forEach((p) => {
       const catName = p.waste_categories?.category_name || 'Sampah Organik'
       const code = p.id.slice(0, 6).toUpperCase()
+      // Gunakan resolveStatus agar expired ter-detect real-time di UI
+      const status = resolveStatus(p)
 
-      if (p.status === 'completed') {
+      if (status === 'completed') {
         list.push({
           id: `pickup-${p.id}-completed`,
           title: `Penimbangan Selesai (${p.actual_weight_kg ?? p.estimated_weight_kg} kg)`,
@@ -710,7 +735,7 @@ export default function WarungPage() {
           type: 'success',
           linkView: 'history',
         })
-      } else if (p.status === 'in_progress') {
+      } else if (status === 'in_progress') {
         list.push({
           id: `pickup-${p.id}-inprogress`,
           title: `Kurir Bergerak Menuju Warung Anda`,
@@ -719,7 +744,7 @@ export default function WarungPage() {
           type: 'info',
           linkView: 'pickup-status',
         })
-      } else if (p.status === 'assigned') {
+      } else if (status === 'assigned') {
         list.push({
           id: `pickup-${p.id}-assigned`,
           title: `Kurir Ditugaskan (#${code})`,
@@ -728,7 +753,16 @@ export default function WarungPage() {
           type: 'info',
           linkView: 'pickup-status',
         })
-      } else if (p.status === 'pending') {
+      } else if (status === 'expired') {
+        list.push({
+          id: `pickup-${p.id}-expired`,
+          title: `Jemputan #${code} Kadaluarsa`,
+          message: `Permohonan jemput ${catName} tidak sempat diproses dalam jendela waktu. Silakan buat baru.`,
+          time: p.pickup_window_end || p.created_at || new Date().toISOString(),
+          type: 'alert',
+          linkView: 'history',
+        })
+      } else if (status === 'pending') {
         list.push({
           id: `pickup-${p.id}-pending`,
           title: `Permohonan Terkirim (#${code})`,
@@ -737,7 +771,7 @@ export default function WarungPage() {
           type: 'warning',
           linkView: 'pickup-status',
         })
-      } else if (p.status === 'cancelled' || p.status === 'failed') {
+      } else if (status === 'cancelled' || status === 'failed') {
         list.push({
           id: `pickup-${p.id}-cancelled`,
           title: `Jemputan #${code} Dibatalkan/Gagal`,
@@ -1039,7 +1073,7 @@ export default function WarungPage() {
                   <span className="font-bold text-sm text-slate-900">
                     Pickup #{activePickup.id.slice(-6).toUpperCase()}
                   </span>
-                  <StatusBadge status={activePickup.status} />
+                  <StatusBadge pickup={activePickup} />
                 </div>
                 <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
                   {IC.pin} Est. {activePickup.estimated_weight_kg} kg • {activePickup.waste_categories?.category_name ?? 'Organik'}
@@ -1092,7 +1126,7 @@ export default function WarungPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-slate-800">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</p>
-                  <StatusBadge status={p.status} />
+                  <StatusBadge pickup={p} />
                 </div>
               </div>
             ))}
@@ -1635,7 +1669,7 @@ export default function WarungPage() {
             <div key={p.id} className="p-4 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono font-bold text-xs">#{p.id.slice(-6).toUpperCase()}</span>
-                <StatusBadge status={p.status} />
+                <StatusBadge pickup={p} />
               </div>
               <p className="text-xs text-slate-500 truncate">
                 {new Date(p.pickup_window_start).toLocaleDateString('id-ID')} • {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB
@@ -1693,7 +1727,7 @@ export default function WarungPage() {
                   </td>
                   <td className="text-xs">{p.waste_categories?.category_name ?? 'Organik'}</td>
                   <td className="text-xs font-bold">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</td>
-                  <td><StatusBadge status={p.status} /></td>
+                  <td><StatusBadge pickup={p} /></td>
                   <td className="text-right space-x-2">
                     <button
                       onClick={() => {
@@ -1813,7 +1847,7 @@ export default function WarungPage() {
             <div className="ws-card p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold text-slate-900">Progress Alur Penjemputan</h3>
-                <StatusBadge status={tracked.status} />
+                <StatusBadge pickup={tracked} />
               </div>
 
               <div className="space-y-6">
