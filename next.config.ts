@@ -1,15 +1,22 @@
 import type { NextConfig } from "next";
 
+// Gunakan static export HANYA saat build untuk Android (Capacitor APK).
+// Set environment variable CAPACITOR=true saat build APK:
+//   CAPACITOR=true npx cap sync
+// Untuk Vercel, biarkan normal (tanpa CAPACITOR=true).
+const isCapacitorBuild = process.env.CAPACITOR === "true";
+
 const nextConfig: NextConfig = {
-  // Static export untuk Capacitor APK bundling.
-  // Semua halaman dirender jadi HTML/JS/CSS statis di folder `out/`.
-  output: 'export',
-  // Nonaktifkan image optimization (tidak kompatibel dengan static export)
+  ...(isCapacitorBuild && {
+    // Static export untuk Capacitor APK bundling.
+    output: "export",
+    // Trailing slash agar routing benar di WebView Android
+    trailingSlash: true,
+  }),
+  // Nonaktifkan image optimization
   images: {
     unoptimized: true,
   },
-  // Trailing slash agar routing benar di WebView Android
-  trailingSlash: true,
 };
 
 export default nextConfig;
