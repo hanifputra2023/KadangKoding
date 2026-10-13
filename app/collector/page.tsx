@@ -674,47 +674,100 @@ export default function CollectorPage() {
     return (
       <div className="space-y-5">
         {/* Hero banner */}
-        <div className="ws-card bg-gradient-to-r from-emerald-50 via-emerald-100 to-teal-100 text-emerald-950 p-6 sm:p-8 rounded-2xl">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-2 max-w-xl">
-              <span className="text-[10px] font-bold tracking-wider uppercase bg-emerald-800 px-2.5 py-1 rounded-full text-emerald-100">
-                Collector Portal
-              </span>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-emerald-950">
+        <div className="ws-card bg-gradient-to-br from-emerald-50 via-emerald-100/70 to-teal-50 text-emerald-950 p-5 sm:p-7 md:p-8 rounded-2xl border border-emerald-200/70 shadow-xs relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+            {/* Left Column: Greeting, Info & Actions */}
+            <div className="lg:col-span-7 space-y-3">
+              <div className="inline-flex items-center gap-2">
+                <span className="text-[10px] font-extrabold tracking-wider uppercase bg-emerald-800 px-2.5 py-1 rounded-full text-emerald-100 shadow-2xs">
+                  Collector Portal
+                </span>
+                <span className="text-xs font-semibold text-emerald-800/80">
+                  {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-emerald-950 tracking-tight leading-snug">
                 Siap Optimalkan Rute Penjemputan Sampah?
               </h2>
-              <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
-                Temukan permohonan jemput terdekat, klaim muatan sesuai kapasitas ({capacity} kg), dan ikuti rekomendasi rute terpendek.
+
+              <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed max-w-xl">
+                Temukan permohonan jemput terdekat, klaim muatan sesuai kapasitas maksimal motor ({capacity} kg), dan ikuti rekomendasi navigasi rute terpendek.
               </p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100/90 text-emerald-950 text-xs font-semibold border border-emerald-300/80">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                  Pangkalan: {serviceArea || 'Magelang'} ({colLat != null ? colLat.toFixed(4) : '-'}, {colLng != null ? colLng.toFixed(4) : '-'})
-                </span>
+
+              {/* Action Buttons (Responsive: full-width on mobile, auto on sm/desktop) */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
                 <button
-                  onClick={() => setView('settings')}
-                  className="text-xs font-bold text-emerald-900 hover:text-emerald-950 underline underline-offset-2 cursor-pointer transition-all"
+                  className="ws-btn-primary text-xs py-2.5 px-4 justify-center sm:justify-start shadow-xs flex items-center gap-2 transition-transform active:scale-95"
+                  onClick={() => setView('available')}
                 >
-                  Ubah Lokasi Pangkalan →
-                </button>
-              </div>
-              <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                <button className="ws-btn-primary text-xs" onClick={() => setView('available')}>
-                  {IC.route} Lihat {filtered.length} Pickup Tersedia
+                  {IC.route}
+                  <span>Lihat {filtered.length} Pickup Tersedia</span>
+                  <span className="bg-emerald-700 text-emerald-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1">
+                    {filtered.length}
+                  </span>
                 </button>
                 <button
-                  className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs flex items-center gap-1.5"
+                  className="ws-btn-outline text-emerald-900 border-emerald-300 bg-white/80 hover:bg-white text-xs py-2.5 px-4 justify-center sm:justify-start flex items-center gap-1.5 transition-transform active:scale-95 shadow-2xs"
                   onClick={() => setView('settings')}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="3" />
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                   </svg>
-                  Pengaturan Lokasi & Jadwal
+                  <span>Atur Lokasi & Jadwal</span>
                 </button>
               </div>
             </div>
-            <div className="shrink-0 opacity-60 text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg></div>
+
+            {/* Right Column: Status Pangkalan Kurir Aktif & Kendaraan (Glassmorphism Card) */}
+            <div className="lg:col-span-5 w-full">
+              <div className="bg-white/90 backdrop-blur-md border border-emerald-200/90 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-emerald-800 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                    </span>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-tight">Pangkalan Operasional</span>
+                      <strong className="text-sm font-extrabold text-slate-900 block truncate">{serviceArea || 'Magelang'}</strong>
+                    </div>
+                  </div>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 border border-emerald-200">
+                    Aktif
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 border border-slate-200/70 p-2.5 rounded-xl">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-medium">Titik Koordinat:</span>
+                    <span className="font-mono text-[11px] font-bold text-slate-700 block truncate" title={`${colLat}, ${colLng}`}>
+                      {colLat != null ? colLat.toFixed(4) : '-'}, {colLng != null ? colLng.toFixed(4) : '-'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-medium">Kapasitas Muat:</span>
+                    <span className="text-[11px] font-bold text-emerald-700 block">
+                      {capacity} kg (Motor)
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setView('settings')}
+                  className="w-full text-xs font-bold py-2.5 px-3 rounded-xl border border-emerald-300 text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/80 flex items-center justify-center gap-1.5 transition-all active:scale-98"
+                >
+                  <span>Ubah Lokasi Pangkalan Bebas</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
