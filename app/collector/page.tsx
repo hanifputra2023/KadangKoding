@@ -1540,7 +1540,7 @@ export default function CollectorPage() {
                                 }}
                                 title="Update status OTW ke warung"
                               >
-                                <span className="text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg></span>
+                                
                                 <span>Mulai OTW</span>
                               </button>
                             </>
