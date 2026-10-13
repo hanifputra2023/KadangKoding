@@ -88,17 +88,17 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
 }
 
 const IC = {
-  check: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,
-  pin: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
-  clock: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-  weight: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>,
-  trending: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
-  chevronRight: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>,
-  chevronLeft: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>,
-  trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
-  plus: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-  search: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-  route: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H5a4 4 0 0 1 0-8h11.5"/><circle cx="18" cy="5" r="3"/></svg>,
+  check: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>,
+  pin: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>,
+  clock: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+  weight: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>,
+  trending: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>,
+  chevronRight: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>,
+  chevronLeft: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>,
+  trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>,
+  plus: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
+  search: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+  route: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H5a4 4 0 0 1 0-8h11.5" /><circle cx="18" cy="5" r="3" /></svg>,
 }
 
 function Pagination({
@@ -156,11 +156,10 @@ function Pagination({
             <button
               key={p}
               onClick={() => onPageChange(p)}
-              className={`w-7 h-7 rounded-md text-xs font-bold transition-all ${
-                currentPage === p
+              className={`w-7 h-7 rounded-md text-xs font-bold transition-all ${currentPage === p
                   ? 'bg-emerald-800 text-white shadow-xs'
                   : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-              }`}
+                }`}
             >
               {p}
             </button>
@@ -186,6 +185,17 @@ function CatBadge({ cat }: { cat: string }) {
   )
 }
 
+const LOCATION_PRESETS = [
+  { name: 'Magelang Kota', lat: -7.4726, lng: 110.2198, area: 'Magelang' },
+  { name: 'Mertoyudan', lat: -7.5142, lng: 110.2185, area: 'Mertoyudan' },
+  { name: 'Muntilan', lat: -7.5833, lng: 110.2667, area: 'Muntilan' },
+  { name: 'Borobudur', lat: -7.6079, lng: 110.2038, area: 'Borobudur' },
+  { name: 'Sleman', lat: -7.7156, lng: 110.3556, area: 'Sleman' },
+  { name: 'Yogyakarta Kota', lat: -7.7956, lng: 110.3695, area: 'Yogyakarta' },
+  { name: 'Bantul', lat: -7.8897, lng: 110.3289, area: 'Bantul' },
+  { name: 'Temanggung', lat: -7.3167, lng: 110.1667, area: 'Temanggung' },
+]
+
 export default function CollectorPage() {
   const router = useRouter()
 
@@ -204,6 +214,10 @@ export default function CollectorPage() {
 
   const [colLat, setColLat] = useState<number | null>(null)
   const [colLng, setColLng] = useState<number | null>(null)
+  const [serviceArea, setServiceArea] = useState<string>('Magelang')
+  const [inputLat, setInputLat] = useState<string>('-7.4726')
+  const [inputLng, setInputLng] = useState<string>('110.2198')
+  const [savingLocation, setSavingLocation] = useState(false)
   const [radiusKm, setRadiusKm] = useState<string>('0')
   const [locating, setLocating] = useState(false)
   const [scheduleFilter, setScheduleFilter] = useState<'today' | 'tomorrow' | 'upcoming' | 'all'>('all')
@@ -233,10 +247,17 @@ export default function CollectorPage() {
       if (Array.isArray(av)) setAvailable(av as unknown as AvailablePickup[])
       if (Array.isArray(rt)) setRoutes(rt as unknown as Route[])
       if (cap) {
-        const p = cap as { vehicle_capacity_kg?: number; latitude?: number; longitude?: number; service_start?: string; service_end?: string; max_pickups_per_slot?: number }
+        const p = cap as { vehicle_capacity_kg?: number; latitude?: number; longitude?: number; service_start?: string; service_end?: string; max_pickups_per_slot?: number; service_area?: string }
         setCapacity(Number(p.vehicle_capacity_kg) || 150)
-        if (p.latitude != null) setColLat(Number(p.latitude))
-        if (p.longitude != null) setColLng(Number(p.longitude))
+        if (p.latitude != null) {
+          setColLat(Number(p.latitude))
+          setInputLat(String(p.latitude))
+        }
+        if (p.longitude != null) {
+          setColLng(Number(p.longitude))
+          setInputLng(String(p.longitude))
+        }
+        if (p.service_area) setServiceArea(p.service_area)
         setServiceStart(p.service_start || '07:00')
         setServiceEnd(p.service_end || '17:00')
         setMaxPerSlot(Number(p.max_pickups_per_slot) || 5)
@@ -411,14 +432,50 @@ export default function CollectorPage() {
     return items
   }, [available, routes])
 
+  async function saveLocation(targetLat?: number, targetLng?: number, targetArea?: string) {
+    const lat = targetLat !== undefined ? targetLat : parseFloat(inputLat)
+    const lng = targetLng !== undefined ? targetLng : parseFloat(inputLng)
+    const area = targetArea !== undefined ? targetArea : serviceArea
+
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      return toast.error('Latitude harus angka yang valid antara -90 dan 90!')
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      return toast.error('Longitude harus angka yang valid antara -180 dan 180!')
+    }
+
+    setSavingLocation(true)
+    try {
+      await apiUpdateCollectorCapacity({
+        latitude: lat,
+        longitude: lng,
+        service_area: area.trim() || 'Area Layanan',
+      })
+      setColLat(lat)
+      setColLng(lng)
+      setInputLat(String(lat))
+      setInputLng(String(lng))
+      if (area) setServiceArea(area)
+      toast.success(`Lokasi pangkalan kurir berhasil disimpan ke ${area || `${lat}, ${lng}`} ✓`)
+      await load()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menyimpan lokasi')
+    } finally {
+      setSavingLocation(false)
+    }
+  }
+
   async function useMyLocation() {
     setLocating(true)
     try {
       const coords = await getCurrentPosition()
       setColLat(coords.latitude)
       setColLng(coords.longitude)
+      setInputLat(coords.latitude.toFixed(6))
+      setInputLng(coords.longitude.toFixed(6))
       await apiUpdateCollectorCapacity({ latitude: coords.latitude, longitude: coords.longitude })
-      toast.success('Lokasi collector berhasil diperbarui dari GPS')
+      toast.success('Lokasi pangkalan berhasil diperbarui dari GPS perangkat! ✓')
+      await load()
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal mendapatkan lokasi GPS')
     } finally { setLocating(false) }
@@ -599,7 +656,7 @@ export default function CollectorPage() {
 
   const renderDashboard = () => {
     const weekData = [{ label: 'Weight', values: [70, 150, 210, 140, 280, 250, 140] }]
-    const weekLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+    const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
     const mapCenter: [number, number] = colLat && colLng ? [colLat, colLng] : [-7.4726, 110.2198]
     const markers = filtered.map(p => ({
@@ -629,19 +686,32 @@ export default function CollectorPage() {
               <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
                 Temukan permohonan jemput terdekat, klaim muatan sesuai kapasitas ({capacity} kg), dan ikuti rekomendasi rute terpendek.
               </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100/90 text-emerald-950 text-xs font-semibold border border-emerald-300/80">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                  Pangkalan: {serviceArea || 'Magelang'} ({colLat != null ? colLat.toFixed(4) : '-'}, {colLng != null ? colLng.toFixed(4) : '-'})
+                </span>
+                <button
+                  onClick={() => setView('settings')}
+                  className="text-xs font-bold text-emerald-900 hover:text-emerald-950 underline underline-offset-2 cursor-pointer transition-all"
+                >
+                  Ubah Lokasi Pangkalan →
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2.5 pt-2">
                 <button className="ws-btn-primary text-xs" onClick={() => setView('available')}>
                   {IC.route} Lihat {filtered.length} Pickup Tersedia
                 </button>
-                <button className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs" onClick={useMyLocation} disabled={locating}>
-                  <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> {locating ? 'Mencari...' : 'Perbarui Lokasi GPS'}</span>
+                <button className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs flex items-center gap-1.5" onClick={() => setView('settings')}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                  Atur Lokasi Pangkalan
                 </button>
                 <button className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs" onClick={() => setView('settings')}>
                   {IC.clock} Atur Jadwal Layanan
                 </button>
               </div>
             </div>
-            <div className="shrink-0 opacity-60 text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></div>
+            <div className="shrink-0 opacity-60 text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg></div>
           </div>
         </div>
 
@@ -711,19 +781,10 @@ export default function CollectorPage() {
           <p className="text-xs sm:text-sm text-slate-500">Pilih permohonan penjemputan sampah untuk dimasukkan ke rute Anda.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => load()}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
-            title="Muat ulang data permohonan penjemputan"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-            Segarkan
-          </button>
-          <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
-            selectedWeight > remainingCapacity
+          <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${selectedWeight > remainingCapacity
               ? 'bg-rose-100 text-rose-800'
               : 'bg-emerald-100 text-emerald-800'
-          }`}>
+            }`}>
             {selected.length} Terpilih ({selectedWeight.toFixed(1)} / {remainingCapacity.toFixed(1)} kg)
           </span>
           {selected.length > 0 && (
@@ -761,13 +822,12 @@ export default function CollectorPage() {
         </div>
         <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all ${
-              selectedWeight + activeWeight > capacity
+            className={`h-full rounded-full transition-all ${selectedWeight + activeWeight > capacity
                 ? 'bg-rose-500'
                 : selectedWeight + activeWeight > capacity * 0.85
                   ? 'bg-amber-500'
                   : 'bg-emerald-600'
-            }`}
+              }`}
             style={{ width: `${Math.min(100, ((selectedWeight + activeWeight) / capacity) * 100)}%` }}
           />
         </div>
@@ -775,7 +835,7 @@ export default function CollectorPage() {
 
       {remainingCapacity <= 0 && (
         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-xs text-rose-800 flex items-start gap-2">
-          <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg></span>
           <div>
             <strong className="block font-bold">Kapasitas Kendaraan Anda Penuh ({capacity} kg)!</strong>
             <p className="mt-0.5 text-rose-700">
@@ -789,22 +849,11 @@ export default function CollectorPage() {
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap bg-slate-50 border border-slate-200/90 p-2 rounded-xl">
         <span className="text-xs font-bold text-slate-500 ml-1 mr-1 uppercase tracking-wider shrink-0">Jadwal:</span>
         <button
-          onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            scheduleFilter === 'all'
-              ? 'bg-emerald-800 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          Semua Jadwal ({catFiltered.length})
-        </button>
-        <button
           onClick={() => { setScheduleFilter('today'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            scheduleFilter === 'today'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'today'
               ? 'bg-emerald-800 text-white shadow-xs'
               : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
+            }`}
         >
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Hari Ini</span>
           <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'today' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
@@ -813,29 +862,36 @@ export default function CollectorPage() {
         </button>
         <button
           onClick={() => { setScheduleFilter('tomorrow'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            scheduleFilter === 'tomorrow'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'tomorrow'
               ? 'bg-blue-800 text-white shadow-xs'
               : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
+            }`}
         >
-          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Besok</span>
+          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Besok</span>
           <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'tomorrow' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
             {tomorrowCount}
           </span>
         </button>
         <button
           onClick={() => { setScheduleFilter('upcoming'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            scheduleFilter === 'upcoming'
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${scheduleFilter === 'upcoming'
               ? 'bg-slate-800 text-white shadow-xs'
               : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
+            }`}
         >
-          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Mendatang</span>
+          <span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Mendatang</span>
           <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${scheduleFilter === 'upcoming' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
             {upcomingCount}
           </span>
+        </button>
+        <button
+          onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${scheduleFilter === 'all'
+              ? 'bg-slate-800 text-white shadow-xs'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+        >
+          Semua Jadwal ({catFiltered.length})
         </button>
       </div>
 
@@ -846,11 +902,10 @@ export default function CollectorPage() {
             <button
               key={cat}
               onClick={() => { setCatFilter(cat); setAvailPage(1) }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                catFilter === cat
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${catFilter === cat
                   ? 'bg-emerald-800 text-white shadow-xs'
                   : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-              }`}
+                }`}
             >
               {cat === 'all' ? 'Semua Kategori' : cat}
             </button>
@@ -874,11 +929,11 @@ export default function CollectorPage() {
             onChange={(e) => { setRadiusKm(e.target.value); setAvailPage(1) }}
             className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 outline-hidden shadow-2xs"
           >
-            <option value="0">Semua Jarak (Tanpa Batas)</option>
             <option value="5">Radius ≤ 5 km (Sangat Dekat)</option>
             <option value="10">Radius ≤ 10 km (Area Sekitar)</option>
             <option value="15">Radius ≤ 15 km (Standar Layanan)</option>
             <option value="25">Radius ≤ 25 km (Jangkauan Maks)</option>
+            <option value="0">Semua Jarak (Tanpa Batas)</option>
           </select>
         </div>
       </div>
@@ -897,13 +952,12 @@ export default function CollectorPage() {
           return (
             <div
               key={p.id}
-              className={`ws-card p-4 flex flex-col justify-between transition-all ${
-                isSelected
+              className={`ws-card p-4 flex flex-col justify-between transition-all ${isSelected
                   ? 'ring-2 ring-emerald-600 bg-emerald-50/30'
                   : isOverload
                     ? 'opacity-70 bg-slate-50/80 border-dashed border-slate-300'
                     : 'hover:shadow-sm'
-              }`}
+                }`}
             >
               <div className="space-y-2.5">
                 <div className="flex items-start justify-between gap-2">
@@ -925,16 +979,15 @@ export default function CollectorPage() {
                         toast.error(`Kapasitas tidak cukup! Sisa kapasitas: ${selectableRemaining.toFixed(1)} kg`)
                       }
                     }}
-                    className={`w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-1 ${
-                      isOverload ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
-                    }`}
+                    className={`w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-1 ${isOverload ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                      }`}
                   />
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
                   <CatBadge cat={p.waste_categories?.category_name ?? 'Organik'} />
                   <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg>
                     {p.estimated_weight_kg} kg
                   </span>
                   {isOverload && (
@@ -952,37 +1005,37 @@ export default function CollectorPage() {
                       </span>
                     ) : new Date(p.pickup_window_start).toDateString() === tomorrowStr ? (
                       <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">
-                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Besok</span>
+                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Besok</span>
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> {new Date(p.pickup_window_start).toLocaleDateString()}</span>
+                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> {new Date(p.pickup_window_start).toLocaleDateString()}</span>
                       </span>
                     )}
                     <span className="text-slate-600 font-medium">
-                      <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} – {new Date(p.pickup_window_end).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB</span>
+                      <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} – {new Date(p.pickup_window_end).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB</span>
                     </span>
                   </div>
                   <div className="pt-0.5 flex items-center gap-1.5 flex-wrap">
                     {dist <= 3 ? (
                       <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="text-emerald-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Sangat Dekat (±{dist.toFixed(1)} km)
+                        <span className="text-emerald-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg></span> Sangat Dekat (±{dist.toFixed(1)} km)
                       </span>
                     ) : dist <= 10 ? (
                       <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span> ±{dist.toFixed(1)} km
+                        <span className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg></span> ±{dist.toFixed(1)} km
                       </span>
                     ) : dist <= 25 ? (
                       <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span> ±{dist.toFixed(1)} km
+                        <span className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg></span> ±{dist.toFixed(1)} km
                       </span>
                     ) : dist <= 100 ? (
                       <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> Jarak Jauh (±{dist.toFixed(1)} km)
+                        <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg></span> Jarak Jauh (±{dist.toFixed(1)} km)
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold text-rose-800 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="text-rose-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span> Luar Wilayah / Beda Pulau (±{dist.toFixed(0)} km)
+                        <span className="text-rose-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" /></svg></span> Luar Wilayah / Beda Pulau (±{dist.toFixed(0)} km)
                       </span>
                     )}
                   </div>
@@ -998,13 +1051,12 @@ export default function CollectorPage() {
                 </button>
                 <button
                   disabled={isOverload && !isSelected}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
-                    isSelected
+                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${isSelected
                       ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                       : isOverload
                         ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         : 'bg-emerald-800 text-white hover:bg-emerald-900'
-                  }`}
+                    }`}
                   onClick={() => {
                     if (isSelected) {
                       setSelected(prev => prev.filter(x => x !== p.id))
@@ -1089,7 +1141,7 @@ export default function CollectorPage() {
                 markers={[{ id: detailPickup.id, lat: detailPickup.latitude, lng: detailPickup.longitude, label: detailPickup.warung_profiles?.business_name ?? 'Warung' }]}
               />
             </div>
-            <p className="text-xs text-slate-600 font-medium"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> {detailPickup.warung_profiles?.address}</span></p>
+            <p className="text-xs text-slate-600 font-medium"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg> {detailPickup.warung_profiles?.address}</span></p>
           </div>
 
           {/* Info */}
@@ -1117,7 +1169,7 @@ export default function CollectorPage() {
 
             {detailPickup.notes && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
-                <strong className="block font-bold mb-0.5"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Catatan Khusus dari Warung:</span></strong>
+                <strong className="block font-bold mb-0.5"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg> Catatan Khusus dari Warung:</span></strong>
                 {detailPickup.notes}
               </div>
             )}
@@ -1147,7 +1199,7 @@ export default function CollectorPage() {
 
         {isOverloaded && (
           <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-xs text-rose-800">
-            <strong className="block font-bold"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Total muatan melebihi sisa kapasitas kendaraan!</span></strong>
+            <strong className="block font-bold"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg> Total muatan melebihi sisa kapasitas kendaraan!</span></strong>
             <p className="mt-0.5">
               Total terpilih ({selectedWeight.toFixed(1)} kg) + muatan berjalan ({activeWeight.toFixed(1)} kg) melebihi kapasitas kendaraan Anda ({capacity} kg). Kurangi beberapa warung sebelum generate rute.
             </p>
@@ -1162,16 +1214,16 @@ export default function CollectorPage() {
             : 0
           return dist > 25
         }) && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 flex items-start gap-2">
-            <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-            <div>
-              <strong className="block font-bold">Peringatan: Terdapat lokasi berjarak jauh (&gt; 25 km) dalam antrian!</strong>
-              <p className="mt-0.5 text-amber-800">
-                Memasukkan stop yang sangat jauh dapat meningkatkan waktu tempuh dan konsumsi bahan bakar secara signifikan.
-              </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 flex items-start gap-2">
+              <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg></span>
+              <div>
+                <strong className="block font-bold">Peringatan: Terdapat lokasi berjarak jauh (&gt; 25 km) dalam antrian!</strong>
+                <p className="mt-0.5 text-amber-800">
+                  Memasukkan stop yang sangat jauh dapat meningkatkan waktu tempuh dan konsumsi bahan bakar secara signifikan.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-3">
@@ -1191,10 +1243,10 @@ export default function CollectorPage() {
                       <h4 className="text-xs font-bold text-slate-900 truncate">{p.warung_profiles?.business_name}</h4>
                       <p className="text-[11px] text-slate-400 truncate">{p.warung_profiles?.address}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[11px] font-bold text-emerald-800"><span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg> {p.estimated_weight_kg} kg</span></span>
+                        <span className="text-[11px] font-bold text-emerald-800"><span className="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg> {p.estimated_weight_kg} kg</span></span>
                         {dist != null && (
                           <span className={`text-[10px] font-bold ${dist > 25 ? 'text-amber-700' : 'text-slate-500'}`}>
-                            • <span className="inline-flex items-center gap-0.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span> ±{dist > 100 ? `${dist.toFixed(0)} km (Luar Wilayah)` : `${dist.toFixed(1)} km`}
+                            • <span className="inline-flex items-center gap-0.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg></span> ±{dist > 100 ? `${dist.toFixed(0)} km (Luar Wilayah)` : `${dist.toFixed(1)} km`}
                           </span>
                         )}
                       </div>
@@ -1270,7 +1322,7 @@ export default function CollectorPage() {
         <div className="max-w-md mx-auto space-y-5">
           <div className="text-center space-y-3">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 text-3xl flex items-center justify-center mx-auto">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></svg>
             </div>
             <h2 className="text-xl font-bold text-slate-900">Seluruh Stop Selesai Dikerjakan!</h2>
             <p className="text-xs text-slate-500">
@@ -1355,7 +1407,7 @@ export default function CollectorPage() {
           <div className="lg:col-span-2 ws-card p-4 sm:p-5 flex flex-col">
             <div className="flex items-center justify-between mb-3 shrink-0">
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="text-slate-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span> Peta Navigasi Penjemputan
+                <span className="text-slate-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg></span> Peta Navigasi Penjemputan
               </span>
               <span className="text-[11px] text-slate-500 font-medium">
                 {stops.length} Lokasi Terhubung
@@ -1390,11 +1442,10 @@ export default function CollectorPage() {
                 return (
                   <div
                     key={s.id}
-                    className={`p-3.5 rounded-xl space-y-2 border transition-all ${
-                      isDone
+                    className={`p-3.5 rounded-xl space-y-2 border transition-all ${isDone
                         ? 'bg-emerald-50/50 border-emerald-200'
                         : 'bg-slate-50/80 border-slate-200/80 hover:bg-white hover:border-emerald-300 hover:shadow-2xs'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
@@ -1406,7 +1457,7 @@ export default function CollectorPage() {
                       {isDone ? (
                         <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">Selesai</span>
                       ) : p?.status === 'in_progress' ? (
-                        <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full shrink-0 animate-pulse"><span className="inline-flex items-center gap-1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg> OTW Lokasi</span></span>
+                        <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full shrink-0 animate-pulse"><span className="inline-flex items-center gap-1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg> OTW Lokasi</span></span>
                       ) : (
                         <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">Ditugaskan</span>
                       )}
@@ -1416,7 +1467,7 @@ export default function CollectorPage() {
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/60 pl-8">
                       <span className="text-[11px] font-bold text-emerald-800 flex items-center gap-1">
-                        <span className="text-slate-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
+                        <span className="text-slate-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg></span>
                         <span>{p?.actual_weight_kg ? `${p.actual_weight_kg} kg (aktual)` : `${p?.estimated_weight_kg ?? 0} kg (est)`}</span>
                       </span>
                       {!isDone ? (
@@ -1443,7 +1494,7 @@ export default function CollectorPage() {
                                 }}
                                 title="Update status OTW ke warung"
                               >
-                                <span className="text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></span>
+                                <span className="text-slate-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg></span>
                                 <span>Mulai OTW</span>
                               </button>
                             </>
@@ -1504,7 +1555,7 @@ export default function CollectorPage() {
       return (
         <div className="max-w-md mx-auto ws-card p-8 text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 text-3xl flex items-center justify-center mx-auto">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></svg>
           </div>
           <h2 className="text-xl font-bold text-slate-900">Seluruh Stop Selesai Dikerjakan!</h2>
           <p className="text-xs text-slate-500">
@@ -1554,7 +1605,7 @@ export default function CollectorPage() {
               )}
             </div>
             <h3 className="text-base font-bold text-slate-900">{p?.warung_profiles?.business_name ?? 'Warung Partner'}</h3>
-            <p className="text-xs text-slate-500"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> {p?.warung_profiles?.address}</span></p>
+            <p className="text-xs text-slate-500"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg> {p?.warung_profiles?.address}</span></p>
 
             <div className="h-44 rounded-lg overflow-hidden border border-slate-200">
               <ClientMap
@@ -1567,7 +1618,7 @@ export default function CollectorPage() {
 
             {p?.notes && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
-                <strong className="block font-bold mb-0.5"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Catatan Khusus dari Warung:</span></strong>
+                <strong className="block font-bold mb-0.5"><span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg> Catatan Khusus dari Warung:</span></strong>
                 {p.notes}
               </div>
             )}
@@ -1616,7 +1667,7 @@ export default function CollectorPage() {
                   <div className="space-y-4">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 space-y-2.5 text-xs shadow-2xs">
                       <div className="flex items-center gap-2 text-blue-900 font-bold text-sm">
-                        <span className="text-blue-600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></span>
+                        <span className="text-blue-600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="15" cy="5" r="1" /><path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg></span>
                         <span>Tahap 3: Menuju Lokasi Warung</span>
                       </div>
                       <p className="text-slate-600 leading-relaxed text-[11px]">
@@ -1628,13 +1679,13 @@ export default function CollectorPage() {
                         onClick={() => p && startTrip(p.id)}
                         className="ws-btn-primary w-full justify-center text-xs py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold shadow-xs flex items-center gap-2 transition-all mt-1"
                       >
-                        <span className="text-slate-600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
+                        <span className="text-slate-600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" /><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></svg></span>
                         <span>{loading ? 'Mengubah status...' : 'Mulai Menuju Lokasi Warung (Kirim OTW)'}</span>
                       </button>
                     </div>
 
                     <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-5 text-center space-y-1.5">
-                      <span className="text-slate-500"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
+                      <span className="text-slate-500"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg></span>
                       <h4 className="text-xs font-bold text-slate-700">Form Eksekusi Timbangan Terkunci</h4>
                       <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
                         Form timbangan & upload foto bukti akan otomatis terbuka setelah Anda menekan tombol <strong>Mulai Menuju Lokasi Warung</strong> di atas.
@@ -1689,7 +1740,7 @@ export default function CollectorPage() {
                             </div>
                           ) : (
                             <label className="cursor-pointer text-xs text-slate-600 flex flex-col items-center">
-                              <span className="text-slate-400"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+                              <span className="text-slate-400"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg></span>
                               <span>{uploading ? 'Mengunggah...' : 'Upload Foto Bukti Timbangan'}</span>
                               <input
                                 type="file"
@@ -1772,10 +1823,140 @@ export default function CollectorPage() {
     )
   }
 
-  // ─── Pengaturan Layanan (jam kerja + kuota per slot) ────────────────────
+  // ─── Pengaturan Layanan & Lokasi Pangkalan ────────────────────────────
 
   const renderSettings = () => (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* 1. Pengaturan Lokasi Pangkalan Kurir */}
+      <div className="ws-card p-6 space-y-5 border border-emerald-100/80 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <span className="text-emerald-700">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+              </span>
+              Lokasi Pangkalan & Wilayah Operasional
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Atur titik pangkalan atau lokasi Anda saat ini. Titik ini menjadi pusat perhitungan jarak dan estimasi rute ke warung-warung.
+            </p>
+          </div>
+          <button
+            onClick={useMyLocation}
+            disabled={locating}
+            className="ws-btn-outline text-emerald-800 border-emerald-300 hover:bg-emerald-50 text-xs flex items-center gap-1.5 py-1.5 px-3 self-start sm:self-auto shrink-0"
+            title="Gunakan koordinat GPS perangkat saat ini"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            {locating ? 'Mencari GPS...' : 'Deteksi GPS Perangkat'}
+          </button>
+        </div>
+
+        {/* Status Lokasi Aktif */}
+        <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-emerald-950 text-sm">{serviceArea || 'Belum Diberi Nama'}</span>
+                <span className="bg-emerald-200/80 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">Aktif</span>
+              </div>
+              <p className="text-emerald-800 text-[11px] mt-0.5 font-mono">
+                Lat: {colLat != null ? colLat.toFixed(6) : '-'} • Lng: {colLng != null ? colLng.toFixed(6) : '-'}
+              </p>
+            </div>
+          </div>
+          <div className="text-right sm:text-left text-xs text-emerald-900 font-medium bg-white/70 py-1.5 px-3 rounded-lg border border-emerald-200/60 self-start sm:self-auto">
+            Jemputan Terjangkau: <strong className="text-emerald-950">{available.length} Warung</strong>
+          </div>
+        </div>
+
+        {/* Pilihan Cepat (Preset Wilayah) */}
+        <div>
+          <label className="text-xs font-bold text-slate-700 block mb-1.5">
+            Pilihan Cepat Wilayah Populer (Klik untuk pilih & simpan):
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {LOCATION_PRESETS.map((preset) => {
+              const isSelected = Math.abs((colLat ?? 0) - preset.lat) < 0.005 && Math.abs((colLng ?? 0) - preset.lng) < 0.005
+              return (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => {
+                    setInputLat(String(preset.lat))
+                    setInputLng(String(preset.lng))
+                    setServiceArea(preset.area)
+                    saveLocation(preset.lat, preset.lng, preset.area)
+                  }}
+                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs ring-2 ring-emerald-300'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-emerald-300'
+                  }`}
+                >
+                  <span>📍</span>
+                  <span>{preset.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Form Atur Bebas Manual */}
+        <div className="border-t border-slate-100 pt-4 space-y-3">
+          <div className="font-bold text-xs text-slate-800">Atur Koordinat & Wilayah Kustom:</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Nama Wilayah / Depot</label>
+              <input
+                type="text"
+                placeholder="Contoh: Depot Mertoyudan"
+                value={serviceArea}
+                onChange={(e) => setServiceArea(e.target.value)}
+                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs outline-hidden focus:border-emerald-500 shadow-2xs"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Latitude (Garis Lintang)</label>
+              <input
+                type="number"
+                step="any"
+                placeholder="-7.472600"
+                value={inputLat}
+                onChange={(e) => setInputLat(e.target.value)}
+                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Longitude (Garis Bujur)</label>
+              <input
+                type="number"
+                step="any"
+                placeholder="110.219800"
+                value={inputLng}
+                onChange={(e) => setInputLng(e.target.value)}
+                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => saveLocation()}
+              disabled={savingLocation}
+              className="ws-btn-primary text-xs flex items-center gap-1.5 py-2 px-4 shadow-xs"
+            >
+              {savingLocation ? 'Menyimpan Lokasi...' : 'Simpan Lokasi Pangkalan'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Pengaturan Jadwal Layanan */}
       <div className="ws-card p-6 space-y-4">
         <div>
           <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">{IC.clock} Pengaturan Jadwal Layanan</h3>
@@ -1821,7 +2002,7 @@ export default function CollectorPage() {
 
         <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-slate-100">
           <button className="ws-btn-outline text-xs" onClick={() => setView('dashboard')}>
-            {IC.chevronLeft} Kembali
+            {IC.chevronLeft} Kembali ke Dashboard
           </button>
           <button className="ws-btn-primary text-xs" onClick={saveSchedule} disabled={loading}>
             {loading ? 'Menyimpan...' : 'Simpan Jadwal'}
@@ -1855,7 +2036,7 @@ export default function CollectorPage() {
       {view === 'route-map' && renderRouteMap()}
       {view === 'current-stop' && renderCurrentStop()}
       {view === 'completed' && renderCompleted()}
-      {view === 'settings' && renderSettings()}
+      {(view === 'settings' || view === 'profile') && renderSettings()}
     </AppShell>
   )
 }
