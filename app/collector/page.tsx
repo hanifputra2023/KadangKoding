@@ -1814,10 +1814,31 @@ export default function CollectorPage() {
                     </div>
 
                     <div className="space-y-2 pt-3 border-t border-slate-100">
+                      {/* Petunjuk kelengkapan form timbangan */}
+                      {(!actualWeight || !proofUrl) && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 space-y-1">
+                          <p className="font-semibold flex items-center gap-1">
+                            <span>⚠️</span> Syarat untuk menyelesaikan penjemputan:
+                          </p>
+                          <div className="flex flex-col gap-0.5 pl-3 text-[10px]">
+                            <span className={actualWeight && Number(actualWeight) > 0 ? 'text-emerald-700 font-bold' : 'text-amber-700'}>
+                              {actualWeight && Number(actualWeight) > 0 ? '✓' : '○'} Berat aktual: {actualWeight && Number(actualWeight) > 0 ? `${actualWeight} kg (Siap)` : 'Wajib diisi'}
+                            </span>
+                            <span className={proofUrl ? 'text-emerald-700 font-bold' : 'text-amber-700'}>
+                              {proofUrl ? '✓' : '○'} Foto bukti timbangan: {proofUrl ? 'Foto sudah diunggah' : 'Wajib diunggah'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       <button
-                        className="ws-btn-primary w-full justify-center text-xs"
-                        disabled={loading || !actualWeight || !proofUrl}
-                        onClick={() => p && submitComplete(p.id)}
+                        type="button"
+                        className="ws-btn-primary w-full justify-center text-xs py-2.5 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+                        disabled={loading}
+                        onClick={() => {
+                          if (!p) return toast.error('Data pickup tidak ditemukan!')
+                          submitComplete(p.id)
+                        }}
                       >
                         {loading ? 'Menyimpan...' : 'Selesaikan Penjemputan Stop Ini'}
                       </button>

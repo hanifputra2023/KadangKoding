@@ -106,7 +106,10 @@ export async function apiCompletePickup(pickupId: string, actualWeightKg: number
     .eq('id', pickupId)
     .select('*')
     .single()
-  if (error) throw new Error(error.message)
+  // Update status route_stops jika pickup ini bagian dari rute aktif
+  try {
+    await sb.from('route_stops').update({ status: 'completed' }).eq('pickup_request_id', pickupId)
+  } catch {}
 
   await sb.from('audit_logs').insert({ user_id: user.id, action: 'COMPLETE_PICKUP', resource_type: 'pickup_requests', resource_id: pickupId, metadata: { actual_weight_kg: actualWeightKg } })
   return data
