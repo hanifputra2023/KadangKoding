@@ -204,9 +204,9 @@ export default function CollectorPage() {
 
   const [colLat, setColLat] = useState<number | null>(null)
   const [colLng, setColLng] = useState<number | null>(null)
-  const [radiusKm, setRadiusKm] = useState<string>('15')
+  const [radiusKm, setRadiusKm] = useState<string>('0')
   const [locating, setLocating] = useState(false)
-  const [scheduleFilter, setScheduleFilter] = useState<'today' | 'tomorrow' | 'upcoming' | 'all'>('today')
+  const [scheduleFilter, setScheduleFilter] = useState<'today' | 'tomorrow' | 'upcoming' | 'all'>('all')
 
   const [actualWeight, setActualWeight] = useState('')
   const [proofUrl, setProofUrl] = useState('')
@@ -711,6 +711,14 @@ export default function CollectorPage() {
           <p className="text-xs sm:text-sm text-slate-500">Pilih permohonan penjemputan sampah untuk dimasukkan ke rute Anda.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => load()}
+            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+            title="Muat ulang data permohonan penjemputan"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+            Segarkan
+          </button>
           <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
             selectedWeight > remainingCapacity
               ? 'bg-rose-100 text-rose-800'
@@ -781,6 +789,16 @@ export default function CollectorPage() {
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap bg-slate-50 border border-slate-200/90 p-2 rounded-xl">
         <span className="text-xs font-bold text-slate-500 ml-1 mr-1 uppercase tracking-wider shrink-0">Jadwal:</span>
         <button
+          onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            scheduleFilter === 'all'
+              ? 'bg-emerald-800 text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          Semua Jadwal ({catFiltered.length})
+        </button>
+        <button
           onClick={() => { setScheduleFilter('today'); setAvailPage(1) }}
           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
             scheduleFilter === 'today'
@@ -819,16 +837,6 @@ export default function CollectorPage() {
             {upcomingCount}
           </span>
         </button>
-        <button
-          onClick={() => { setScheduleFilter('all'); setAvailPage(1) }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            scheduleFilter === 'all'
-              ? 'bg-slate-800 text-white shadow-xs'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          Semua Jadwal ({catFiltered.length})
-        </button>
       </div>
 
       {/* Filter & Search bar */}
@@ -866,11 +874,11 @@ export default function CollectorPage() {
             onChange={(e) => { setRadiusKm(e.target.value); setAvailPage(1) }}
             className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 outline-hidden shadow-2xs"
           >
+            <option value="0">Semua Jarak (Tanpa Batas)</option>
             <option value="5">Radius ≤ 5 km (Sangat Dekat)</option>
             <option value="10">Radius ≤ 10 km (Area Sekitar)</option>
             <option value="15">Radius ≤ 15 km (Standar Layanan)</option>
             <option value="25">Radius ≤ 25 km (Jangkauan Maks)</option>
-            <option value="0">Semua Jarak (Tanpa Batas)</option>
           </select>
         </div>
       </div>
