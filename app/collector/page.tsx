@@ -758,14 +758,6 @@ export default function CollectorPage() {
                     </span>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => setView('settings')}
-                  className="w-full text-xs font-bold py-2.5 px-3 rounded-xl border border-emerald-300 text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/80 flex items-center justify-center gap-1.5 transition-all active:scale-98"
-                >
-                  <span>Ubah Lokasi Pangkalan Bebas</span>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </button>
               </div>
             </div>
           </div>
@@ -1160,9 +1152,7 @@ export default function CollectorPage() {
     return (
       <div className="max-w-4xl mx-auto space-y-5">
         <div className="flex items-center gap-3">
-          <button className="ws-btn-outline p-2" onClick={() => setView('available')}>
-            {IC.chevronLeft}
-          </button>
+          
           <div className="flex-1">
             <h1 className="text-xl font-bold text-slate-900">Detail Permohonan Penjemputan</h1>
             <p className="text-xs text-slate-400 font-mono">Ref: #{detailPickup.id.slice(-6).toUpperCase()}</p>
