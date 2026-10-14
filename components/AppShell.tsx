@@ -151,9 +151,11 @@ interface AppShellProps {
   searchPlaceholder?: string
 }
 
+import { parseDbDate, formatWIBDate } from '@/lib/datetime'
+
 function formatRelativeTime(dateInput: string | Date): string {
   try {
-    const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+    const d = parseDbDate(dateInput)
     if (isNaN(d.getTime())) return 'Baru saja'
     const now = new Date()
     const diffSec = Math.floor((now.getTime() - d.getTime()) / 1000)
@@ -161,7 +163,7 @@ function formatRelativeTime(dateInput: string | Date): string {
     if (diffSec < 3600) return `${Math.floor(diffSec / 60)} mnt lalu`
     if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} jam lalu`
     if (diffSec < 172800) return 'Kemarin'
-    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+    return formatWIBDate(d, { day: 'numeric', month: 'short' })
   } catch {
     return 'Baru saja'
   }

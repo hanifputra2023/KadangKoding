@@ -27,6 +27,10 @@ import {
   parseCategoryGuideline,
   serializeCategoryGuideline,
 } from '@/lib/guidelines'
+import {
+  formatWIBDate,
+  formatWIBDateTime,
+} from '@/lib/datetime'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -341,7 +345,7 @@ export default function AdminPage() {
       list.push({
         id: `admin-notif-p-${p.id}`,
         title: `Permohonan Masuk: ${wName}`,
-        message: `Menunggu kurir: ${cat} (~${p.estimated_weight_kg} kg). Dibuat ${new Date(p.created_at).toLocaleDateString('id-ID')}`,
+        message: `Menunggu kurir: ${cat} (~${p.estimated_weight_kg} kg). Dibuat ${formatWIBDate(p.created_at)}`,
         time: p.created_at,
         type: 'warning',
         linkView: 'management',
@@ -841,7 +845,7 @@ export default function AdminPage() {
               </div>
               <p className="text-xs font-semibold text-slate-900">{l.action}</p>
               <p className="text-[11px] text-slate-500">Modul: {l.resource_type}</p>
-              <p className="text-[11px] text-slate-400">{l.users?.name ?? 'System Engine'} • {new Date(l.created_at).toLocaleString()}</p>
+              <p className="text-[11px] text-slate-400">{l.users?.name ?? 'System Engine'} • {formatWIBDateTime(l.created_at)}</p>
             </div>
           ))}
         </div>
@@ -862,7 +866,7 @@ export default function AdminPage() {
               {pagedLogs.map((l, i) => (
                 <tr key={l.id}>
                   <td className="font-mono text-xs text-slate-500">LOG-{String((auditPage - 1) * auditPageSize + i + 1).padStart(4, '0')}</td>
-                  <td className="text-xs">{new Date(l.created_at).toLocaleString()}</td>
+                  <td className="text-xs">{formatWIBDateTime(l.created_at)}</td>
                   <td className="text-xs font-bold text-slate-800">{l.users?.name ?? 'System Engine'}</td>
                   <td className="text-xs">
                     <span className="font-semibold text-slate-900">{l.action}</span>
@@ -1057,7 +1061,7 @@ export default function AdminPage() {
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                       <span>Estimasi: <strong className="text-slate-800">{p.estimated_weight_kg} kg</strong></span>
                       <span>Aktual: <strong className="text-slate-800">{p.actual_weight_kg ? `${p.actual_weight_kg} kg` : '–'}</strong></span>
-                      <span>{new Date(p.created_at).toLocaleDateString()}</span>
+                      <span>{formatWIBDate(p.created_at)}</span>
                     </div>
                     {p.status === 'pending' && (
                       <button
@@ -1099,7 +1103,7 @@ export default function AdminPage() {
                       <td className="text-xs">{p.estimated_weight_kg} kg</td>
                       <td className="text-xs font-bold">{p.actual_weight_kg ? `${p.actual_weight_kg} kg` : '–'}</td>
                       <td><StatusBadge status={p.status} /></td>
-                      <td className="text-xs text-slate-500">{new Date(p.created_at).toLocaleDateString()}</td>
+                      <td className="text-xs text-slate-500">{formatWIBDate(p.created_at)}</td>
                       <td>
                         {p.status === 'pending' && (
                           <button
@@ -1148,7 +1152,7 @@ export default function AdminPage() {
                     <p className="text-xs text-slate-600 break-all">{u.email}</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                       <span>HP: {u.phone_number || '–'}</span>
-                      <span>Gabung: {new Date(u.created_at).toLocaleDateString()}</span>
+                      <span>Gabung: {formatWIBDate(u.created_at)}</span>
                     </div>
                     {me?.id !== u.id && (
                       <button
@@ -1207,7 +1211,7 @@ export default function AdminPage() {
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">AKTIF</span>
                         )}
                       </td>
-                      <td className="text-xs text-slate-500">{new Date(u.created_at).toLocaleDateString()}</td>
+                      <td className="text-xs text-slate-500">{formatWIBDate(u.created_at)}</td>
                       <td>
                         {me?.id !== u.id && (
                           <button
@@ -1294,8 +1298,8 @@ export default function AdminPage() {
                     <div>
                       <p className="text-xs font-bold text-slate-900">Rute #{r.id.slice(-6).toUpperCase()}</p>
                       <p className="text-[11px] text-slate-500">
-                        {r.collector_profiles?.vehicle_type ?? 'Collector'} • Dibuat {new Date(r.created_at).toLocaleString()}
-                        {r.completed_at ? ` • Selesai ${new Date(r.completed_at).toLocaleString()}` : ''}
+                        {r.collector_profiles?.vehicle_type ?? 'Collector'} • Dibuat {formatWIBDateTime(r.created_at)}
+                        {r.completed_at ? ` • Selesai ${formatWIBDateTime(r.completed_at)}` : ''}
                       </p>
                     </div>
                     <StatusBadge status={r.status} />

@@ -24,6 +24,13 @@ import {
   apiRecommendRoute,
 } from '@/lib/api/collector'
 import { apiUpload } from '@/lib/api/upload'
+import {
+  parseDbDate,
+  formatWIBDate,
+  formatWIBTimeRange,
+  getWibDateString,
+  getWibTomorrowString,
+} from '@/lib/datetime'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -204,7 +211,7 @@ export default function CollectorPage() {
   const [routes, setRoutes] = useState<Route[]>([])
   const [capacity, setCapacity] = useState<number>(150)
   const [serviceStart, setServiceStart] = useState('07:00')
-  const [serviceEnd, setServiceEnd] = useState('17:00')
+  const [serviceEnd, setServiceEnd] = useState('23:00')
   const [maxPerSlot, setMaxPerSlot] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
@@ -259,7 +266,7 @@ export default function CollectorPage() {
         }
         if (p.service_area) setServiceArea(p.service_area)
         setServiceStart(p.service_start || '07:00')
-        setServiceEnd(p.service_end || '17:00')
+        setServiceEnd(p.service_end || '23:00')
         setMaxPerSlot(Number(p.max_pickups_per_slot) || 5)
       }
     } catch {
@@ -592,17 +599,15 @@ export default function CollectorPage() {
     (p) => (p.waste_categories?.category_name || '').toLowerCase().includes(catFilter.toLowerCase())
   )
 
-  const now = new Date()
-  const todayStr = now.toDateString()
-  const tomorrowObj = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-  const tomorrowStr = tomorrowObj.toDateString()
+  const todayStr = getWibDateString()
+  const tomorrowStr = getWibTomorrowString()
 
   const scheduleFiltered = catFiltered.filter((p) => {
     if (scheduleFilter === 'all') return true
-    const pDate = new Date(p.pickup_window_start).toDateString()
+    const pDate = getWibDateString(p.pickup_window_start)
     if (scheduleFilter === 'today') return pDate === todayStr
     if (scheduleFilter === 'tomorrow') return pDate === tomorrowStr
-    if (scheduleFilter === 'upcoming') return pDate !== todayStr && pDate !== tomorrowStr
+    if (scheduleFilter === 'upcoming') return pDate > tomorrowStr
     return true
   })
 
@@ -616,11 +621,11 @@ export default function CollectorPage() {
     )
   })
 
-  const todayCount = catFiltered.filter((p) => new Date(p.pickup_window_start).toDateString() === todayStr).length
-  const tomorrowCount = catFiltered.filter((p) => new Date(p.pickup_window_start).toDateString() === tomorrowStr).length
+  const todayCount = catFiltered.filter((p) => getWibDateString(p.pickup_window_start) === todayStr).length
+  const tomorrowCount = catFiltered.filter((p) => getWibDateString(p.pickup_window_start) === tomorrowStr).length
   const upcomingCount = catFiltered.filter((p) => {
-    const d = new Date(p.pickup_window_start).toDateString()
-    return d !== todayStr && d !== tomorrowStr
+    const d = getWibDateString(p.pickup_window_start)
+    return d > tomorrowStr
   }).length
 
   // Kapasitas & Perlindungan Overload
@@ -686,7 +691,7 @@ export default function CollectorPage() {
                   Collector Portal
                 </span>
                 <span className="text-xs font-semibold text-emerald-800/80">
-                  {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  {formatWIBDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
               </div>
 
@@ -1052,21 +1057,21 @@ export default function CollectorPage() {
 
                 <div className="text-[11px] text-slate-500 space-y-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {new Date(p.pickup_window_start).toDateString() === todayStr ? (
+                    {getWibDateString(p.pickup_window_start) === todayStr ? (
                       <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
                         <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Hari Ini</span>
                       </span>
-                    ) : new Date(p.pickup_window_start).toDateString() === tomorrowStr ? (
+                    ) : getWibDateString(p.pickup_window_start) === tomorrowStr ? (
                       <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">
                         <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> Besok</span>
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> {new Date(p.pickup_window_start).toLocaleDateString()}</span>
+                        <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> {formatWIBDate(p.pickup_window_start)}</span>
                       </span>
                     )}
                     <span className="text-slate-600 font-medium">
-                      <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} – {new Date(p.pickup_window_end).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB</span>
+                      <span className="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> {formatWIBTimeRange(p.pickup_window_start, p.pickup_window_end)}</span>
                     </span>
                   </div>
                   <div className="pt-0.5 flex items-center gap-1.5 flex-wrap">
@@ -1214,7 +1219,7 @@ export default function CollectorPage() {
             <div>
               <span className="text-[11px] font-bold text-slate-400 uppercase">Jadwal Penjemputan</span>
               <p className="text-xs font-bold text-slate-800 mt-1">
-                {new Date(detailPickup.pickup_window_start).toLocaleDateString('id-ID')} ({new Date(detailPickup.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} – {new Date(detailPickup.pickup_window_end).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB)
+                {formatWIBDate(detailPickup.pickup_window_start, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({formatWIBTimeRange(detailPickup.pickup_window_start, detailPickup.pickup_window_end)})
               </p>
             </div>
 
@@ -2081,7 +2086,7 @@ export default function CollectorPage() {
         </div>
 
         <p className="text-[11px] text-slate-400">
-          Contoh: jika jam layanan 09:00–15:00, maka slot yang tersedia di warung adalah 09:00–11:00, 11:00–13:00, dan 13:00–15:00.
+          Contoh: jika jam layanan 07:00–23:00, maka slot yang tersedia di warung dapat dipilih dari 07:00–09:00 hingga 21:00–23:00 WIB.
         </p>
 
         <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-slate-100">

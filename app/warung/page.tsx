@@ -22,6 +22,14 @@ import {
   DEFAULT_GUIDE_FAQS,
   DEFAULT_STANDARDS,
 } from '@/lib/guidelines'
+import {
+  parseDbDate,
+  formatWIBDate,
+  formatWIBTimeRange,
+  buildWibIsoString,
+  getWibDateString,
+  getWibStartOfDay,
+} from '@/lib/datetime'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -143,10 +151,10 @@ const IC = {
 function resolveStatus(pickup: Pick<Pickup, 'status' | 'pickup_window_end' | 'created_at'>): string {
   if (pickup.status !== 'pending') return pickup.status
   const now = new Date()
-  const windowEnd = pickup.pickup_window_end ? new Date(pickup.pickup_window_end) : null
-  const createdAt = pickup.created_at ? new Date(pickup.created_at) : null
-  const expiredByWindow = windowEnd && windowEnd < now
-  const expiredByAge = createdAt && (now.getTime() - createdAt.getTime()) > 24 * 60 * 60 * 1000
+  const windowEnd = pickup.pickup_window_end ? parseDbDate(pickup.pickup_window_end) : null
+  const createdAt = pickup.created_at ? parseDbDate(pickup.created_at) : null
+  const expiredByWindow = windowEnd && !isNaN(windowEnd.getTime()) && windowEnd < now
+  const expiredByAge = createdAt && !isNaN(createdAt.getTime()) && (now.getTime() - createdAt.getTime()) > 24 * 60 * 60 * 1000
   if (expiredByWindow || expiredByAge) return 'expired'
   return 'pending'
 }
@@ -591,11 +599,7 @@ export default function WarungPage() {
   const [loading, setLoading] = useState(false)
 
   // Step 2: schedule
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
-  })
+  const [selectedDate, setSelectedDate] = useState<Date>(() => getWibStartOfDay())
   // Ref so realtime callbacks always read the latest selectedDate (avoids stale closure)
   const selectedDateRef = useRef(selectedDate)
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('')
@@ -672,10 +676,8 @@ export default function WarungPage() {
   async function loadSlots(date: Date, isSilent = false) {
     if (!isSilent) setSlotsLoading(true)
     try {
-      const y = date.getFullYear()
-      const m = String(date.getMonth() + 1).padStart(2, '0')
-      const d = String(date.getDate()).padStart(2, '0')
-      const res = await apiGetSlots(`${y}-${m}-${d}`)
+      const dateStr = getWibDateString(date)
+      const res = await apiGetSlots(dateStr)
       if (!res || !Array.isArray(res.slots)) return
       setTimeSlots(res.slots)
       setSelectedTimeSlot((prev) =>
@@ -829,7 +831,7 @@ export default function WarungPage() {
     pickups.forEach((p) => {
       const code = p.id.slice(0, 8).toUpperCase()
       const catName = p.waste_categories?.category_name || 'Organik'
-      const dateStr = new Date(p.pickup_window_start).toLocaleDateString('id-ID', {
+      const dateStr = formatWIBDate(p.pickup_window_start, {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -869,22 +871,37 @@ export default function WarungPage() {
     if (!selectedTimeSlot) return toast.error('Pilih jendela waktu yang tersedia!')
     setLoading(true)
     try {
-      // Parse slot label like "07:00 – 09:00 WIB" or "07:00 – 09:00"
-      const startPart = selectedTimeSlot.split('–')[0].trim()
-      const match = /(\d{1,2}):(\d{2})/.exec(startPart)
-      let startH = match ? parseInt(match[1], 10) : 7
-      if (startPart.includes('PM') && startH < 12) startH += 12
-      if (startPart.includes('AM') && startH === 12) startH = 0
-      const winStart = new Date(selectedDate)
-      winStart.setHours(startH, 0, 0, 0)
-      const winEnd = new Date(winStart)
-      winEnd.setHours(winEnd.getHours() + 2)
+      // Parse slot label like "07:00 – 09:00 WIB" or "07:00 - 09:00 WIB"
+      const match = /(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/.exec(selectedTimeSlot)
+      let startH = 7
+      let startM = 0
+      let endH = 9
+      let endM = 0
+
+      if (match) {
+        startH = parseInt(match[1], 10)
+        startM = parseInt(match[2], 10)
+        endH = parseInt(match[3], 10)
+        endM = parseInt(match[4], 10)
+      } else {
+        const singleMatch = /(\d{1,2}):(\d{2})/.exec(selectedTimeSlot)
+        if (singleMatch) {
+          startH = parseInt(singleMatch[1], 10)
+          startM = parseInt(singleMatch[2], 10)
+          endH = startH + 2
+          endM = startM
+        }
+      }
+
+      const dateStr = getWibDateString(selectedDate)
+      const winStartIso = buildWibIsoString(dateStr, startH, startM)
+      const winEndIso = buildWibIsoString(dateStr, endH, endM)
 
       await apiCreatePickup({
         waste_category_id: categoryId,
         estimated_weight_kg: Number(weight),
-        pickup_window_start: winStart.toISOString(),
-        pickup_window_end: winEnd.toISOString(),
+        pickup_window_start: winStartIso,
+        pickup_window_end: winEndIso,
         sample_photo_url: photoUrl,
         latitude: pickupLat,
         longitude: pickupLng,
@@ -1095,10 +1112,10 @@ export default function WarungPage() {
                 </div>
                 <div className="flex flex-wrap gap-4 text-xs text-slate-500 pt-1">
                   <span className="flex items-center gap-1">
-                    {IC.calendar} {new Date(activePickup.pickup_window_start).toLocaleDateString()}
+                    {IC.calendar} {formatWIBDate(activePickup.pickup_window_start)}
                   </span>
                   <span className="flex items-center gap-1">
-                    {IC.clock} {new Date(activePickup.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB
+                    {IC.clock} {formatWIBTimeRange(activePickup.pickup_window_start, activePickup.pickup_window_end)}
                   </span>
                 </div>
               </div>
@@ -1382,7 +1399,7 @@ export default function WarungPage() {
             {/* Selected date summary */}
             <p className="text-[11px] text-slate-500 mb-2 flex items-center gap-1">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              {selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {formatWIBDate(selectedDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
 
             <div className="space-y-2">
@@ -1529,7 +1546,7 @@ export default function WarungPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Jadwal:</span>
-                <span className="font-bold text-slate-800">{selectedDate.toLocaleDateString()}</span>
+                <span className="font-bold text-slate-800">{formatWIBDate(selectedDate)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Waktu:</span>
@@ -1576,7 +1593,7 @@ export default function WarungPage() {
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jadwal Penjemputan</span>
-            <p className="text-sm font-bold text-slate-900 mt-1">{selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p className="text-sm font-bold text-slate-900 mt-1">{formatWIBDate(selectedDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
             <p className="text-xs text-slate-500">{selectedTimeSlot}</p>
           </div>
         </div>
@@ -1708,7 +1725,7 @@ export default function WarungPage() {
                 <StatusBadge pickup={p} />
               </div>
               <p className="text-xs text-slate-500 truncate">
-                {new Date(p.pickup_window_start).toLocaleDateString('id-ID')} • {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB
+                {formatWIBDate(p.pickup_window_start)} • {formatWIBTimeRange(p.pickup_window_start, p.pickup_window_end)}
               </p>
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-slate-600 truncate">{p.waste_categories?.category_name ?? 'Organik'} • <strong className="text-slate-800">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</strong></span>
@@ -1759,7 +1776,7 @@ export default function WarungPage() {
                 <tr key={p.id}>
                   <td className="font-mono font-bold text-xs">#{p.id.slice(-6).toUpperCase()}</td>
                   <td className="text-xs">
-                    {new Date(p.pickup_window_start).toLocaleDateString('id-ID')} • {new Date(p.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB
+                    {formatWIBDate(p.pickup_window_start)} • {formatWIBTimeRange(p.pickup_window_start, p.pickup_window_end)}
                   </td>
                   <td className="text-xs">{p.waste_categories?.category_name ?? 'Organik'}</td>
                   <td className="text-xs font-bold">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</td>
@@ -1971,7 +1988,7 @@ export default function WarungPage() {
               <div className="mt-3.5 text-xs space-y-1.5 text-slate-600 bg-slate-50/70 p-3 rounded-lg border border-slate-100">
                 <p className="flex justify-between items-center">
                   <span className="text-slate-500">Jadwal:</span>
-                  <span className="font-semibold text-slate-800 text-right">{new Date(tracked.pickup_window_start).toLocaleDateString('id-ID')} ({new Date(tracked.pickup_window_start).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} WIB)</span>
+                  <span className="font-semibold text-slate-800 text-right">{formatWIBDate(tracked.pickup_window_start)} ({formatWIBTimeRange(tracked.pickup_window_start, tracked.pickup_window_end)})</span>
                 </p>
                 <p className="flex justify-between items-center">
                   <span className="text-slate-500">Estimasi Muatan:</span>

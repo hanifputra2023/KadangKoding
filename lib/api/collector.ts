@@ -3,14 +3,19 @@
  * Client-side functions - menggantikan /api/collector/* routes.
  */
 import { createClient } from '@/lib/supabase/client'
+import {
+  getWibStartOfDay,
+  getWibEndOfDay,
+  getWibTomorrowString,
+} from '@/lib/datetime'
 
 export async function apiGetCollectorPickups(opts?: { category?: string; area?: string; schedule?: string }) {
   const sb = createClient()
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).toISOString()
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString()
-  const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0).toISOString()
-  const tomorrowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999).toISOString()
+  const todayStart = getWibStartOfDay().toISOString()
+  const todayEnd = getWibEndOfDay().toISOString()
+  const tomorrowStr = getWibTomorrowString()
+  const tomorrowStart = getWibStartOfDay(tomorrowStr).toISOString()
+  const tomorrowEnd = getWibEndOfDay(tomorrowStr).toISOString()
 
   let query = sb
     .from('pickup_requests')

@@ -3,13 +3,21 @@
  * Client-side functions - menggantikan /api/warung/* routes.
  */
 import { createClient } from '@/lib/supabase/client'
+import {
+  parseDbDate,
+  getWibParts,
+  getWibDateString,
+} from '@/lib/datetime'
 
-const SLOTS = [
-  { label: '07:00 - 09:00 WIB', from: 7, to: 9 },
-  { label: '09:00 - 11:00 WIB', from: 9, to: 11 },
-  { label: '11:00 - 13:00 WIB', from: 11, to: 13 },
-  { label: '13:00 - 15:00 WIB', from: 13, to: 15 },
-  { label: '15:00 - 17:00 WIB', from: 15, to: 17 },
+export const SLOTS = [
+  { label: '07:00 – 09:00 WIB', from: 7, to: 9 },
+  { label: '09:00 – 11:00 WIB', from: 9, to: 11 },
+  { label: '11:00 – 13:00 WIB', from: 11, to: 13 },
+  { label: '13:00 – 15:00 WIB', from: 13, to: 15 },
+  { label: '15:00 – 17:00 WIB', from: 15, to: 17 },
+  { label: '17:00 – 19:00 WIB', from: 17, to: 19 },
+  { label: '19:00 – 21:00 WIB', from: 19, to: 21 },
+  { label: '21:00 – 23:00 WIB', from: 21, to: 23 },
 ]
 const ACTIVE_STATUSES = ['pending', 'assigned', 'in_progress']
 
@@ -22,14 +30,11 @@ function hhmmToNum(hhmm: string | null): number | null {
 export async function apiGetSlots(dateStr: string) {
   const sb = createClient()
   const dayKey = dateStr.slice(0, 10)
-  const now = new Date()
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const nowWib = getWibParts()
+  const todayStr = getWibDateString()
   const isToday = dayKey === todayStr
-  const [sYear, sMonth, sDay] = dayKey.split('-').map(Number)
-  const selectedMidnight = new Date(sYear, sMonth - 1, sDay)
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const isPastDate = selectedMidnight < todayMidnight
-  const currentHourFraction = now.getHours() + now.getMinutes() / 60
+  const isPastDate = dayKey < todayStr
+  const currentHourFraction = nowWib.hour + nowWib.minute / 60
 
   const { data: collectors } = await sb
     .from('collector_profiles')
@@ -47,27 +52,27 @@ export async function apiGetSlots(dateStr: string) {
     const effectiveCollectors = (collectors && collectors.length > 0)
       ? collectors.map((c: { service_start?: string | null; service_end?: string | null; max_pickups_per_slot?: number | null }) => ({
           service_start: c.service_start || '07:00',
-          service_end: c.service_end || '17:00',
+          service_end: c.service_end || '23:00',
           max_pickups_per_slot: Number(c.max_pickups_per_slot) || 5,
         }))
-      : [{ service_start: '07:00', service_end: '17:00', max_pickups_per_slot: 5 }]
+      : [{ service_start: '07:00', service_end: '23:00', max_pickups_per_slot: 5 }]
 
     const openCollectors = effectiveCollectors.filter((c: { service_start: string; service_end: string; max_pickups_per_slot: number }) => {
       const start = hhmmToNum(c.service_start) ?? 7
-      const end = hhmmToNum(c.service_end) ?? 17
+      const end = hhmmToNum(c.service_end) ?? 23
       return start <= slot.from && end >= slot.to
     })
 
     if (openCollectors.length === 0) return { label: slot.label, avail: false, reason: 'Di luar jam layanan collector' }
 
     const totalQuota = openCollectors.reduce((sum: number, c: { max_pickups_per_slot: number }) => sum + c.max_pickups_per_slot, 0)
-    const slotStart = new Date(`${dayKey}T${String(slot.from).padStart(2, '0')}:00:00`)
-    const slotEnd = new Date(`${dayKey}T${String(slot.to).padStart(2, '0')}:00:00`)
+    const slotStart = new Date(`${dayKey}T${String(slot.from).padStart(2, '0')}:00:00+07:00`).getTime()
+    const slotEnd = new Date(`${dayKey}T${String(slot.to).padStart(2, '0')}:00:00+07:00`).getTime()
 
     let count = 0
     for (const p of pickups ?? []) {
-      const ps = new Date(p.pickup_window_start)
-      if (!isNaN(ps.getTime()) && ps >= slotStart && ps < slotEnd) count++
+      const ps = parseDbDate(p.pickup_window_start).getTime()
+      if (!isNaN(ps) && ps >= slotStart && ps < slotEnd) count++
     }
 
     const avail = count < totalQuota
@@ -124,30 +129,32 @@ export async function apiCreatePickup(body: {
     .single()
   if (!warung) throw new Error('Profil warung tidak ditemukan')
 
-  const start = new Date(body.pickup_window_start)
-  const end = new Date(body.pickup_window_end)
+  const start = parseDbDate(body.pickup_window_start)
+  const end = parseDbDate(body.pickup_window_end)
   const now = new Date()
   if (end.getTime() <= now.getTime()) throw new Error('Jendela waktu yang dipilih sudah lewat')
 
-  // Validasi kuota
-  const slotFrom = start.getHours()
-  const slotTo = slotFrom + 2
+  // Validasi kuota berdasarkan jam WIB
+  const startWib = getWibParts(start)
+  const endWib = getWibParts(end)
+  const slotFrom = startWib.hour
+  const slotTo = endWib.hour
   const { data: collectors } = await sb.from('collector_profiles').select('service_start, service_end, max_pickups_per_slot')
   const open = (collectors ?? []).filter((c: { service_start?: string | null; service_end?: string | null }) => {
-    const cs = hhmmToNum(c.service_start ?? null); const ce = hhmmToNum(c.service_end ?? null)
-    return cs != null && ce != null && cs <= slotFrom && ce >= slotTo
+    const cs = hhmmToNum(c.service_start ?? null) ?? 7
+    const ce = hhmmToNum(c.service_end ?? null) ?? 23
+    return cs <= slotFrom && ce >= slotTo
   })
   if (open.length === 0) throw new Error('Tidak ada collector yang beroperasi pada jam tersebut')
 
   const totalQuota = open.reduce((s: number, c: { max_pickups_per_slot?: number | null }) => s + (Number(c.max_pickups_per_slot) || 0), 0)
-  const windowKey = start.toDateString()
+  const slotStart = start.getTime()
+  const slotEnd = end.getTime()
   const { data: existing } = await sb.from('pickup_requests').select('pickup_window_start').in('status', ACTIVE_STATUSES)
   let count = 0
   for (const p of existing ?? []) {
-    const ps = new Date(p.pickup_window_start)
-    if (!isNaN(ps.getTime()) && ps.toDateString() === windowKey) {
-      const h = ps.getHours(); if (h >= slotFrom && h < slotTo) count++
-    }
+    const ps = parseDbDate(p.pickup_window_start).getTime()
+    if (!isNaN(ps) && ps >= slotStart && ps < slotEnd) count++
   }
   if (count >= totalQuota) throw new Error(`Kuota penuh (${totalQuota}). Pilih jendela waktu lain.`)
 
