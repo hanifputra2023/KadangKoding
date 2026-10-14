@@ -2,10 +2,10 @@
 
 # 🌿 WarungSirkular
 
-### Platform Ekosistem Sirkular Sampah Organik
+### Platform Micro-Logistics & Ekosistem Sirkular Sampah Organik
 
-**Menghubungkan warung makan, kurir pengumpul, dan pembudidaya maggot BSF**
-**dalam satu platform terintegrasi yang transparan & berdampak nyata.**
+**Menghubungkan warung makan, kurir pengumpul, dan pembudidaya maggot BSF**  
+**dalam satu platform digital terintegrasi yang transparan & terukur.**
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-kadang--koding.vercel.app-10b981?style=for-the-badge)](https://kadang-koding.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
@@ -17,293 +17,301 @@
 
 ---
 
-## 💡 Latar Belakang Masalah
-
-Setiap hari, jutaan kilogram **sampah organik dari warung makan** berakhir di TPA dan menghasilkan gas metana — salah satu gas rumah kaca paling berbahaya. Di sisi lain, pembudidaya **maggot BSF (Black Soldier Fly)** membutuhkan bahan organik ini sebagai pakan larva yang bernilai tinggi sebagai sumber protein.
-
-**Masalahnya?** Tidak ada infrastruktur yang menghubungkan keduanya secara efisien.
-
-> **WarungSirkular** hadir sebagai jembatan digital: mengubah sampah organik warung menjadi aset dalam rantai ekonomi sirkular.
-
----
-
-## ✨ Solusi yang Kami Bangun
-
-```
-Warung Makan  ──►  WarungSirkular  ──►  Kurir Mitra  ──►  Pembudidaya Maggot BSF
- (Penghasil)         (Platform)          (Logistik)           (Pengolah)
-```
-
-Platform ini menangani **tiga sisi ekosistem** sekaligus:
-
-| 🏪 Warung | 🛵 Collector | 🛡️ Admin |
-|:---:|:---:|:---:|
-| Buat jadwal penjemputan | Lihat & klaim pickup tersedia | Monitor seluruh operasional |
-| Lacak status real-time | Optimasi rute otomatis | Analytics dampak lingkungan |
-| Riwayat & impact report | Konfirmasi dengan berat aktual | Audit log lengkap |
+## 📌 Daftar Isi (Table of Contents)
+1. [Latar Belakang & Masalah](#1-latar-belakang--masalah)
+2. [Alur Solusi (Workflow & Business Model)](#2-alur-solusi-workflow--business-model)
+   - [2.1 Alur Rantai Sirkular Sistem](#21-alur-rantai-sirkular-sistem)
+   - [2.2 Alur Pengguna & Sistem (End-to-End User Journey)](#22-alur-pengguna--sistem-end-to-end-user-journey)
+   - [2.3 Matriks Peran & Hak Akses (Role Matrix)](#23-matriks-peran--hak-akses-role-matrix)
+3. [Cara Menjalankan Solusi](#3-cara-menjalankan-solusi)
+   - [Opsi A: Jalankan Langsung (Cloud Live Demo — Rekomendasi Juri)](#opsi-a-jalankan-langsung-cloud-live-demo--rekomendasi-juri)
+   - [Opsi B: Jalankan Secara Lokal (Localhost Development)](#opsi-b-jalankan-secara-lokal-localhost-development)
+   - [Opsi C: Jalankan di Android (Mobile APK)](#opsi-c-jalankan-di-android-mobile-apk)
+4. [Arsitektur Sistem & Tech Stack](#4-arsitektur-sistem--tech-stack)
+   - [4.1 Arsitektur Sistem](#41-arsitektur-sistem)
+   - [4.2 Tech Stack](#42-tech-stack)
+   - [4.3 Struktur Direktori](#43-struktur-direktori)
+5. [Fitur Unggulan Sistem](#5-fitur-unggulan-sistem)
+6. [Dampak Lingkungan & ESG (Impact Metrics)](#6-dampak-lingkungan--esg-impact-metrics)
 
 ---
 
-## 🚀 Demo Langsung
+## 1. Latar Belakang & Masalah
 
-🌐 **[https://kadang-koding.vercel.app](https://kadang-koding.vercel.app)**
+Setiap hari, ribuan kilogram **sampah organik sisa makanan dari warung makan dan UMKM kuliner** berakhir di Tempat Pembuangan Akhir (TPA). Tumpukan sampah basah ini membusuk secara anaerobik dan melepaskan **gas metana (CH₄)** — gas rumah kaca dengan potensi pemanasan global hingga 28x lebih berbahaya dibanding CO₂.
 
-Gunakan akun berikut untuk menjelajahi tiap role:
+Di sisi lain, terdapat pembudidaya **larva Black Soldier Fly (Maggot BSF)** yang membutuhkan pasokan bahan organik dalam jumlah besar setiap hari sebagai biomassa pakan berprotein tinggi untuk perikanan dan peternakan.
 
-| Role | Email | Password |
-|------|-------|----------|
-| Warung | `demo.warung@warungsirkular.id` | `demo1234` |
-| Collector | `demo.kurir@warungsirkular.id` | `demo1234` |
-| Admin | `demo.admin@warungsirkular.id` | `demo1234` |
+### Inti Masalah:
+- ❌ **Warung Makan:** Kesulitan membuang sampah organik harian, tidak memiliki sarana pilah yang terfasilitasi, dan sampah berbau jika menumpuk.
+- ❌ **Kurir / Collector:** Tidak memiliki transparansi rute, jadwal penjemputan tidak terkoordinasi, dan ketidakpastian volume sampah.
+- ❌ **Pembudidaya BSF:** Pasokan pakan larva fluktuatif dan tidak terstandarisasi.
+- ❌ **Pemerintah & Publik:** Ketiadaan data audit jejak karbon dan volume sampah organik yang berhasil dialihkan dari TPA.
 
-> Atau daftar akun baru langsung di halaman login!
+> **WarungSirkular** hadir menyelesaikan hambatan ini melalui digitalisasi mikro-logistik rantai dingin sampah organik, menghubungkan seluruh pihak dalam satu aplikasi terintegrasi.
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## 2. Alur Solusi (Workflow & Business Model)
+
+### 2.1 Alur Rantai Sirkular Sistem
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      CLIENT LAYER                        │
-│   Next.js 16 (App Router)  +  Capacitor (Android APK)   │
-└──────────────────────┬──────────────────────────────────┘
-                       │ HTTPS / WebSocket
-┌──────────────────────▼──────────────────────────────────┐
-│                    SUPABASE LAYER                         │
-│  ┌──────────────┐  ┌─────────────┐  ┌────────────────┐  │
-│  │  PostgreSQL  │  │  Auth (JWT) │  │    Realtime    │  │
-│  │  + RLS       │  │  30-day     │  │  (WebSocket)   │  │
-│  │              │  │  rolling    │  │  auto-update   │  │
-│  └──────────────┘  └─────────────┘  └────────────────┘  │
-│  ┌──────────────┐                                        │
-│  │   Storage    │  ← Foto sampah & bukti penimbangan     │
-│  └──────────────┘                                        │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────┐       ┌─────────────────┐       ┌──────────────────┐       ┌──────────────────────┐
+│  WARUNG MAKAN   │ ───►  │  WARUNGSIRKULAR │ ───►  │  KURIR MITRA     │ ───►  │  PEMBUDIDAYA MAGGOT  │
+│  (Produsen Sisa │       │  (Platform B2B  │       │  (Mikro-Logistik │       │  (Biokonversi Larva  │
+│   Organik Kuliner)      │   Koordinasi)   │       │   Jemput & Timbang)      │   BSF & Pakan Ternak)│
+└─────────────────┘       └─────────────────┘       └──────────────────┘       └──────────────────────┘
+         │                                                                                 │
+         └──────────────────◄ Nilai Tambah & Laporan Dampak ESG ◄──────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Tech Stack
+### 2.2 Alur Pengguna & Sistem (End-to-End User Journey)
 
-| Kategori | Teknologi |
-|----------|-----------|
-| **Framework** | Next.js 16 (App Router), React 19 |
-| **Styling** | Tailwind CSS v4, Custom Emerald Design System |
-| **Database** | Supabase (PostgreSQL + Row Level Security) |
-| **Auth** | Supabase Auth — JWT Cookie, 30-day rolling session |
-| **Realtime** | Supabase Realtime (WebSocket live update) |
-| **Mobile** | Capacitor.js — Android WebView wrapper |
-| **Peta** | Leaflet + React-Leaflet + OpenStreetMap |
-| **Bahasa** | TypeScript 5 (strict mode) |
-| **Deployment** | Vercel (web) + Gradle (APK) |
-
----
-
-## 📁 Struktur Proyek
+Berikut adalah tahapan operasional dari awal sampah dipilah hingga dikonversi menjadi maggot BSF:
 
 ```
-warungsirkular-app/
-│
-├── 📂 app/
-│   ├── login/          → Halaman Login & Register (unified UI)
-│   ├── warung/         → Dashboard Mitra Warung
-│   ├── collector/      → Dashboard Kurir / Collector
-│   └── admin/          → Panel Admin & Analytics
-│
-├── 📂 components/
-│   ├── AppShell.tsx    → Layout sidebar + topbar (semua dashboard)
-│   ├── ProfileView.tsx → Modal profil & edit akun
-│   ├── ClientMap.tsx   → Leaflet map (SSR-safe)
-│   └── Charts.tsx      → LineChart & DonutChart analytics
-│
-├── 📂 lib/
-│   ├── api/            → Fungsi API: auth, warung, collector, admin
-│   ├── supabase/       → Browser client, server client, service client
-│   └── hooks/          → useRealtimeTables (live subscription)
-│
-├── 📂 supabase/
-│   ├── migrations/     → SQL schema lengkap (0001_init.sql)
-│   └── setup_realtime_sql_editor.sql
-│
-├── 📂 android/         → Project Android (Capacitor)
-├── capacitor.config.ts → Config Capacitor (appId, webDir)
-├── next.config.ts      → Next.js config (static export untuk APK)
-└── vercel.json         → Config deployment Vercel
+[ TAHAP 1: REQUEST OLEH WARUNG ]
+  1. Mitra Warung memilah sisa makanan (sayur, nasi, sisa dapur).
+  2. Buka Dashboard Warung -> Klik "Buat Penjemputan".
+  3. Memilih kategori sampah, estimasi berat (kg), waktu penjemputan, pin lokasi via peta, dan upload foto sampel.
+  4. Sistem menyimpan data ke database -> Status: PENDING.
+  5. Notifikasi realtime langsung muncul di feed mitra Kurir.
+             │
+             ▼
+[ TAHAP 2: KLAIM & OPTIMASI RUTE OLEH KURIR ]
+  1. Kurir membuka Dashboard Collector -> Melihat daftar pickup PENDING di sekitarnya.
+  2. Kurir dapat memilih satu atau beberapa titik warung sekaligus.
+  3. Sistem mengurutkan rute penjemputan terdekat.
+  4. Kurir menekan "Klaim Penjemputan" -> Status berubah: ASSIGNED.
+             │
+             ▼
+[ TAHAP 3: PERJALANAN & PENJEMPUTAN ]
+  1. Kurir menuju lokasi warung (menggunakan navigasi koordinat peta Leaflet).
+  2. Status penjemputan diupdate -> Status: IN PROGRESS.
+  3. Pemilik Warung melihat status bergerak secara real-time tanpa refresh layar.
+             │
+             ▼
+[ TAHAP 4: PENIMBANGAN AKTUAL & SERAH TERIMA ]
+  1. Kurir tiba di warung dan melakukan penimbangan fisik.
+  2. Kurir memasukkan **Berat Aktual (kg)** dan mengunggah **Foto Bukti Penimbangan**.
+  3. Konfirmasi penyelesaian -> Status berubah: COMPLETED.
+  4. Sampah organik diangkut menuju fasilitas biokonversi Maggot BSF.
+             │
+             ▼
+[ TAHAP 5: ANALYTICS & AUDIT OLEH ADMIN ]
+  1. Sistem otomatis mengkalkulasi dampak lingkungan:
+     - Estimasi offset emisi karbon (kg CO₂e).
+     - Penghematan air dari air lindi yang tercegah (kL).
+     - Potensi biomassa pakan maggot yang dihasilkan.
+  2. Seluruh metrik tampil di Dashboard Admin untuk keperluan audit dan sertifikasi ESG.
 ```
 
 ---
 
-## ⚙️ Cara Menjalankan Secara Lokal
+### 2.3 Matriks Peran & Hak Akses (Role Matrix)
 
-### Prasyarat
-
-- **Node.js** v18+ → [nodejs.org](https://nodejs.org)
-- **Akun Supabase** (gratis) → [supabase.com](https://supabase.com)
+| Peran (Role) | Akses URL | Fitur Utama | Tanggung Jawab Operasional |
+|---|---|---|---|
+| **🏪 Warung Makan** | `/warung` | Buat jadwal jemput, peta pin lokasi, tracking live status, riwayat penjemputan, metrik reduksi sampah pribadi. | Memilah sampah dari sumber dan membuat permintaan saat wadah siap angkut. |
+| **🛵 Kurir (Collector)** | `/collector` | Feed pickup tersedia, klaim pickup multi-titik, petunjuk arah peta, input berat riil, upload foto bukti serah terima. | Melakukan verifikasi fisik, penimbangan, dan pengantaran ke biokonversi. |
+| **🛡️ Administrator** | `/admin` | Ringkasan operasional real-time, verifikasi seluruh transaksi, grafik analitik ESG (CO₂e & Kg), audit log pengguna. | Menjaga kestabilan sistem, manajemen pengguna, dan penerbitan laporan dampak. |
 
 ---
 
-### Langkah 1 — Clone & Install
+## 3. Cara Menjalankan Solusi
 
+Tersedia **3 cara** untuk menguji dan menjalankan solusi WarungSirkular:
+
+### Opsi A: Jalankan Langsung (Cloud Live Demo — Rekomendasi Juri)
+
+> 💡 **Cara paling cepat bagi Dewan Juri**: Tidak perlu install atau clone apapun. Seluruh sistem web dan database Supabase telah online 24/7.
+
+1. Buka tautan resmi: **[https://kadang-koding.vercel.app](https://kadang-koding.vercel.app)**
+2. Masuk menggunakan salah satu **Akun Demo Siap Pakai** berikut:
+
+| Role Pengguna | Email | Password | Kegunaan Pengujian |
+|---|---|---|---|
+| **Warung Mitra** | `demo.warung@warungsirkular.id` | `demo1234` | Menguji pembuatan jadwal jemput dan tracking status. |
+| **Kurir Pengumpul** | `demo.kurir@warungsirkular.id` | `demo1234` | Menguji klaim pickup, navigasi, dan input timbangan. |
+| **Super Admin** | `demo.admin@warungsirkular.id` | `demo1234` | Menguji dashboard metrik analitik, grafik, dan audit log. |
+
+*Catatan: Penguji juga dapat mendaftar akun baru mandiri secara langsung melalui halaman Register.*
+
+---
+
+### Opsi B: Jalankan Secara Lokal (Localhost Development)
+
+Jika ingin menjalankan kode sumber di komputer lokal:
+
+#### 1. Prasyarat Sistem
+- **Node.js** versi 18 atau lebih baru ([Unduh Node.js](https://nodejs.org))
+- **Git** ([Unduh Git](https://git-scm.com))
+- Akun layanan **Supabase** (Free Tier) ([supabase.com](https://supabase.com))
+
+#### 2. Kloning Repositori & Instalasi Dependensi
 ```bash
+# Clone repository
 git clone https://github.com/hanifputra2023/KadangKoding.git
+
+# Masuk ke direktori proyek
 cd KadangKoding
+
+# Install semua paket dependensi
 npm install
 ```
 
-### Langkah 2 — Konfigurasi Environment
-
-Buat file `.env.local` di root project:
-
+#### 3. Konfigurasi Environment Variables
+Buat file baru bernama `.env.local` pada direktori root proyek:
 ```env
-# Dari Supabase Dashboard → Settings → API
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+# URL & Kunci Publik Supabase (dari menu Project Settings -> API)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Service Role (jangan expose ke client!)
+# Kunci Rahasia Server Supabase (Service Role)
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Secret bebas untuk endpoint cron
-CRON_SECRET=isi_bebas_string_acak_anda
+# String rahasia untuk trigger endpoint internal cron
+CRON_SECRET=warungsirkular_secret_cron_token_123
 ```
 
-### Langkah 3 — Setup Database Supabase
+#### 4. Setup Database & Storage Supabase
+1. Masuk ke **Supabase Dashboard** -> pilih proyek -> buka **SQL Editor**.
+2. Salin isi file `supabase/migrations/0001_init.sql`, tempelkan ke editor, lalu klik **Run** (membuat tabel, view, enum, RLS, trigger, dan seed kategori).
+3. Buka tab baru di SQL Editor, salin isi file `supabase/setup_realtime_sql_editor.sql`, lalu klik **Run** (mengaktifkan publication realtime WebSocket).
+4. Buka menu **Storage** -> klik **New Bucket**:
+   - Beri nama: `pickup-photos`
+   - Aktifkan opsi **Public bucket**
+   - Klik **Save**
 
-1. Buka **Supabase Dashboard → SQL Editor**
-2. Copy isi file `supabase/migrations/0001_init.sql`
-3. Paste & klik **Run**
-
-File ini otomatis membuat:
-- ✅ 8 tabel + relasi lengkap
-- ✅ Row Level Security (RLS) policies
-- ✅ Trigger sinkronisasi `auth.users → public.users`
-- ✅ Seed 5 kategori sampah default
-
-Lalu aktifkan Realtime — jalankan `supabase/setup_realtime_sql_editor.sql` di SQL Editor.
-
-### Langkah 4 — Buat Storage Bucket
-
-Di Supabase Dashboard → **Storage → New Bucket**:
-- Nama: `pickup-photos`
-- Centang **Public bucket**
-- Klik **Create**
-
-### Langkah 5 — Jalankan
-
+#### 5. Menjalankan Server Development
 ```bash
 npm run dev
 ```
-
-Buka **[http://localhost:3000](http://localhost:3000)** → daftar akun baru & mulai eksplorasi!
-
----
-
-## 🔄 Alur Kerja Lengkap (End-to-End)
-
-```
-1. 🏪 WARUNG membuat Pickup Request
-   └─ Pilih kategori sampah
-   └─ Estimasi berat & jadwal
-   └─ Pin lokasi di peta interaktif
-   └─ Upload foto pratinjau sampah
-            │
-            ▼ STATUS: PENDING
-            │
-2. 🛵 COLLECTOR melihat pickup tersedia
-   └─ Pilih beberapa pickup sekaligus
-   └─ Sistem generate rute optimal (Nearest-Neighbor)
-   └─ Klaim rute penjemputan
-            │
-            ▼ STATUS: ASSIGNED
-            │
-3. 🚗 COLLECTOR berangkat ke warung-warung
-            │
-            ▼ STATUS: IN PROGRESS
-            │
-4. ✅ COLLECTOR menyelesaikan di setiap warung
-   └─ Input berat aktual
-   └─ Upload foto bukti penimbangan
-            │
-            ▼ STATUS: COMPLETED
-            │
-5. 📊 ADMIN memantau & lihat analytics
-   └─ Total berat terkumpul
-   └─ Estimasi offset karbon CO₂e
-   └─ Audit log seluruh aktivitas
-```
+Buka browser di **[http://localhost:3000](http://localhost:3000)**. Aplikasi siap digunakan!
 
 ---
 
-## 📊 Fitur Unggulan
+### Opsi C: Jalankan di Android (Mobile APK)
 
-### 🔴 Live Real-time Tracking
-Status penjemputan diperbarui otomatis tanpa refresh menggunakan **Supabase Realtime WebSocket**. Badge "Live · Auto-update aktif" muncul di setiap halaman yang tersubscribe.
-
-### 🗺️ Peta Interaktif
-Pengguna bisa pin lokasi di peta **Leaflet + OpenStreetMap** saat membuat pickup request. Kurir melihat lokasi semua warung yang harus dijemput dalam satu tampilan.
-
-### 🔐 Session Persisten 30 Hari
-Login sekali, sesi otomatis diperpanjang setiap kali pengguna membuka website. Tidak perlu login ulang selama masih aktif dalam 30 hari.
-
-### 📱 Tersedia sebagai Android APK
-Dibangun menggunakan **Capacitor.js** — seluruh fitur web berjalan dalam WebView Android native tanpa perlu menulis kode native terpisah.
-
----
-
-## 📦 Build Android APK
+Aplikasi telah dikonfigurasi menggunakan **Capacitor.js** untuk kompilasi ke perangkat Android Native:
 
 ```bash
-# Langkah 1: Build web & sync ke Android
+# 1. Ekspor bundle web dan sinkronisasikan ke folder Android native
 npm run build:android
 
-# Langkah 2: Buka Android Studio
+# 2. Buka proyek Android di Android Studio
 npm run cap:open
+```
 
-# Di Android Studio: Build → Build APK(s)
-# Output: android/app/build/outputs/apk/debug/app-debug.apk
+**Langkah di Android Studio:**
+1. Tunggu Gradle Sync selesai.
+2. Pilih menu **Build** -> **Build Bundle(s) / APK(s)** -> **Build APK(s)**.
+3. File APK siap di-install di smartphone Anda pada folder:  
+   `android/app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## 4. Arsitektur Sistem & Tech Stack
+
+### 4.1 Arsitektur Sistem
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        PRESENTATION LAYER                              │
+│   Next.js 16 (App Router + React 19)   │   Capacitor Android Native    │
+│   - Responsive Mobile First UI         │   - Android WebKit Container  │
+│   - Leaflet + OSM Geospatial Map       │   - Native Device Integration │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS (REST) & WSS (WebSocket)
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                       BACKEND & CLOUD SERVICES                         │
+│                           (Supabase PaaS)                              │
+│                                                                        │
+│  ┌──────────────────────┐  ┌─────────────────────┐  ┌───────────────┐  │
+│  │ PostgreSQL Database  │  │ Supabase Auth (JWT) │  │  Realtime WS  │  │
+│  │ - 8 Normalized Tables│  │ - 30-Day Rolling    │  │ - Live State  │  │
+│  │ - Row Level Security │  │   Session Refresh   │  │   Updates     │  │
+│  └──────────────────────┘  └─────────────────────┘  └───────────────┘  │
+│  ┌──────────────────────┐  ┌─────────────────────┐                     │
+│  │ Storage S3 Bucket    │  │ Next.js API Routes  │                     │
+│  │ - pickup-photos      │  │ - Middleware Auth   │                     │
+│  │   (Public CDN)       │  │ - Route Handlers    │                     │
+│  └──────────────────────┘  └─────────────────────┘                     │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Tech Stack
+
+| Lapisan (Layer) | Teknologi | Alasan Pemilihan |
+|---|---|---|
+| **Frontend Framework** | **Next.js 16 (React 19)** | Server Component, optimasi SEO, performa render tinggi. |
+| **Bahasa Pemrograman** | **TypeScript 5** | Strict type safety mencegah runtime error pada skema logistik. |
+| **Styling & Design** | **Tailwind CSS v4** | Konsistensi palet Emerald Nature, responsive breakpoints, zero-runtime CSS. |
+| **Database & Auth** | **Supabase (PostgreSQL 15)** | Relasional kuat, Row Level Security (RLS) menjaga privasi data antar-warung. |
+| **Realtime Engine** | **Supabase Realtime (WebSocket)**| Perubahan status penjemputan terupdate instan tanpa beban polling server. |
+| **Sesi & Login** | **30-Day Rolling JWT** | Kenyamanan mitra kurir/warung agar tidak ter-logout tiba-tiba saat di lapangan. |
+| **Peta & Geospasial** | **Leaflet + OpenStreetMap** | Solusi pemetaan gratis dan presisi tanpa batasan kuota Google Maps API. |
+| **Mobile Runtime** | **Capacitor 6** | Mengubah web app responsif menjadi APK Android dengan performa native. |
+| **Hosting & CI/CD** | **Vercel Edge Platform** | Deploy otomatis, latensi rendah, dan SSL otomatis aktif. |
+
+### 4.3 Struktur Direktori
+
+```
+warungsirkular-app/
+├── 📂 app/                      # Arsitektur App Router Next.js
+│   ├── login/                  # Autentikasi terpadu (Login & Register)
+│   ├── warung/                 # Dashboard, order form, dan riwayat Warung
+│   ├── collector/              # Dashboard, feed penjemputan, dan verifikasi Kurir
+│   └── admin/                  # Dashboard operasional & analitik ESG
+├── 📂 components/               # Komponen UI Reusable
+│   ├── AppShell.tsx            # Layout responsif (Sidebar, Topbar, User Profile)
+│   ├── ClientMap.tsx           # Integrasi Leaflet Map (SSR-Safe)
+│   ├── Charts.tsx              # Visualisasi data analitik donat & garis
+│   └── ProfileView.tsx         # Modal edit data profil pengguna
+├── 📂 lib/                      # Utilitas & Abstraksi Data
+│   ├── api/                    # Endpoint helper untuk masing-masing role
+│   ├── supabase/               # Client koneksi Supabase (Browser, Server, Admin)
+│   └── hooks/                  # Custom React Hook untuk langganan Realtime
+├── 📂 supabase/                 # Skema SQL & Konfigurasi Realtime
+│   ├── migrations/0001_init.sql# Skrip inisialisasi tabel, index, RLS & seed
+│   └── setup_realtime_sql_editor.sql
+├── 📂 android/                  # Proyek Android Native (Capacitor)
+├── capacitor.config.ts          # Konfigurasi bundle ID & direktori APK
+└── package.json                 # Daftar dependensi & npm scripts
 ```
 
 ---
 
-## 🚢 Deploy ke Vercel
+## 5. Fitur Unggulan Sistem
 
-```bash
-# 1. Push ke GitHub (sudah dilakukan)
-git push origin main
-
-# 2. Import project di vercel.com
-# 3. Tambahkan Environment Variables (.env.local)
-# 4. Deploy otomatis!
-```
+- 🔄 **Real-Time Live Sync (WebSocket):** Setiap perubahan status penjemputan dari `PENDING` -> `ASSIGNED` -> `IN PROGRESS` -> `COMPLETED` otomatis tersinkronisasi ke seluruh dashboard tanpa perlu memuat ulang (refresh) halaman.
+- 🗺️ **Peta Interaktif Geospasial:** Pin koordinat lokasi warung secara presisi menggunakan peta OpenStreetMap, memudahkan kurir mengidentifikasi titik penjemputan terdekat.
+- 🔐 **Sesi Persisten 30 Hari (Rolling Expiry):** Dirancang untuk mitra lapangan; session diperbarui otomatis setiap kali aplikasi dibuka sehingga pengguna tetap masuk selama aktif dalam rentang 30 hari.
+- 📱 **Multi-Platform Ready (Web & APK):** Tampilan responsif optimal di layar ponsel, tablet, hingga komputer desktop, serta dapat dipasang sebagai aplikasi Android native (.apk).
+- 📸 **Verifikasi Bukti Fisik:** Collector wajib mengunggah foto timbangan dan mencatat berat kilogram aktual untuk menjamin transparansi data.
 
 ---
 
-## 📜 Scripts
+## 6. Dampak Lingkungan & ESG (Impact Metrics)
 
-| Perintah | Fungsi |
-|----------|--------|
-| `npm run dev` | Dev server (localhost:3000) |
-| `npm run build` | Production build untuk Vercel |
-| `npm run build:android` | Build + sync ke Android |
-| `npm run cap:open` | Buka project di Android Studio |
-| `npm run lint` | Cek kode dengan ESLint |
+Platform WarungSirkular tidak hanya mencatat transaksi logistik, tetapi juga secara otomatis mengonversinya menjadi indikator keberlanjutan terukur:
 
----
-
-## 🌍 Dampak Lingkungan
-
-Setiap kilogram sampah organik yang berhasil dikelola melalui WarungSirkular:
-
-- ♻️ **Mengalihkan sampah** dari TPA yang menghasilkan metana
-- 🌱 **Mengurangi** ~2.1 kg CO₂e emisi gas rumah kaca
-- 💧 **Menghemat** ~0.4 kL air yang tercemar lindi
-- 🐛 **Mendukung** produksi maggot BSF berprotein tinggi sebagai pakan ternak
+| Indikator Dampak | Formula Perhitungan Rata-Rata | Signifikansi Lingkungan |
+|---|---|---|
+| **Pengalihan Sampah TPA** | $\sum \text{Berat Aktual (Kg)}$ | Mencegah penumpukan sampah organik di TPA kota. |
+| **Reduksi Emisi Metana** | $\approx 2.1\text{ kg CO}_2\text{e} \times \text{Kg Sampah}$ | Mengurangi efek gas rumah kaca penyebab pemanasan global. |
+| **Pencegahan Air Lindi** | $\approx 0.4\text{ Liter Air} \times \text{Kg Sampah}$ | Mencegah pencemaran air tanah akibat lindi sampah membusuk. |
+| **Produksi Pakan Ternak** | $\approx 0.2\text{ Kg Maggot BSF} \times \text{Kg Sampah}$ | Menghasilkan larva protein tinggi sebagai pakan ayam dan ikan. |
 
 ---
 
 <div align="center">
 
-**Dibuat dengan ❤️ untuk lingkungan yang lebih bersih**
+**WarungSirkular** — *Inovasi Digital Mewujudkan Nol Sampah Organik ke TPA.*
 
-[🌐 Live Demo](https://kadang-koding.vercel.app) · [🐛 Laporkan Bug](https://github.com/hanifputra2023/KadangKoding/issues) · [💡 Request Fitur](https://github.com/hanifputra2023/KadangKoding/issues)
+[🌐 Buka Live Demo](https://kadang-koding.vercel.app) • [📂 Repositori GitHub](https://github.com/hanifputra2023/KadangKoding) • [🐛 Laporkan Kendala](https://github.com/hanifputra2023/KadangKoding/issues)
 
 </div>
