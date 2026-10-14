@@ -201,6 +201,7 @@ export default function AppShell({
   const [searchFocused, setSearchFocused] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const mobileSearchOverlayRef = useRef<HTMLDivElement>(null)
 
   // Storage keys keyed by userId or role
   const storageKey = `ws_read_notifs_${userId || role}`
@@ -303,9 +304,14 @@ export default function AppShell({
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setNotifOpen(false)
       }
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+      // Hanya tutup desktop search dropdown (bukan mobile overlay)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(e.target as Node) &&
+        // Jangan tutup mobileSearch jika klik ada di dalam overlay mobile
+        !(mobileSearchOverlayRef.current && mobileSearchOverlayRef.current.contains(e.target as Node))
+      ) {
         setSearchFocused(false)
-        setMobileSearchOpen(false)
       }
     }
 
@@ -558,7 +564,10 @@ export default function AppShell({
 
             {/* Mobile Search Overlay Full-Screen */}
             {mobileSearchOpen && (
-              <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs sm:hidden flex flex-col animate-in fade-in duration-150">
+              <div
+                ref={mobileSearchOverlayRef}
+                className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-xs sm:hidden flex flex-col animate-in fade-in duration-150"
+              >
                 {/* Mobile Search Bar at Top */}
                 <div className="bg-white px-3 py-2.5 border-b border-slate-200 flex items-center gap-2 shadow-xs">
                   <button
@@ -580,12 +589,16 @@ export default function AppShell({
                       placeholder={searchPlaceholder}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-transparent border-none text-xs outline-hidden w-full text-slate-800 placeholder:text-slate-400"
+                      className="bg-transparent border-none text-sm outline-hidden w-full text-slate-800 placeholder:text-slate-400"
                     />
                     {searchQuery && (
                       <button
                         type="button"
-                        onClick={() => setSearchQuery('')}
+                        onMouseDown={(e) => {
+                          // Cegah blur pada input sebelum clear
+                          e.preventDefault()
+                          setSearchQuery('')
+                        }}
                         className="text-slate-400 hover:text-slate-600 p-0.5"
                       >
                         <IconClose />
@@ -594,39 +607,42 @@ export default function AppShell({
                   </div>
                 </div>
 
-                {/* Mobile Search Results */}
-                <div className="bg-white max-h-[75vh] overflow-y-auto divide-y divide-slate-100 shadow-xl">
-                  <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                {/* Mobile Search Results — scrollable panel */}
+                <div className="bg-white overflow-y-auto divide-y divide-slate-100 shadow-xl flex-shrink-0" style={{ maxHeight: '70dvh' }}>
+                  <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium sticky top-0">
                     <span>Hasil Pencarian ({searchQuery.trim() ? filteredSearchItems.length : searchItems.length})</span>
                     <span className="text-[10px] text-slate-500">
-                      {searchQuery.trim() ? 'Ketik untuk memfilter' : 'Saran menu & data'}
+                      {searchQuery.trim() ? `${filteredSearchItems.length} ditemukan` : 'Saran menu & data'}
                     </span>
                   </div>
 
-                  {(searchQuery.trim().length > 0 ? filteredSearchItems : searchItems.slice(0, 6)).length === 0 ? (
+                  {(searchQuery.trim().length > 0 ? filteredSearchItems : searchItems.slice(0, 8)).length === 0 ? (
                     <div className="px-4 py-10 text-center text-slate-400 text-xs">
                       <div className="mb-2 flex justify-center text-slate-300"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-                      Tidak ada hasil yang cocok dengan &quot;{searchQuery}&quot;
+                      Tidak ada hasil untuk &quot;{searchQuery}&quot;
                     </div>
                   ) : (
-                    (searchQuery.trim().length > 0 ? filteredSearchItems : searchItems.slice(0, 6)).map((item) => (
+                    (searchQuery.trim().length > 0 ? filteredSearchItems : searchItems.slice(0, 8)).map((item) => (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => {
+                        onPointerDown={(e) => {
+                          // Gunakan onPointerDown + e.preventDefault() agar tap mobile tidak terganggu
+                          // oleh mousedown global handler. Navigasi dilakukan di sini.
+                          e.preventDefault()
                           item.onSelect()
                           setMobileSearchOpen(false)
                           setSearchQuery('')
                         }}
-                        className="w-full text-left px-4 py-3 hover:bg-emerald-50/60 active:bg-emerald-100 transition-colors flex items-start justify-between gap-2"
+                        className="w-full text-left px-4 py-3.5 hover:bg-emerald-50/60 active:bg-emerald-100 transition-colors flex items-start justify-between gap-2"
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-800 truncate">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-semibold text-slate-800 truncate">
                               {item.title}
                             </span>
                             {item.badge && (
-                              <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                                 item.badgeColor === 'emerald'
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : item.badgeColor === 'blue'
@@ -641,11 +657,11 @@ export default function AppShell({
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                          <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
                             {item.subtitle}
                           </p>
                         </div>
-                        <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
+                        <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 mt-0.5">
                           {item.category}
                         </span>
                       </button>
@@ -653,10 +669,10 @@ export default function AppShell({
                   )}
                 </div>
 
-                {/* Click outside to close backdrop */}
+                {/* Backdrop — tap di sini menutup overlay */}
                 <div
-                  className="flex-1"
-                  onClick={() => {
+                  className="flex-1 min-h-0"
+                  onPointerDown={() => {
                     setMobileSearchOpen(false)
                     setSearchQuery('')
                   }}
