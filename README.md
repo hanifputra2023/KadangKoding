@@ -134,9 +134,9 @@ Tersedia **3 cara** untuk menguji dan menjalankan solusi WarungSirkular:
 
 | Role Pengguna | Email | Password | Kegunaan Pengujian |
 |---|---|---|---|
-| **Warung Mitra** | `demo.warung@warungsirkular.id` | `demo1234` | Menguji pembuatan jadwal jemput dan tracking status. |
-| **Kurir Pengumpul** | `demo.kurir@warungsirkular.id` | `demo1234` | Menguji klaim pickup, navigasi, dan input timbangan. |
-| **Super Admin** | `demo.admin@warungsirkular.id` | `demo1234` | Menguji dashboard metrik analitik, grafik, dan audit log. |
+| **Warung Mitra** | `mawar@gmail.com` | `admin123` | Menguji pembuatan jadwal jemput dan tracking status. |
+| **Kurir Pengumpul (Collector)** | `budi@gmail.com` | `admin123` | Menguji klaim pickup, navigasi, dan input timbangan. |
+| **Super Admin** | `nandahanif2020@gmail.com` | `admin123` | Menguji dashboard metrik analitik, grafik, dan audit log. |
 
 *Catatan: Penguji juga dapat mendaftar akun baru mandiri secara langsung melalui halaman Register.*
 
