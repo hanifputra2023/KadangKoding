@@ -16,8 +16,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "WarungSirkular - Ekosistem Sirkular Sampah Organik",
-  description: "Platform pengelolaan sampah organik terintegrasi untuk mitra warung dan kurir logistik pangkalan budidaya maggot BSF.",
+  title: "WarungSirkular - Ekosistem Sirkular Limbah & Daur Ulang",
+  description: "Platform logistik terintegrasi untuk pengelolaan limbah anorganik bernilai daur ulang dan pencegahan pencemaran lingkungan dari mitra warung makan.",
   manifest: "/manifest.json",
   icons: {
     icon: [

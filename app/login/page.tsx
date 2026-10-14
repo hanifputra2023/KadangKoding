@@ -237,7 +237,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
                 WarungSirkular
               </span>
               <span className="text-xs font-semibold text-emerald-300 tracking-wide uppercase">
-                Sirkular Sampah Organik
+                Sirkular Limbah & Daur Ulang
               </span>
             </div>
           </div>
@@ -245,13 +245,13 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
           <div className="pt-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-800/80 text-emerald-100 border border-emerald-700/60 shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Ekosistem Terintegrasi Maggot BSF
+              Ekosistem Sirkular Warung Ramah Lingkungan
             </span>
             <h1 className="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight mt-3">
-              Ubah Sisa Makanan Jadi Pakan Bernilai Tinggi.
+              Kelola Limbah Warung Jadi Bernilai Daur Ulang.
             </h1>
             <p className="text-sm text-emerald-100/80 mt-3 leading-relaxed">
-              Platform pintar yang menghubungkan mitra warung makan dan armada penjemput sampah organik ke fasilitas budidaya maggot BSF secara teroptimasi dan transparan.
+              Platform pintar yang menghubungkan mitra warung makan dan armada penjemput limbah anorganik serta minyak jelantah ke sentra daur ulang terpadu.
             </p>
           </div>
         </div>
@@ -268,7 +268,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
             <div>
               <h3 className="text-sm font-bold text-white">Mitra Warung Makan</h3>
               <p className="text-xs text-emerald-200/70 mt-0.5 leading-relaxed">
-                Jadwalkan penjemputan sampah organik dapur dengan mudah dan pantau status armada secara langsung.
+                Jadwalkan penjemputan limbah anorganik & jelantah dengan mudah dan pantau status armada kurir secara langsung.
               </p>
             </div>
           </div>
@@ -323,7 +323,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
               <img src="/logo.png" alt="WarungSirkular Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">WarungSirkular</h1>
-            <p className="text-xs text-slate-500">Ekosistem Sirkular Sampah Organik ke Pakan Maggot BSF</p>
+            <p className="text-xs text-slate-500">Ekosistem Sirkular Limbah Anorganik & Daur Ulang Warung</p>
           </div>
 
           
@@ -380,7 +380,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
                           )}
                         </div>
                         <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
-                          Penyetor sisa bahan dapur & limbah makanan
+                          Penyetor limbah anorganik, kardus, plastik & jelantah
                         </p>
                       </div>
                     </div>
@@ -414,7 +414,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
                           )}
                         </div>
                         <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
-                          Penjemput sampah organik ke fasilitas pangkalan
+                          Penjemput limbah anorganik ke sentra daur ulang
                         </p>
                       </div>
                     </div>

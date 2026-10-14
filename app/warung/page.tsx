@@ -329,7 +329,7 @@ function RecyclingGuideModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">Pedoman Daur Ulang & Pemilahan</h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">Standar mutu pemilahan sampah organik warung mitra</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Standar mutu pemilahan limbah anorganik & sirkular warung mitra</p>
             </div>
           </div>
           <button
@@ -406,7 +406,7 @@ function RecyclingGuideModal({
                       <div className="min-w-0">
                         <p className="text-xs truncate">{c.category_name}</p>
                         <p className="text-[10px] text-slate-400 font-normal">
-                          {c.is_maggot_friendly ? 'Ramah Maggot' : 'Kompos'}
+                          {c.is_maggot_friendly ? 'Daur Ulang Sirkular' : 'Penanganan Khusus'}
                         </p>
                       </div>
                       <span className={`w-2 h-2 rounded-full shrink-0 ${c.is_maggot_friendly ? 'bg-emerald-500' : 'bg-slate-400'}`} />
@@ -428,7 +428,7 @@ function RecyclingGuideModal({
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-slate-50 text-slate-700 border-slate-200'
                       }`}>
-                        {currentCat.is_maggot_friendly ? '✓ Ramah Maggot BSF' : 'Kompos Terstandar'}
+                        {currentCat.is_maggot_friendly ? '✓ Daur Ulang Sirkular' : 'Penanganan Khusus / B3'}
                       </span>
                     </div>
 
@@ -497,8 +497,8 @@ function RecyclingGuideModal({
                   Standar Pemilahan Sumber WarungSirkular
                 </p>
                 <p className="text-xs text-emerald-800 leading-relaxed">
-                  Sampah organik yang dipilah sejak di dapur menghasilkan kualitas media biokonversi maggot BSF yang lebih prima,
-                  mempercepat siklus uraian hingga <strong>40%</strong>, dan menghasilkan pupuk kasgot bernutrisi tinggi bagi pertanian.
+                  Limbah anorganik dan pencemar lingkungan yang dipilah sejak dari warung mencegah pencemaran air dan tanah,
+                  menghentikan penumpukan sampah di TPA, serta mendukung sirkularitas bahan daur ulang hingga <strong>100%</strong>.
                 </p>
               </div>
 
@@ -723,7 +723,7 @@ export default function WarungPage() {
   const notifications = useMemo<AppNotification[]>(() => {
     const list: AppNotification[] = []
     pickups.forEach((p) => {
-      const catName = p.waste_categories?.category_name || 'Sampah Organik'
+      const catName = p.waste_categories?.category_name || 'Limbah Sirkular'
       const code = p.id.slice(0, 6).toUpperCase()
       // Gunakan resolveStatus agar expired ter-detect real-time di UI
       const status = resolveStatus(p)
@@ -793,7 +793,7 @@ export default function WarungPage() {
       {
         id: 'menu-create',
         title: 'Buat Permohonan Jemput Baru',
-        subtitle: 'Ajukan jadwal penjemputan sampah organik warung',
+        subtitle: 'Ajukan jadwal penjemputan limbah anorganik & jelantah warung',
         category: 'Menu',
         badge: 'Buat',
         badgeColor: 'emerald',
@@ -820,7 +820,7 @@ export default function WarungPage() {
       {
         id: 'menu-impact',
         title: 'Statistik & Dampak Lingkungan',
-        subtitle: 'Total emisi CO2 dicegah dan konversi maggot',
+        subtitle: 'Total emisi CO2 dicegah dan limbah didaur ulang',
         category: 'Menu',
         badge: 'Eco',
         badgeColor: 'emerald',
@@ -830,7 +830,7 @@ export default function WarungPage() {
 
     pickups.forEach((p) => {
       const code = p.id.slice(0, 8).toUpperCase()
-      const catName = p.waste_categories?.category_name || 'Organik'
+      const catName = p.waste_categories?.category_name || 'Anorganik'
       const dateStr = formatWIBDate(p.pickup_window_start, {
         day: 'numeric',
         month: 'short',
@@ -1025,7 +1025,7 @@ export default function WarungPage() {
                   </h2>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Warung Anda telah mendaur ulang <strong className="text-emerald-700">{totalWeight.toFixed(1)} kg</strong> sampah organik. Bersama mewujudkan ekonomi sirkular!
+                  Warung Anda telah mendaur ulang <strong className="text-emerald-700">{totalWeight.toFixed(1)} kg</strong> limbah anorganik. Bersama mencegah pencemaran lingkungan!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2 pt-1">
                   <button className="ws-btn-primary w-full sm:w-auto justify-center text-xs py-2.5 px-4 font-semibold shadow-xs" onClick={() => setView('create-step1')}>
@@ -1102,7 +1102,7 @@ export default function WarungPage() {
                   <StatusBadge pickup={activePickup} />
                 </div>
                 <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
-                  {IC.pin} Est. {activePickup.estimated_weight_kg} kg • {activePickup.waste_categories?.category_name ?? 'Organik'}
+                  {IC.pin} Est. {activePickup.estimated_weight_kg} kg • {activePickup.waste_categories?.category_name ?? 'Anorganik'}
                 </p>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div
@@ -1147,7 +1147,7 @@ export default function WarungPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-800">#{p.id.slice(-6).toUpperCase()}</p>
-                    <p className="text-[11px] text-slate-400">{p.waste_categories?.category_name ?? 'Organik'}</p>
+                    <p className="text-[11px] text-slate-400">{p.waste_categories?.category_name ?? 'Anorganik'}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -1172,7 +1172,7 @@ export default function WarungPage() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-200">Recycling Tip</h4>
           </div>
           <p className="text-xs text-emerald-100 leading-relaxed mb-4">
-            Pisahkan sampah organik basah & kering sebelum penjemputan. Sampah organik berkualitas tinggi mempercepat budidaya maggot BSF hingga 30%!
+            Pisahkan kardus, botol plastik, dan jerigen minyak jelantah sebelum dijemput. 1 liter jelantah yang dicegah mencemari hingga 1 juta liter air bersih!
           </p>
           <button
             onClick={() => setShowGuideModal(true)}
@@ -1208,7 +1208,7 @@ export default function WarungPage() {
                     id: p.id,
                     lat: Number(p.latitude) || pickupLat,
                     lng: Number(p.longitude) || pickupLng,
-                    label: `Pickup #${p.id.slice(-6).toUpperCase()} • ${p.waste_categories?.category_name ?? 'Organik'} (${p.actual_weight_kg ?? p.estimated_weight_kg} kg)`
+                    label: `Pickup #${p.id.slice(-6).toUpperCase()} • ${p.waste_categories?.category_name ?? 'Anorganik'} (${p.actual_weight_kg ?? p.estimated_weight_kg} kg)`
                   }))}
                 />
               </div>
@@ -1589,7 +1589,7 @@ export default function WarungPage() {
           <div className="bg-slate-50 rounded-xl p-4">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estimasi Muatan</span>
             <p className="text-2xl font-extrabold text-slate-900 mt-1">{weight} kg</p>
-            <p className="text-xs font-semibold text-emerald-700">{cats.find(c => c.id === categoryId)?.category_name ?? 'Organik'}</p>
+            <p className="text-xs font-semibold text-emerald-700">{cats.find(c => c.id === categoryId)?.category_name ?? 'Anorganik'}</p>
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jadwal Penjemputan</span>
@@ -1728,7 +1728,7 @@ export default function WarungPage() {
                 {formatWIBDate(p.pickup_window_start)} • {formatWIBTimeRange(p.pickup_window_start, p.pickup_window_end)}
               </p>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-slate-600 truncate">{p.waste_categories?.category_name ?? 'Organik'} • <strong className="text-slate-800">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</strong></span>
+                <span className="text-xs text-slate-600 truncate">{p.waste_categories?.category_name ?? 'Anorganik'} • <strong className="text-slate-800">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</strong></span>
                 <button
                   onClick={() => {
                     setSelectedPickupId(p.id)
@@ -1778,7 +1778,7 @@ export default function WarungPage() {
                   <td className="text-xs">
                     {formatWIBDate(p.pickup_window_start)} • {formatWIBTimeRange(p.pickup_window_start, p.pickup_window_end)}
                   </td>
-                  <td className="text-xs">{p.waste_categories?.category_name ?? 'Organik'}</td>
+                  <td className="text-xs">{p.waste_categories?.category_name ?? 'Anorganik'}</td>
                   <td className="text-xs font-bold">{p.actual_weight_kg ?? p.estimated_weight_kg} kg</td>
                   <td><StatusBadge pickup={p} /></td>
                   <td className="text-right space-x-2">
@@ -1896,7 +1896,7 @@ export default function WarungPage() {
                 <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">ID: #{tracked.id.slice(-6).toUpperCase()}</span>
                 <span className="text-slate-300">•</span>
                 <span className="text-slate-600 font-medium bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-100">
-                  {tracked.waste_categories?.category_name ?? 'Organik'}
+                  {tracked.waste_categories?.category_name ?? 'Anorganik'}
                 </span>
               </div>
             </div>
@@ -2044,10 +2044,10 @@ export default function WarungPage() {
 
   const renderImpact = () => {
     const wasteComposition = [
-      { label: 'Organik Basah', value: 45, color: '#059669' },
-      { label: 'Sisa Makanan', value: 30, color: '#0891b2' },
-      { label: 'Sayur & Buah', value: 15, color: '#7c3aed' },
-      { label: 'Lainnya', value: 10, color: '#d97706' },
+      { label: 'Kardus & Karton', value: 35, color: '#059669' },
+      { label: 'Botol PET & Plastik', value: 25, color: '#0891b2' },
+      { label: 'Minyak Jelantah', value: 20, color: '#d97706' },
+      { label: 'Kaleng & Logam', value: 20, color: '#7c3aed' },
     ]
     const perfData = [{ label: 'Weight', values: [120, 180, 240, 310, 420, 560, 680] }]
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul']
@@ -2058,7 +2058,7 @@ export default function WarungPage() {
           <span className="text-[10px] font-bold tracking-widest text-emerald-800 uppercase">Impact Analytics</span>
           <h2 className="text-xl sm:text-3xl font-extrabold mt-1 mb-2 text-emerald-950">Laporan Dampak Lingkungan</h2>
           <p className="text-xs sm:text-sm text-emerald-900 max-w-xl">
-            Setiap kilogram sampah organik yang Anda kelola membantu mengurangi emisi gas metana di TPA dan mendukung pakan maggot berprotein tinggi.
+            Setiap kilogram limbah anorganik dan liter minyak jelantah yang Anda kelola mencegah pencemaran tanah dan perairan, serta mendukung bahan baku industri sirkular.
           </p>
         </div>
 

@@ -1,7 +1,7 @@
 {
-  "name": "WarungSirkular - Ekosistem Sirkular Sampah Organik",
+  "name": "WarungSirkular - Ekosistem Sirkular Limbah & Daur Ulang",
   "short_name": "WarungSirkular",
-  "description": "Platform mikro-logistik pengelolaan sampah organik terintegrasi untuk warung makan, kurir pengumpul, dan pembudidaya maggot BSF.",
+  "description": "Platform mikro-logistik pengelolaan limbah non-organik dan pencegahan pencemaran lingkungan terintegrasi untuk warung makan dan kurir sirkular.",
   "start_url": "/",
   "id": "/",
   "scope": "/",

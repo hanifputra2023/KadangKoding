@@ -185,8 +185,24 @@ function Pagination({
 }
 
 function CatBadge({ cat }: { cat: string }) {
+  const c = cat.toLowerCase()
+  let color = 'bg-emerald-50 text-emerald-800 border-emerald-200'
+  if (c.includes('jelantah') || c.includes('minyak')) {
+    color = 'bg-amber-50 text-amber-800 border-amber-200'
+  } else if (c.includes('plastik') || c.includes('pet') || c.includes('cup')) {
+    color = 'bg-sky-50 text-sky-800 border-sky-200'
+  } else if (c.includes('kaleng') || c.includes('logam')) {
+    color = 'bg-purple-50 text-purple-800 border-purple-200'
+  } else if (c.includes('b3') || c.includes('baterai') || c.includes('lampu')) {
+    color = 'bg-rose-50 text-rose-800 border-rose-200'
+  } else if (c.includes('kaca') || c.includes('beling')) {
+    color = 'bg-cyan-50 text-cyan-800 border-cyan-200'
+  } else if (c.includes('kardus') || c.includes('karton')) {
+    color = 'bg-emerald-50 text-emerald-800 border-emerald-200'
+  }
+
   return (
-    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${color}`}>
       {cat}
     </span>
   )
@@ -233,7 +249,7 @@ export default function CollectorPage() {
   const [proofUrl, setProofUrl] = useState('')
   const [uploading, setUploading] = useState(false)
 
-  const [catFilter, setCatFilter] = useState<'all' | 'Organik' | 'Maggot' | 'Restoran'>('all')
+  const [catFilter, setCatFilter] = useState<'all' | 'Jelantah' | 'Plastik' | 'Kardus' | 'Logam'>('all')
   const [searchFilter, setSearchFilter] = useState('')
   const [availPage, setAvailPage] = useState(1)
   const [availPageSize, setAvailPageSize] = useState(6)
@@ -287,7 +303,7 @@ export default function CollectorPage() {
       list.push({
         id: `col-avail-${available.length}-${available[0].id}`,
         title: `${available.length} Permohonan Siap Dijemput`,
-        message: `Ada ${available.length} warung membutuhkan penjemputan sampah organik di radius Anda.`,
+        message: `Ada ${available.length} warung membutuhkan penjemputan limbah anorganik di radius Anda.`,
         time: available[0].pickup_window_start || new Date().toISOString(),
         type: 'warning',
         linkView: 'available',
@@ -402,7 +418,7 @@ export default function CollectorPage() {
     // Tambahkan item dari jemputan tersedia
     available.forEach((p) => {
       const wName = p.warung_profiles?.business_name || `Warung #${p.id.slice(0, 6)}`
-      const cat = p.waste_categories?.category_name || 'Organik'
+      const cat = p.waste_categories?.category_name || 'Anorganik'
       items.push({
         id: `search-avail-${p.id}`,
         title: `${wName} (${cat})`,
@@ -956,7 +972,7 @@ export default function CollectorPage() {
       {/* Filter & Search bar */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap">
-          {(['all', 'Organik', 'Maggot', 'Restoran'] as const).map((cat) => (
+          {(['all', 'Jelantah', 'Plastik', 'Kardus', 'Logam'] as const).map((cat) => (
             <button
               key={cat}
               onClick={() => { setCatFilter(cat); setAvailPage(1) }}
@@ -1043,7 +1059,7 @@ export default function CollectorPage() {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                  <CatBadge cat={p.waste_categories?.category_name ?? 'Organik'} />
+                  <CatBadge cat={p.waste_categories?.category_name ?? 'Anorganik'} />
                   <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg>
                     {p.estimated_weight_kg} kg
@@ -1213,7 +1229,7 @@ export default function CollectorPage() {
               </div>
               <div>
                 <span className="text-slate-400">Kategori:</span>
-                <p className="font-bold text-emerald-800 text-sm mt-0.5">{detailPickup.waste_categories?.category_name ?? 'Organik'}</p>
+                <p className="font-bold text-emerald-800 text-sm mt-0.5">{detailPickup.waste_categories?.category_name ?? 'Anorganik'}</p>
               </div>
             </div>
             <div>
@@ -1650,7 +1666,7 @@ export default function CollectorPage() {
           <p className="text-xs text-slate-500 mt-0.5">
             {isStopAlreadyCompleted
               ? 'Stop ini sudah selesai diverifikasi sebelumnya.'
-              : 'Timbang sampah organik langsung di lokasi warung dan ambil foto bukti timbangan.'}
+              : 'Timbang limbah anorganik langsung di lokasi warung dan ambil foto bukti timbangan.'}
           </p>
         </div>
 

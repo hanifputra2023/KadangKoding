@@ -6,59 +6,63 @@ export interface CategoryGuideline {
 }
 
 export const DEFAULT_STANDARDS = [
-  { label: 'Kadar Air', value: '<70%', hint: 'Tiriskan sebelum dikemas' },
-  { label: 'Kontaminan', value: '0%', hint: 'Bebas plastik & kawat' },
-  { label: 'Ukuran Potongan', value: '≤5 cm', hint: 'Mempercepat biokonversi' },
+  { label: 'Kondisi Bahan', value: 'Kering & Kosong', hint: 'Kosongkan sisa kuah/minuman' },
+  { label: 'Kompaksi Volume', value: 'Dipadatkan', hint: 'Pipihkan kardus & remas botol' },
+  { label: 'Pemisahan Limbah', value: '100% Terpilah', hint: 'Wadah terpisah per jenis limbah' },
 ]
 
 export const DEFAULT_GUIDE_STEPS = [
   {
     num: 1,
-    title: 'Pemisahan di Sumber Dapur',
-    desc: 'Sediakan wadah terpisah khusus sampah organik sejak awal proses memasak di dapur warung.',
+    title: 'Pemisahan di Sumber Warung',
+    desc: 'Sediakan tempat terpisah untuk kardus, botol plastik, kaleng, dan jerigen minyak jelantah sejak awal operasional dapur.',
   },
   {
     num: 2,
-    title: 'Tiriskan & Kemas Rapat',
-    desc: 'Kurangi kadar kuah/cairan berlebih dan simpan dalam wadah tertutup untuk mencegah bau dan lalat.',
+    title: 'Kosongkan & Tiriskan Sisa Isi',
+    desc: 'Pastikan botol atau kaleng bebas dari sisa cairan atau saus agar higienis dan tidak mengundang serangga saat disimpan.',
   },
   {
     num: 3,
-    title: 'Estimasi Berat Akurat',
-    desc: 'Timbang atau estimasi berat saat permohonan penjemputan guna membantu optimasi kapasitas kurir.',
+    title: 'Kompaksi & Kemas Rapi',
+    desc: 'Pipihkan boks kardus dan remas botol plastik guna menghemat volume penyimpanan di warung dan kapasitas kurir.',
   },
   {
     num: 4,
-    title: 'Penempatan di Titik Jemput',
-    desc: 'Letakkan wadah di lokasi yang mudah diakses kurir saat rentang jendela waktu penjemputan tiba.',
+    title: 'Wadah Khusus Minyak Jelantah & B3',
+    desc: 'Tampung minyak jelantah dingin dalam jerigen tertutup rapat; simpan baterai dan lampu bekas dalam wadah kering tersendiri.',
   },
   {
     num: 5,
-    title: 'Dokumentasikan Foto Sampel',
-    desc: 'Unggah foto kondisi sampah saat membuat request untuk validasi kelayakan awal oleh sistem dan kurir.',
+    title: 'Estimasi Berat & Unggah Foto',
+    desc: 'Timbang estimasi berat/volume dan cantumkan foto kondisi barang saat membuat permohonan jemput kurir sirkular.',
   },
 ]
 
 export const DEFAULT_GUIDE_FAQS = [
   {
-    q: 'Apakah sampah berminyak masih dapat diterima?',
-    a: 'Sedikit sisa minyak pada masakan masih dapat diproses. Namun kuah sangat berminyak atau minyak jelantah murni sebaiknya dipisahkan karena dapat menghambat aerasi media maggot BSF.',
+    q: 'Mengapa minyak jelantah tidak boleh dibuang ke wastafel atau selokan?',
+    a: 'Minyak jelantah yang membeku menyumbat saluran pipa (fatberg) dan 1 liter minyak dapat mencemari hingga 1 juta liter air tawar serta membunuh biota perairan. Melalui WarungSirkular, jelantah Anda disalurkan untuk diolah menjadi Biodiesel ramah lingkungan.',
   },
   {
-    q: 'Berapa batas minimum berat sampah per request?',
-    a: 'Minimal estimasi per request adalah 1 kg. Untuk efisiensi operasional dan rute kurir sirkular, disarankan mengumpulkan 3–5 kg per pengajuan.',
+    q: 'Apakah botol plastik harus dicuci bersih menggunakan sabun?',
+    a: 'Tidak perlu dicuci dengan sabun. Cukup pastikan sisa cairan manis atau minyak telah dikosongkan dan dibilas sedikit air agar tidak berbau dan mengundang lalat.',
   },
   {
-    q: 'Apakah makanan yang sudah basi atau berbau boleh disalurkan?',
-    a: 'Boleh. Larva maggot BSF secara alami mencerna bahan organik yang telah mengalami pembusukan awal, asalkan belum terkontaminasi bahan kimia atau pestisida.',
+    q: 'Bagaimana cara terbaik mengemas kardus dan kaleng kemasan?',
+    a: 'Bongkar bagian bawah kardus dan lipat hingga benar-benar pipih, lalu ikat dengan tali rafia. Untuk kaleng susu atau sarden, bilas sisa saus dan pipihkan bila memungkinkan.',
   },
   {
-    q: 'Mengapa kontaminasi plastik harus 0%?',
-    a: 'Plastik, staples, atau karet tidak dapat terurai oleh maggot dan berisiko merusak mesin pencacah serta menurunkan mutu pupuk organik kasgot yang dihasilkan.',
+    q: 'Mengapa limbah B3 domestik (seperti baterai & lampu) wajib dipisahkan khusus?',
+    a: 'Baterai dan lampu mengandung zat beracun seperti merkuri, timbal, dan kadmium. Jika dibuang ke tempat sampah biasa dan berakhir di TPA, racun ini dapat merembes merusak kualitas air tanah yang dikonsumsi warga.',
   },
   {
-    q: 'Bagaimana jika kurir mendapati sampah tidak sesuai kategori?',
-    a: 'Kurir akan memberikan catatan pada status penjemputan. Tidak ada denda langsung, namun kepatuhan pemilahan berdampak positif pada prioritas jadwal jemput warung Anda.',
+    q: 'Berapa batas minimum berat penjemputan per request?',
+    a: 'Minimal estimasi per request adalah 2–3 kg (atau 2–3 liter untuk minyak jelantah) guna menjamin efisiensi rute dan kapasitas kendaraan kurir mitra.',
+  },
+  {
+    q: 'Bagaimana jika kurir menemukan sampah tercampur limbah basah/residu kotor?',
+    a: 'Kurir akan memberikan catatan evaluasi pemilahan. Warung mitra diharapkan menjaga kebersihan material agar nilai daur ulangnya optimal dan tetap menjadi prioritas penjemputan.',
   },
 ]
 
@@ -122,86 +126,200 @@ export function serializeCategoryGuideline(guideline: CategoryGuideline): string
 
 function getDefaultSummary(name: string): string {
   const n = name.toLowerCase()
-  if (n.includes('nasi') || n.includes('lauk')) return 'Sisa nasi putih, sayur masak, mie, dan sisa olahan lauk warung.'
-  if (n.includes('sayur') || n.includes('buah')) return 'Sisa sayuran mentah, potongan buah, ampas kupasan bumbu dan kulit buah segar.'
-  if (n.includes('cair')) return 'Sisa kuah masakan, air rebusan bumbu kaldu, atau makanan basi bertekstur cair.'
-  if (n.includes('kopi') || n.includes('teh')) return 'Ampas bubuk kopi, daun teh seduh, dan sisa ampas rempah dapur.'
-  return 'Bahan organik dapur warung yang layak diolah menjadi pakan maggot BSF dan pupuk kasgot.'
+  if (n.includes('jelantah') || n.includes('minyak') || n.includes('uco')) {
+    return 'Minyak sisa penggorengan dapur warung. Pencemar air berat yang disalurkan menjadi bahan baku Biodiesel ramah lingkungan.'
+  }
+  if (n.includes('kardus') || n.includes('karton') || n.includes('kertas')) {
+    return 'Kardus boks kemasan mie, minyak, telur, dan karton duplex yang didaur ulang menjadi bubur kertas pulp baru.'
+  }
+  if (n.includes('botol') || n.includes('pet') || n.includes('plastik') || n.includes('cup')) {
+    return 'Wadah plastik minuman bening (PET/PP) yang dapat didaur ulang menjadi serat tekstil, dakron, dan botol rPET baru.'
+  }
+  if (n.includes('kaleng') || n.includes('logam') || n.includes('seng') || n.includes('aluminium')) {
+    return 'Kemasan kaleng susu, sarden, kornet, dan minuman. Logam sirkular bernilai tinggi yang dapat dilebur ulang 100%.'
+  }
+  if (n.includes('sachet') || n.includes('kresek') || n.includes('multilayer')) {
+    return 'Plastik sachet bumbu dan kantong kresek. Limbah pencemar kritis yang diolah menjadi ecobrick dan aspal plastik.'
+  }
+  if (n.includes('kaca') || n.includes('beling')) {
+    return 'Botol kecap, sirup, saus beling, dan jar kaca selai yang dapat disterilkan untuk reuse atau dilebur ulang.'
+  }
+  if (n.includes('b3') || n.includes('baterai') || n.includes('lampu')) {
+    return 'Limbah B3 domestik berbahaya yang wajib dipisahkan khusus agar racun merkuri/timbal tidak meracuni air tanah warga.'
+  }
+  return 'Limbah non-organik bernilai daur ulang dan limbah pencemar lingkungan yang wajib dipilah dari sumber warung.'
 }
 
-function getDefaultTips(name: string, isMaggotFriendly = true): string[] {
+function getDefaultTips(name: string, isRecyclable = true): string[] {
   const n = name.toLowerCase()
-  if (n.includes('cair')) {
+  if (n.includes('jelantah') || n.includes('minyak') || n.includes('uco')) {
     return [
-      'Gunakan jerigen atau wadah ember bertutup kedap agar tidak tumpah di perjalanan',
-      'Hindari mencampur dengan residu padat anorganik seperti plastik atau tusuk gigi',
-      'Kumpulkan maksimal 2 hari agar tidak mengalami bau amonia yang menyengat',
+      'Tunggu minyak hingga dingin sebelum dituang ke dalam wadah jerigen atau botol tebal',
+      'Saring sisa remah makanan atau endapan tepung gosong menggunakan saringan kawat',
+      'Tutup rapat jerigen dan simpan di area teduh jauh dari kompor api',
     ]
   }
-  if (n.includes('nasi') || n.includes('lauk')) {
+  if (n.includes('kardus') || n.includes('karton') || n.includes('kertas')) {
     return [
-      'Tiriskan kuah berlebih sebelum dimasukkan ke dalam wadah pengumpulan',
-      'Simpan dalam wadah tertutup untuk mencegah hinggapan lalat hijau liar',
-      'Pisahkan dari tulang besar sapi/kambing yang tidak dapat dicerna larva',
+      'Bongkar bagian bawah kardus dan lipat hingga benar-benar pipih',
+      'Ikat tumpukan kardus dengan tali rafia agar rapi dan mudah ditimbang kurir',
+      'Pastikan kardus tersimpan di tempat kering dan tidak terkena air atau tumpahan kuah',
     ]
   }
-  if (n.includes('sayur') || n.includes('buah')) {
+  if (n.includes('botol') || n.includes('pet') || n.includes('plastik') || n.includes('cup')) {
     return [
-      'Tiriskan air bilasan sayur agar kadar kelembapan tidak becek berlebihan',
-      'Potong bagian sayur yang panjang atau buah yang besar menjadi ukuran lebih kecil',
-      'Pastikan stiker label buah dan kawat pengikat sayur sudah dilepas',
+      'Kosongkan sisa cairan hingga tuntas dan bilas sedikit air agar tidak berbau',
+      'Remas atau injak botol hingga pipih untuk menghemat volume ruang hingga 70%',
+      'Pisahkan tutup botol dan sedotan plastik ke kantong terpisah',
+    ]
+  }
+  if (n.includes('kaleng') || n.includes('logam') || n.includes('seng') || n.includes('aluminium')) {
+    return [
+      'Bilas sisa susu kental manis atau saus sarden dengan air secukupnya',
+      'Hati-hati dengan tepi tajam tutup kaleng saat membersihkan dan mengemas',
+      'Tekan atau pipihkan kaleng aluminium jika memungkinkan untuk efisiensi muatan',
+    ]
+  }
+  if (n.includes('sachet') || n.includes('kresek') || n.includes('multilayer')) {
+    return [
+      'Kumpulkan sachet dalam satu kantong kresek besar dan padatkan',
+      'Pastikan kemasan sachet sudah kosong dari sisa pasta saus basah',
+      'Pisahkan kresek bersih dari plastik yang terkena minyak pekat',
+    ]
+  }
+  if (n.includes('kaca') || n.includes('beling')) {
+    return [
+      'Bersihkan dan keringkan sisa isi kecap atau sirup',
+      'Simpan botol kaca dalam posisi berdiri di dalam peti atau kardus bersekat',
+      'Beri tanda AWAS KACA jika ada botol yang retak/pecah demi keselamatan kurir',
+    ]
+  }
+  if (n.includes('b3') || n.includes('baterai') || n.includes('lampu')) {
+    return [
+      'Simpan baterai bekas dalam wadah plastik kering tertutup dan jauh dari panas api',
+      'Beri selotip pada kutub baterai untuk mencegah percikan korsleting listrik',
+      'Jangan memecahkan bohlam neon karena gas uap merkuri di dalamnya beracun jika terhirup',
     ]
   }
   return [
-    'Pastikan kadar air terkontrol dan tidak becek berlebih sebelum dijemput kurir',
-    isMaggotFriendly ? 'Sangat cocok untuk media konversi larva maggot Black Soldier Fly' : 'Akan diproses melalui pengomposan aerobik terstandar',
-    'Simpan di tempat teduh dan tertutup sampai kurir tiba di lokasi',
+    'Pastikan limbah dalam kondisi kering dan bebas dari sisa makanan basah',
+    isRecyclable ? 'Material bernilai daur ulang tinggi untuk sirkularitas industri' : 'Memerlukan penanganan khusus demi perlindungan kelestarian lingkungan',
+    'Kemas rapi di titik penjemputan yang mudah dijangkau kurir logistik',
   ]
 }
 
 function getDefaultAcceptable(name: string): string[] {
   const n = name.toLowerCase()
-  if (n.includes('cair')) {
+  if (n.includes('jelantah') || n.includes('minyak') || n.includes('uco')) {
     return [
-      'Sisa kuah gulai, soto, atau kaldu sup tanpa tulang besar',
-      'Air tajin atau air rebusan bahan makanan dapur',
-      'Sisa minuman olahan nabati (susu kedelai, jus basi)',
+      'Minyak goreng bekas gorengan ayam, ikan, tahu, atau tempe',
+      'Minyak sisa tumisan yang sudah disaring dari bumbu kasar',
+      'Minyak sawit atau kelapa bekas pakai yang sudah berubah warna gelap',
     ]
   }
-  if (n.includes('nasi') || n.includes('lauk')) {
+  if (n.includes('kardus') || n.includes('karton') || n.includes('kertas')) {
     return [
-      'Sisa nasi putih, nasi kuning, atau nasi uduk',
-      'Olahan lauk pauk (tahu, tempe, telur, potongan daging)',
-      'Sisa olahan mie, bihun, dan pasta basah',
+      'Box kardus mie instan, dus minyak goreng, dus biskuit, dan karton telur (egg tray)',
+      'Kertas pembungkus coklat dan amplop non-laminasi',
+      'Kertas nota dan struk kertas bersih non-residu',
     ]
   }
-  if (n.includes('sayur') || n.includes('buah')) {
+  if (n.includes('botol') || n.includes('pet') || n.includes('plastik') || n.includes('cup')) {
     return [
-      'Kulit dan potongan buah (pisang, pepaya, semangka, mangga)',
-      'Batang dan daun sayuran sisa potongan dapur',
-      'Ampas perasan kelapa dan kupasan bumbu alami',
+      'Botol air mineral, botol teh/soda, dan botol kecap/sirup plastik bening (PET kode 1)',
+      'Gelas cup plastik es teh / kopi (PP kode 5)',
+      'Galon plastik sekali pakai (PET)',
+    ]
+  }
+  if (n.includes('kaleng') || n.includes('logam') || n.includes('seng') || n.includes('aluminium')) {
+    return [
+      'Kaleng susu kental manis, kaleng krimer, dan kaleng santan',
+      'Kaleng sarden, kornet, dan kaleng jamur/buah',
+      'Kaleng minuman bersoda dan teh aluminium',
+    ]
+  }
+  if (n.includes('sachet') || n.includes('kresek') || n.includes('multilayer')) {
+    return [
+      'Bungkus sachet bumbu penyedap, kecap pouch sachet, bumbu racik, dan kopi sachet',
+      'Kantong plastik kresek belanjaan bening atau warna',
+      'Plastik bubble wrap dan plastik pembungkus belanjaan',
+    ]
+  }
+  if (n.includes('kaca') || n.includes('beling')) {
+    return [
+      'Botol kaca kecap manis/asin, saus sambal, dan botol sirup beling',
+      'Jar kaca toples makanan atau selai',
+      'Botol beling minuman suplemen energi',
+    ]
+  }
+  if (n.includes('b3') || n.includes('baterai') || n.includes('lampu')) {
+    return [
+      'Baterai bekas timbangan digital, remote TV/AC, jam dinding (AA, AAA, 9V, koin)',
+      'Lampu bohlam LED atau lampu neon hemat energi yang sudah mati',
+      'Baterai cas / powerbank rusak',
     ]
   }
   return [
-    'Sisa makanan organik dapur warung sehari-hari',
-    'Kupasan bahan pangan segar atau olahan non-kemasan',
-    'Ampas nabati atau rempah alami sisa pengolahan',
+    'Material anorganik kering bersih',
+    'Kemasan produk bahan baku warung makan yang sudah kosong',
+    'Limbah padat non-makanan yang dapat dipadatkan',
   ]
 }
 
 function getDefaultUnacceptable(name: string): string[] {
   const n = name.toLowerCase()
-  if (n.includes('cair')) {
+  if (n.includes('jelantah') || n.includes('minyak') || n.includes('uco')) {
     return [
-      'Minyak jelantah murni (pisahkan ke penampung jelantah khusus)',
-      'Air deterjen, sabun cuci piring, atau cairan pembersih lantai',
-      'Bahan kimia atau cairan pengawet berbahaya',
+      'Minyak yang dicampur air, kuah sayur, atau sabun cuci',
+      'Minyak pelumas/oli mesin kendaraan atau zat kimia bengkel',
+      'Minyak yang masih dalam kondisi panas mendidih',
+    ]
+  }
+  if (n.includes('kardus') || n.includes('karton') || n.includes('kertas')) {
+    return [
+      'Kardus basah kuyup, berjamur, atau terkena tumpahan kuah gulai/rendang',
+      'Kertas minyak pembungkus nasi yang berlaminasi plastik lengket',
+      'Tissue basah atau tissue bekas lap dapur',
+    ]
+  }
+  if (n.includes('botol') || n.includes('pet') || n.includes('plastik') || n.includes('cup')) {
+    return [
+      'Botol yang masih penuh berisi cairan sisa minuman manis',
+      'Botol plastik yang kotor terkena oli mesin, cat, atau pestisida',
+      'Wadah plastik mika rapuh atau styrofoam',
+    ]
+  }
+  if (n.includes('kaleng') || n.includes('logam') || n.includes('seng') || n.includes('aluminium')) {
+    return [
+      'Kaleng aerosol bertekanan tinggi (pengharum ruangan, pembasmi serangga)',
+      'Kaleng bekas cat minyak, thinner, atau zat kimia industri',
+      'Besi berkarat lapuk atau tercampur jarum dan silet cukur',
+    ]
+  }
+  if (n.includes('sachet') || n.includes('kresek') || n.includes('multilayer')) {
+    return [
+      'Plastik yang berlumuran oli mesin atau kotoran tanah tebal',
+      'Plastik kemasan obat-obatan medis berbahaya atau jarum suntik',
+      'Plastik yang hangus atau meleleh bekas dibakar',
+    ]
+  }
+  if (n.includes('kaca') || n.includes('beling')) {
+    return [
+      'Kaca cermin dan lampu kaca neon (mengandung merkuri)',
+      'Pecahan beling berserakan tanpa wadah pengaman',
+      'Kaca pyrex tahan panas atau keramik piring pecah',
+    ]
+  }
+  if (n.includes('b3') || n.includes('baterai') || n.includes('lampu')) {
+    return [
+      'Aki basah mobil/motor bermuatan air keras bocor',
+      'Limbah jarum suntik medis atau obat kedaluwarsa beracun',
+      'Tabung gas elpiji bocor atau bahan peledak',
     ]
   }
   return [
-    'Plastik pembungkus, mika, sedotan, dan styrofoam',
-    'Tusuk sate bambu tajam, kawat staples, dan karet gelang',
-    'Bahan makanan yang sudah terkontaminasi sabun pembersih kimia',
-    'Tulang hewan besar atau cangkang keras berukuran tebal',
+    'Sisa makanan basi basah atau kuah berminyak yang tidak dipisahkan',
+    'Bahan peledak atau zat kimia terlarang',
+    'Limbah medis infeksius berbahaya',
   ]
 }
