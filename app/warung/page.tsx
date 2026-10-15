@@ -1240,7 +1240,7 @@ export default function WarungPage() {
             >
               <option value="">-- Pilih Kategori --</option>
               {cats.map((c) => (
-                <option key={c.id} value={c.id}>{c.category_name} {c.is_maggot_friendly ? '(Maggot-friendly)' : ''}</option>
+                <option key={c.id} value={c.id}>{c.category_name} {c.is_maggot_friendly ? '(Daur Ulang Sirkular)' : '(Penanganan Khusus/B3)'}</option>
               ))}
             </select>
           </div>

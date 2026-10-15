@@ -14,7 +14,9 @@ function IconDashboard() {
 function IconPickups() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/>
+      <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+      <rect x="9" y="11" width="14" height="10" rx="2"/>
+      <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
     </svg>
   )
 }
@@ -89,6 +91,26 @@ function IconArrowLeft() {
     </svg>
   )
 }
+function IconStatus() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/>
+      <line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <polyline points="3 6 4 7 6 5"/>
+      <polyline points="3 12 4 13 6 11"/>
+      <polyline points="3 18 4 19 6 17"/>
+    </svg>
+  )
+}
+function IconImpact() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+    </svg>
+  )
+}
 
 type Role = 'warung' | 'collector' | 'admin'
 
@@ -106,28 +128,66 @@ function IconSettings() {
     </svg>
   )
 }
+function IconMap() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+      <line x1="8" y1="2" x2="8" y2="18"/>
+      <line x1="16" y1="6" x2="16" y2="22"/>
+    </svg>
+  )
+}
+function IconRoute() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="6" cy="19" r="3"/>
+      <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7H5.5a3.5 3.5 0 0 1 0-7H14"/>
+      <circle cx="18" cy="5" r="3"/>
+    </svg>
+  )
+}
+function IconCurrent() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  )
+}
+function IconManagement() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="4" rx="1"/>
+      <rect x="14" y="3" width="7" height="4" rx="1"/>
+      <rect x="3" y="11" width="7" height="4" rx="1"/>
+      <rect x="14" y="11" width="7" height="4" rx="1"/>
+      <rect x="3" y="19" width="7" height="2" rx="1"/>
+      <rect x="14" y="19" width="7" height="2" rx="1"/>
+    </svg>
+  )
+}
 
 const warungNavItems: NavItem[] = [
   { label: 'Dashboard', icon: <IconDashboard />, view: 'dashboard' },
   { label: 'Pickups', icon: <IconPickups />, view: 'create-step1' },
   { label: 'History', icon: <IconHistory />, view: 'history' },
-  { label: 'Status', icon: <IconRoutes />, view: 'pickup-status' },
-  { label: 'Impact', icon: <IconDashboard />, view: 'impact' },
+  { label: 'Status', icon: <IconStatus />, view: 'pickup-status' },
+  { label: 'Impact', icon: <IconImpact />, view: 'impact' },
 ]
 
 const collectorNavItems: NavItem[] = [
   { label: 'Dashboard', icon: <IconDashboard />, view: 'dashboard' },
   { label: 'Pickups', icon: <IconPickups />, view: 'available' },
-  { label: 'Routes', icon: <IconRoutes />, view: 'selected' },
-  { label: 'Map', icon: <IconRoutes />, view: 'route-map' },
-  { label: 'Current', icon: <IconPickups />, view: 'current-stop' },
+  { label: 'Routes', icon: <IconRoute />, view: 'selected' },
+  { label: 'Map', icon: <IconMap />, view: 'route-map' },
+  { label: 'Current', icon: <IconCurrent />, view: 'current-stop' },
   { label: 'History', icon: <IconHistory />, view: 'completed' },
   { label: 'Pengaturan', icon: <IconSettings />, view: 'settings' },
 ]
 
 const adminNavItems: NavItem[] = [
   { label: 'Overview', icon: <IconDashboard />, view: 'overview' },
-  { label: 'Management', icon: <IconPickups />, view: 'management' },
+  { label: 'Management', icon: <IconManagement />, view: 'management' },
   { label: 'Audit Log', icon: <IconAdmin />, view: 'audit' },
 ]
 

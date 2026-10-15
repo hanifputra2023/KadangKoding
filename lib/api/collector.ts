@@ -19,7 +19,7 @@ export async function apiGetCollectorPickups(opts?: { category?: string; area?: 
 
   let query = sb
     .from('pickup_requests')
-    .select('id, latitude, longitude, estimated_weight_kg, pickup_window_start, pickup_window_end, waste_category_id, notes, warung_profiles(business_name, address), waste_categories(category_name, is_maggot_friendly)')
+    .select('id, latitude, longitude, estimated_weight_kg, pickup_window_start, pickup_window_end, waste_category_id, notes, sample_photo_url, warung_profiles(business_name, address), waste_categories(category_name, is_maggot_friendly)')
     .eq('status', 'pending')
     .order('pickup_window_start', { ascending: true })
 
@@ -111,12 +111,34 @@ export async function apiCompletePickup(pickupId: string, actualWeightKg: number
     .eq('id', pickupId)
     .select('*')
     .single()
-  // Update status route_stops jika pickup ini bagian dari rute aktif
+  // Update status route_stops jika pickup ini bagian dari rute aktif.
+  // CATATAN: Rute TIDAK otomatis selesai ketika semua stop terceklis —
+  // rute hanya selesai saat collector secara eksplisit menekan "Kosongkan Muatan"
+  // (apiCompleteRoute). Ini memastikan muatan kendaraan terakumulasi dengan benar
+  // di vehicle hingga benar-benar dibuang di TPS/depot.
   try {
-    await sb.from('route_stops').update({ status: 'completed' }).eq('pickup_request_id', pickupId)
+    await sb
+      .from('route_stops')
+      .update({ status: 'completed' })
+      .eq('pickup_request_id', pickupId)
   } catch {}
 
   await sb.from('audit_logs').insert({ user_id: user.id, action: 'COMPLETE_PICKUP', resource_type: 'pickup_requests', resource_id: pickupId, metadata: { actual_weight_kg: actualWeightKg } })
+  return data
+}
+
+export async function apiCompleteRoute(routeId: string) {
+  const sb = createClient()
+  const { data: { user } } = await sb.auth.getUser()
+  if (!user) throw new Error('Tidak terautentikasi')
+
+  const { data, error } = await sb
+    .from('routes')
+    .update({ status: 'completed' })
+    .eq('id', routeId)
+    .select('*')
+    .single()
+  if (error) throw new Error(error.message)
   return data
 }
 

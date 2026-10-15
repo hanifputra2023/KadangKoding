@@ -20,6 +20,7 @@ import {
   apiUpdateCollectorCapacity,
   apiStartPickup,
   apiCompletePickup,
+  apiCompleteRoute,
   apiFailPickup,
   apiRecommendRoute,
 } from '@/lib/api/collector'
@@ -42,6 +43,7 @@ interface AvailablePickup {
   pickup_window_start: string
   pickup_window_end: string
   notes?: string | null
+  sample_photo_url?: string | null
   warung_profiles?: { business_name: string; address: string } | null
   waste_categories?: { category_name: string; is_maggot_friendly: boolean } | null
 }
@@ -58,6 +60,7 @@ interface RouteStop {
     actual_weight_kg: number | null
     status: string
     notes?: string | null
+    sample_photo_url?: string | null
     warung_profiles?: { business_name: string; address: string } | null
     waste_categories?: { category_name: string } | null
   } | null
@@ -208,6 +211,105 @@ function CatBadge({ cat }: { cat: string }) {
   )
 }
 
+function PhotoPreviewModal({
+  photo,
+  onClose,
+  onVerify,
+  isVerified,
+}: {
+  photo: {
+    url: string
+    title: string
+    category?: string
+    weight?: number
+    notes?: string | null
+    pickupId?: string
+  }
+  onClose: () => void
+  onVerify?: () => void
+  isVerified?: boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[92vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-white">
+          <div className="min-w-0 pr-2">
+            <h3 className="font-bold text-sm text-slate-900 truncate">{photo.title}</h3>
+            <p className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
+              <span className="font-semibold text-emerald-800">{photo.category ?? 'Limbah Anorganik'}</span>
+              <span>•</span>
+              <span>Est. {photo.weight ?? 0} kg</span>
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
+            aria-label="Tutup"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        {/* Image Display */}
+        <div className="p-3 bg-slate-900 flex items-center justify-center overflow-auto flex-1 min-h-[260px]">
+          <img
+            src={photo.url}
+            alt={photo.title}
+            className="max-h-[58vh] max-w-full object-contain rounded-lg shadow-lg"
+          />
+        </div>
+
+        {/* Footer info & verify */}
+        <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+          {photo.notes && (
+            <p className="text-xs text-slate-600 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200">
+              <strong className="text-amber-900">Catatan Warung:</strong> {photo.notes}
+            </p>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              {isVerified ? (
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-200">
+                  <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Sudah Dinyatakan Sesuai
+                </span>
+              ) : (
+                <span className="text-[11px] text-slate-500 font-medium">
+                  Periksa kebersihan & kecocokan jenis limbah
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {onVerify && !isVerified && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onVerify()
+                    onClose()
+                  }}
+                  className="ws-btn-primary text-xs py-1.5 px-3 flex-1 sm:flex-none justify-center bg-emerald-800 hover:bg-emerald-900"
+                >
+                  ✓ Konfirmasi Sesuai
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onClose}
+                className="ws-btn-outline text-xs py-1.5 px-3 flex-1 sm:flex-none justify-center"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const LOCATION_PRESETS = [
   { name: 'Magelang Kota', lat: -7.4726, lng: 110.2198, area: 'Magelang' },
   { name: 'Mertoyudan', lat: -7.5142, lng: 110.2185, area: 'Mertoyudan' },
@@ -219,21 +321,128 @@ const LOCATION_PRESETS = [
   { name: 'Temanggung', lat: -7.3167, lng: 110.1667, area: 'Temanggung' },
 ]
 
+interface VehicleOption {
+  type: string
+  title: string
+  subtitle: string
+  badge: string
+  isPopular?: boolean
+  defaultCap: number
+  minCap: number
+  maxCap: number
+  recommendation: string
+}
+
+const VEHICLE_OPTIONS: VehicleOption[] = [
+  {
+    type: 'Motor Roda Dua',
+    title: 'Sepeda Motor (Roda Dua)',
+    subtitle: 'Lincah menjangkau gang sempit & jalan permukiman padat',
+    badge: 'Area Sempit / Cepat',
+    defaultCap: 50,
+    minCap: 20,
+    maxCap: 80,
+    recommendation: 'Cocok untuk jeriken jelantah kecil & karung plastik padat.',
+  },
+  {
+    type: 'Motor Roda Tiga / Tossa',
+    title: 'Motor Roda Tiga (Tossa / Viar)',
+    subtitle: 'Kargo bak terbuka serbaguna, standar kurir jemputan',
+    badge: 'Paling Populer',
+    isPopular: true,
+    defaultCap: 150,
+    minCap: 80,
+    maxCap: 350,
+    recommendation: 'Muatan ideal bal kardus, jeriken minyak, dan botol PET karungan.',
+  },
+  {
+    type: 'Mobil Pick-up / GranMax',
+    title: 'Mobil Pick-Up (GranMax / Carry)',
+    subtitle: 'Daya muat besar untuk multi-warung rute sekali jalan',
+    badge: 'Kapasitas Menengah',
+    defaultCap: 600,
+    minCap: 300,
+    maxCap: 900,
+    recommendation: 'Sangat efisien untuk 10-20 warung tanpa bolak-balik ke depot.',
+  },
+  {
+    type: 'Truk Engkel / Box',
+    title: 'Truk Engkel / Box Komersial',
+    subtitle: 'Pengangkutan tonase besar ke pabrik pengolahan daur ulang',
+    badge: 'Kapasitas Tonase',
+    defaultCap: 1500,
+    minCap: 1000,
+    maxCap: 3000,
+    recommendation: 'Optimal untuk transfer limbah skala besar antar depot / agregator.',
+  },
+]
+
 export default function CollectorPage() {
   const router = useRouter()
 
   const [me, setMe] = useState<AuthUser | null>(null)
   const [available, setAvailable] = useState<AvailablePickup[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
+  const [vehicleType, setVehicleType] = useState<string>('Motor Roda Tiga / Tossa')
   const [capacity, setCapacity] = useState<number>(150)
   const [serviceStart, setServiceStart] = useState('07:00')
   const [serviceEnd, setServiceEnd] = useState('23:00')
   const [maxPerSlot, setMaxPerSlot] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [savingVehicle, setSavingVehicle] = useState(false)
+  const [savingScheduleState, setSavingScheduleState] = useState(false)
+  const [savingAll, setSavingAll] = useState(false)
+  const [settingsTab, setSettingsTab] = useState<'all' | 'vehicle' | 'location' | 'schedule'>('all')
+  const [copiedCoords, setCopiedCoords] = useState(false)
   const [view, setView] = useState<View>('dashboard')
   const [detailPickup, setDetailPickup] = useState<AvailablePickup | null>(null)
   const [activeStopId, setActiveStopId] = useState<string | null>(null)
+  // Modal konfirmasi kosongkan muatan
+  const [unloadConfirmOpen, setUnloadConfirmOpen] = useState(false)
+
+  // Modal Preview Foto Fullscreen
+  const [photoModal, setPhotoModal] = useState<{
+    url: string
+    title: string
+    category?: string
+    weight?: number
+    notes?: string | null
+    pickupId?: string
+  } | null>(null)
+
+  // Status Verifikasi Kesesuaian Foto Sampel oleh Collector
+  const [verifiedMap, setVerifiedMap] = useState<Record<string, {
+    categoryOk: boolean
+    conditionOk: boolean
+    weightOk: boolean
+    isInvalid: boolean
+    invalidReason?: string
+  }>>({})
+
+  function toggleVerificationField(pickupId: string, field: 'categoryOk' | 'conditionOk' | 'weightOk') {
+    setVerifiedMap(prev => {
+      const current = prev[pickupId] ?? { categoryOk: false, conditionOk: false, weightOk: false, isInvalid: false }
+      const updated = { ...current, [field]: !current[field], isInvalid: false }
+      return { ...prev, [pickupId]: updated }
+    })
+  }
+
+  function verifyAll(pickupId: string) {
+    setVerifiedMap(prev => ({
+      ...prev,
+      [pickupId]: { categoryOk: true, conditionOk: true, weightOk: true, isInvalid: false }
+    }))
+    toast.success('Limbah diverifikasi: Kategori, kondisi, dan muatan sesuai ✓')
+  }
+
+  function markInvalid(pickupId: string, reason: string) {
+    setVerifiedMap(prev => ({
+      ...prev,
+      [pickupId]: { categoryOk: false, conditionOk: false, weightOk: false, isInvalid: true, invalidReason: reason }
+    }))
+    toast.warning('Permohonan ditandai tidak sesuai/mencurigakan.')
+  }
 
   const [colLat, setColLat] = useState<number | null>(null)
   const [colLng, setColLng] = useState<number | null>(null)
@@ -270,7 +479,17 @@ export default function CollectorPage() {
       if (Array.isArray(av)) setAvailable(av as unknown as AvailablePickup[])
       if (Array.isArray(rt)) setRoutes(rt as unknown as Route[])
       if (cap) {
-        const p = cap as { vehicle_capacity_kg?: number; latitude?: number; longitude?: number; service_start?: string; service_end?: string; max_pickups_per_slot?: number; service_area?: string }
+        const p = cap as {
+          vehicle_type?: string
+          vehicle_capacity_kg?: number
+          latitude?: number
+          longitude?: number
+          service_start?: string
+          service_end?: string
+          max_pickups_per_slot?: number
+          service_area?: string
+        }
+        if (p.vehicle_type) setVehicleType(p.vehicle_type)
         setCapacity(Number(p.vehicle_capacity_kg) || 150)
         if (p.latitude != null) {
           setColLat(Number(p.latitude))
@@ -517,21 +736,86 @@ export default function CollectorPage() {
     } finally { setUploading(false) }
   }
 
+  async function saveVehicle(typeToSave?: string, capToSave?: number) {
+    const vType = typeToSave ?? vehicleType
+    const vCap = capToSave ?? capacity
+    if (!vCap || vCap <= 0) {
+      return toast.error('Kapasitas angkut harus lebih besar dari 0 kg!')
+    }
+    setSavingVehicle(true)
+    try {
+      await apiUpdateCollectorCapacity({
+        vehicle_type: vType,
+        vehicle_capacity_kg: vCap,
+      })
+      setVehicleType(vType)
+      setCapacity(vCap)
+      toast.success(`Armada berhasil diperbarui: ${vType} (${vCap} kg) ✓`)
+      await load()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menyimpan armada kendaraan')
+    } finally {
+      setSavingVehicle(false)
+    }
+  }
+
   async function saveSchedule() {
     if (serviceStart >= serviceEnd) {
       return toast.error('Jam mulai harus lebih awal dari jam selesai!')
     }
-    setLoading(true)
+    setSavingScheduleState(true)
     try {
       await apiUpdateCollectorCapacity({
         service_start: serviceStart,
         service_end: serviceEnd,
         max_pickups_per_slot: Number(maxPerSlot),
       })
-      toast.success('Jadwal layanan berhasil disimpan!')
+      toast.success('Jadwal layanan berhasil disimpan! ✓')
+      await load()
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal menyimpan jadwal')
-    } finally { setLoading(false) }
+    } finally {
+      setSavingScheduleState(false)
+    }
+  }
+
+  async function saveAllSettings() {
+    if (serviceStart >= serviceEnd) {
+      return toast.error('Jam mulai layanan harus lebih awal dari jam selesai!')
+    }
+    const lat = parseFloat(inputLat)
+    const lng = parseFloat(inputLng)
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      return toast.error('Latitude harus angka yang valid antara -90 dan 90!')
+    }
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      return toast.error('Longitude harus angka yang valid antara -180 dan 180!')
+    }
+    if (!capacity || capacity <= 0) {
+      return toast.error('Kapasitas angkut harus lebih besar dari 0 kg!')
+    }
+
+    setSavingAll(true)
+    try {
+      await apiUpdateCollectorCapacity({
+        vehicle_type: vehicleType,
+        vehicle_capacity_kg: capacity,
+        latitude: lat,
+        longitude: lng,
+        service_area: serviceArea.trim() || 'Area Layanan',
+        service_start: serviceStart,
+        service_end: serviceEnd,
+        max_pickups_per_slot: Number(maxPerSlot),
+      })
+      setColLat(lat)
+      setColLng(lng)
+      toast.success('Semua pengaturan layanan kurir berhasil disimpan! ✓')
+      await load()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menyimpan semua pengaturan')
+    } finally {
+      setSavingAll(false)
+    }
   }
 
   async function createRoute() {
@@ -564,6 +848,36 @@ export default function CollectorPage() {
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal menyelesaikan penjemputan')
     } finally { setLoading(false) }
+  }
+
+  async function completeRoute(routeId: string) {
+    setLoading(true)
+    try {
+      await apiCompleteRoute(routeId)
+      toast.success('Rute selesai & muatan armada berhasil dikosongkan! Kapasitas siap dipakai kembali. ✓')
+      await load()
+      setView('completed')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menyelesaikan rute')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function emptyVehicleLoad() {
+    setLoading(true)
+    try {
+      const activeList = routes.filter(r => r.status === 'active')
+      for (const r of activeList) {
+        await apiCompleteRoute(r.id)
+      }
+      toast.success('Muatan armada berhasil dikosongkan (0 kg)! Kapasitas siap digunakan kembali. ✓')
+      await load()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal mengosongkan muatan')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function startTrip(pickupId: string) {
@@ -645,8 +959,21 @@ export default function CollectorPage() {
   }).length
 
   // Kapasitas & Perlindungan Overload
+  // activeRoutes = semua rute berstatus 'active' (muatan masih ada di kendaraan).
+  // Muatan baru dikosongkan hanya ketika collector menekan "Kosongkan Muatan" (apiCompleteRoute).
   const activeRoutes = routes.filter((r) => r.status === 'active')
-  const activeWeight = activeRoutes.reduce((sum, r) => sum + Number(r.total_weight_kg || 0), 0)
+  // Gunakan actual_weight dari stop-stop yang sudah completed, atau total_weight_kg rute sebagai estimasi
+  const activeWeight = activeRoutes.reduce((sum, r) => {
+    // Hitung berat aktual dari stop yang sudah selesai
+    const completedWeight = r.route_stops
+      ?.filter(s => s.status === 'completed')
+      .reduce((w, s) => w + Number(s.pickup_requests?.actual_weight_kg ?? s.pickup_requests?.estimated_weight_kg ?? 0), 0) ?? 0
+    // Hitung estimasi dari stop yang masih pending/in_progress
+    const pendingWeight = r.route_stops
+      ?.filter(s => s.status === 'pending' || s.status === 'in_progress')
+      .reduce((w, s) => w + Number(s.pickup_requests?.estimated_weight_kg ?? 0), 0) ?? 0
+    return sum + completedWeight + pendingWeight
+  }, 0)
   const remainingCapacity = Math.max(0, capacity - activeWeight)
   const selectedWeight = available.filter((a) => selected.includes(a.id)).reduce((s, a) => s + Number(a.estimated_weight_kg), 0)
   const selectableRemaining = Math.max(0, remainingCapacity - selectedWeight)
@@ -655,8 +982,10 @@ export default function CollectorPage() {
   const totalAvailPages = Math.max(1, Math.ceil(searchFiltered.length / availPageSize))
   const paginatedAvail = searchFiltered.slice((availPage - 1) * availPageSize, availPage * availPageSize)
 
+  // Rute aktif: semua rute berstatus 'active', termasuk yang semua stop-nya sudah selesai
+  // tapi belum dikosongkan di depot (belum memanggil apiCompleteRoute).
   const activeRoute = routes
-    .filter(r => r.status === 'active' && r.route_stops?.some(s => !['completed', 'failed', 'cancelled'].includes(s.status)))
+    .filter(r => r.status === 'active')
     .sort((a, b) => (a.created_at && b.created_at ? String(b.created_at).localeCompare(String(a.created_at)) : 0))[0]
   const totalPickups = routes.reduce((s, r) => s + r.route_stops.length, 0)
   const totalWeight = routes.reduce((s, r) => s + Number(r.total_weight_kg), 0)
@@ -857,9 +1186,21 @@ export default function CollectorPage() {
             {selected.length} Terpilih ({selectedWeight.toFixed(1)} / {remainingCapacity.toFixed(1)} kg)
           </span>
           {selected.length > 0 && (
-            <button className="ws-btn-primary text-xs" onClick={() => setView('selected')}>
-              Lihat Antrian ({selected.length})
-            </button>
+            <>
+              <button
+                type="button"
+                className="ws-btn-outline text-rose-700 border-rose-300 hover:bg-rose-50 text-xs py-1.5 px-3"
+                onClick={() => {
+                  setSelected([])
+                  toast.info('Pilihan antrean jemputan berhasil dikosongkan')
+                }}
+              >
+                Reset Pilihan
+              </button>
+              <button className="ws-btn-primary text-xs" onClick={() => setView('selected')}>
+                Lihat Antrian ({selected.length})
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -873,8 +1214,8 @@ export default function CollectorPage() {
               <strong className="text-slate-800">{capacity} kg</strong>
             </div>
             <div>
-              <span className="text-slate-400 font-medium">Muatan Rute Berjalan:</span>{' '}
-              <strong className={activeWeight > 0 ? 'text-amber-700' : 'text-slate-700'}>
+              <span className="text-slate-400 font-medium">Muatan Kendaraan:</span>{' '}
+              <strong className={activeWeight > 0 ? 'text-amber-700 font-bold' : 'text-slate-700'}>
                 {activeWeight.toFixed(1)} kg
               </strong>
             </div>
@@ -902,13 +1243,43 @@ export default function CollectorPage() {
         </div>
       </div>
 
+      {/* Banner Muatan Aktif — muncul hanya jika ada muatan di kendaraan */}
+      {activeWeight > 0 && (
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="shrink-0 w-8 h-8 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="1"/>
+                <path d="M16 8h4l3 3v5h-7V8z"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-amber-900 leading-tight">Kendaraan Membawa Muatan</p>
+              <p className="text-[11px] text-amber-700 leading-tight truncate">
+                {activeWeight.toFixed(1)} kg sampah di kendaraan · Sisa: {remainingCapacity.toFixed(1)} kg
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setUnloadConfirmOpen(true)}
+            disabled={loading}
+            className="shrink-0 px-3 py-1.5 text-[11px] font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors shadow-xs disabled:opacity-60"
+          >
+            Buang Muatan
+          </button>
+        </div>
+      )}
+
       {remainingCapacity <= 0 && (
         <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-xs text-rose-800 flex items-start gap-2">
           <span className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg></span>
           <div>
             <strong className="block font-bold">Kapasitas Kendaraan Anda Penuh ({capacity} kg)!</strong>
             <p className="mt-0.5 text-rose-700">
-              Anda sedang memiliki rute aktif yang sedang berjalan. Selesaikan dan buang muatan di titik pengolahan terlebih dahulu sebelum mengambil permohonan baru.
+              Selesaikan semua pickup dan buang muatan di TPS/depot terlebih dahulu sebelum mengambil permohonan baru.
             </p>
           </div>
         </div>
@@ -1114,6 +1485,67 @@ export default function CollectorPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Tinjauan Foto Sampel & Status Validasi */}
+                <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100">
+                  {p.sample_photo_url ? (
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setPhotoModal({
+                          url: p.sample_photo_url!,
+                          title: p.warung_profiles?.business_name ?? 'Warung',
+                          category: p.waste_categories?.category_name ?? 'Anorganik',
+                          weight: p.estimated_weight_kg,
+                          notes: p.notes,
+                          pickupId: p.id,
+                        })
+                      }}
+                      className="group/thumb relative w-11 h-11 rounded-lg overflow-hidden border border-slate-200 bg-slate-900 shrink-0 cursor-pointer shadow-2xs hover:ring-2 hover:ring-emerald-500 transition-all"
+                      title="Klik untuk meninjau foto sampel warung"
+                    >
+                      <img src={p.sample_photo_url} alt="Sampel" className="w-full h-full object-cover group-hover/thumb:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity">
+                        <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-11 h-11 rounded-lg border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-[8px] text-slate-400 shrink-0 font-medium">
+                      <span>Tanpa</span>
+                      <span>Foto</span>
+                    </div>
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    {verifiedMap[p.id]?.categoryOk && verifiedMap[p.id]?.conditionOk ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <svg className="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        Foto Terverifikasi Sesuai
+                      </span>
+                    ) : verifiedMap[p.id]?.isInvalid ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                        <svg className="w-3 h-3 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Ditandai Tidak Sesuai
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDetailPickup(p)
+                          setView('pickup-detail')
+                        }}
+                        className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 hover:underline flex items-center gap-1"
+                      >
+                        <svg className="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        Tinjau & Validasi Foto
+                      </button>
+                    )}
+                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                      {p.sample_photo_url ? 'Klik thumbnail untuk perbesar' : 'Warung belum sertakan foto'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 pt-3 border-t border-slate-100 mt-3">
@@ -1245,6 +1677,161 @@ export default function CollectorPage() {
                 {detailPickup.notes}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Panel Tinjauan Foto & Verifikasi Kelayakan Limbah */}
+        <div className="ws-card p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Tinjauan Foto & Verifikasi Kesesuaian Request
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pastikan foto sampel limbah yang diunggah warung benar, sesuai kategori, dan tidak salah sebelum dijemput.
+              </p>
+            </div>
+            {verifiedMap[detailPickup.id]?.categoryOk && verifiedMap[detailPickup.id]?.conditionOk && verifiedMap[detailPickup.id]?.weightOk ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Terverifikasi Valid & Benar
+              </span>
+            ) : verifiedMap[detailPickup.id]?.isInvalid ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
+                <svg className="w-3.5 h-3.5 text-rose-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Ditandai Tidak Sesuai
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                Perlu Ditinjau Kurir
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+            {/* Image Preview Box */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block">Foto Sampel dari Warung:</span>
+              {detailPickup.sample_photo_url ? (
+                <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-900 max-h-72 flex items-center justify-center shadow-xs">
+                  <img
+                    src={detailPickup.sample_photo_url}
+                    alt={`Sampel ${detailPickup.warung_profiles?.business_name}`}
+                    className="max-h-72 w-full object-contain cursor-pointer transition-transform group-hover:scale-102"
+                    onClick={() => setPhotoModal({
+                      url: detailPickup.sample_photo_url!,
+                      title: detailPickup.warung_profiles?.business_name ?? 'Warung',
+                      category: detailPickup.waste_categories?.category_name ?? 'Anorganik',
+                      weight: detailPickup.estimated_weight_kg,
+                      notes: detailPickup.notes,
+                      pickupId: detailPickup.id,
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPhotoModal({
+                      url: detailPickup.sample_photo_url!,
+                      title: detailPickup.warung_profiles?.business_name ?? 'Warung',
+                      category: detailPickup.waste_categories?.category_name ?? 'Anorganik',
+                      weight: detailPickup.estimated_weight_kg,
+                      notes: detailPickup.notes,
+                      pickupId: detailPickup.id,
+                    })}
+                    className="absolute bottom-3 right-3 bg-white/95 hover:bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"
+                  >
+                    <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    Perbesar Pratinjau
+                  </button>
+                </div>
+              ) : (
+                <div className="border border-dashed border-slate-200 rounded-xl p-8 text-center bg-slate-50 space-y-2">
+                  <svg className="w-10 h-10 text-slate-300 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><line x1="21" y1="15" x2="16" y2="10"/><line x1="5" y1="21" x2="21" y2="5"/></svg>
+                  <p className="text-xs font-semibold text-slate-600">Warung tidak mengunggah foto sampel</p>
+                  <p className="text-[11px] text-slate-400">Harap ekstra teliti saat tiba di lokasi untuk memastikan limbah non-organik.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Checklist Validation Box */}
+            <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wide block">
+                Lembar Verifikasi Kesesuaian Kurir
+              </span>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Tandai checklist di bawah setelah meneliti foto sampel untuk memastikan order tidak keliru:
+              </p>
+
+              <div className="space-y-2.5 pt-1">
+                {/* 1. Kategori Sesuai */}
+                <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={verifiedMap[detailPickup.id]?.categoryOk ?? false}
+                    onChange={() => toggleVerificationField(detailPickup.id, 'categoryOk')}
+                    className="w-4 h-4 rounded text-emerald-700 accent-emerald-700 mt-0.5 cursor-pointer"
+                  />
+                  <div>
+                    <strong className="block text-slate-800">1. Kategori Sesuai</strong>
+                    <span className="text-[11px] text-slate-500">
+                      Foto benar-benar menunjukkan <strong>{detailPickup.waste_categories?.category_name ?? 'Limbah Anorganik'}</strong>.
+                    </span>
+                  </div>
+                </label>
+
+                {/* 2. Kondisi Non-Organik Bersih */}
+                <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={verifiedMap[detailPickup.id]?.conditionOk ?? false}
+                    onChange={() => toggleVerificationField(detailPickup.id, 'conditionOk')}
+                    className="w-4 h-4 rounded text-emerald-700 accent-emerald-700 mt-0.5 cursor-pointer"
+                  />
+                  <div>
+                    <strong className="block text-slate-800">2. Kondisi Non-Organik Bersih</strong>
+                    <span className="text-[11px] text-slate-500">
+                      Tidak tercampur sisa makanan basi, kuah basah, atau sampah organik dapur.
+                    </span>
+                  </div>
+                </label>
+
+                {/* 3. Estimasi Muatan Masuk Akal */}
+                <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={verifiedMap[detailPickup.id]?.weightOk ?? false}
+                    onChange={() => toggleVerificationField(detailPickup.id, 'weightOk')}
+                    className="w-4 h-4 rounded text-emerald-700 accent-emerald-700 mt-0.5 cursor-pointer"
+                  />
+                  <div>
+                    <strong className="block text-slate-800">3. Estimasi Muatan Masuk Akal</strong>
+                    <span className="text-[11px] text-slate-500">
+                      Volume pada foto sepadan dengan estimasi timbangan <strong>{detailPickup.estimated_weight_kg} kg</strong>.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={() => verifyAll(detailPickup.id)}
+                  className="ws-btn-primary flex-1 justify-center text-xs py-2 bg-emerald-800 hover:bg-emerald-900"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Verifikasi Semua & Tandai Benar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => markInvalid(detailPickup.id, 'Kategori tidak sesuai foto atau tercampur sampah organik')}
+                  className="ws-btn-outline text-xs py-2 text-rose-700 border-rose-200 hover:bg-rose-50"
+                >
+                  Tandai Tidak Sesuai
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1382,8 +1969,31 @@ export default function CollectorPage() {
   // ─── 5. Route Map ─────────────────────────────────────────────────────────
 
   const renderRouteMap = () => {
-    const route = activeRoute ?? routes[0]
-    const stops = route?.route_stops?.slice().sort((a, b) => a.sequence_number - b.sequence_number) ?? []
+    if (!activeRoute) {
+      return (
+        <div className="max-w-md mx-auto space-y-4 text-center py-12">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Tidak Ada Rute Aktif</h2>
+            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              Saat ini Anda tidak memiliki rute penjemputan yang sedang berjalan. Muatan armada Anda bersih dan siap digunakan.
+            </p>
+          </div>
+          <button
+            className="ws-btn-primary mx-auto text-xs py-2.5 px-5 flex items-center gap-2"
+            onClick={() => setView('available')}
+          >
+            <span>Pilih Jemputan di Available Pickups</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      )
+    }
+
+    const route = activeRoute
+    const stops = route.route_stops?.slice().sort((a, b) => a.sequence_number - b.sequence_number) ?? []
 
     const allDone = stops.length > 0 && stops.every(s => s.status === 'completed' || s.pickup_requests?.status === 'completed')
 
@@ -1442,9 +2052,23 @@ export default function CollectorPage() {
             })}
           </div>
 
-          <button className="ws-btn-primary w-full justify-center text-xs" onClick={() => setView('dashboard')}>
-            Kembali ke Dashboard
-          </button>
+          <div className="space-y-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-2.5 text-xs text-amber-800">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-amber-600">
+                <rect x="1" y="3" width="15" height="13" rx="1"/>
+                <path d="M16 8h4l3 3v5h-7V8z"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              <span>Untuk mengosongkan muatan, tekan tombol <strong>Buang Muatan</strong> di halaman Available Pickups setelah sampah diturunkan di TPS / depot.</span>
+            </div>
+            <button className="ws-btn-primary w-full justify-center text-sm py-3" onClick={() => setView('available')}>
+              Ke Available Pickups
+            </button>
+            <button className="ws-btn-outline w-full justify-center text-xs" onClick={() => setView('dashboard')}>
+              Kembali ke Dashboard
+            </button>
+          </div>
         </div>
       )
     }
@@ -1701,6 +2325,60 @@ export default function CollectorPage() {
                 {p.notes}
               </div>
             )}
+
+            {/* Foto Sampel Awal dari Warung sebagai Referensi */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-700 uppercase flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Foto Sampel Awal dari Warung:
+                </span>
+                {p?.sample_photo_url && (
+                  <button
+                    type="button"
+                    onClick={() => setPhotoModal({
+                      url: p.sample_photo_url!,
+                      title: p.warung_profiles?.business_name ?? 'Warung',
+                      category: p.waste_categories?.category_name ?? 'Anorganik',
+                      weight: p.estimated_weight_kg,
+                      notes: p.notes,
+                      pickupId: p.id,
+                    })}
+                    className="text-[10px] font-bold text-emerald-700 hover:underline"
+                  >
+                    Perbesar
+                  </button>
+                )}
+              </div>
+
+              {p?.sample_photo_url ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={p.sample_photo_url}
+                    alt="Foto Sampel"
+                    className="w-16 h-16 rounded-lg object-cover border border-slate-200 shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setPhotoModal({
+                      url: p.sample_photo_url!,
+                      title: p.warung_profiles?.business_name ?? 'Warung',
+                      category: p.waste_categories?.category_name ?? 'Anorganik',
+                      weight: p.estimated_weight_kg,
+                      notes: p.notes,
+                      pickupId: p.id,
+                    })}
+                  />
+                  <div className="text-[11px] text-slate-500 space-y-0.5">
+                    <p className="font-semibold text-slate-800">
+                      Kategori: <span className="text-emerald-800">{p.waste_categories?.category_name ?? 'Anorganik'}</span>
+                    </p>
+                    <p className="leading-tight">
+                      Bandingkan fisik limbah di lokasi dengan foto ini sebelum menginput berat timbangan.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[11px] text-slate-400 italic">Warung tidak mengunggah foto sampel saat pengajuan request.</p>
+              )}
+            </div>
           </div>
 
           {/* Form Verifikasi or Completed View */}
@@ -1930,192 +2608,686 @@ export default function CollectorPage() {
 
   // ─── Pengaturan Layanan & Lokasi Pangkalan ────────────────────────────
 
-  const renderSettings = () => (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* 1. Pengaturan Lokasi Pangkalan Kurir */}
-      <div className="ws-card p-6 space-y-5 border border-emerald-100/80 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+  const renderSettings = () => {
+    // Hitung estimasi jendela waktu slot
+    const startHour = parseInt(serviceStart.split(':')[0] || '7', 10)
+    const endHour = parseInt(serviceEnd.split(':')[0] || '23', 10)
+    const operatingHours = Math.max(1, endHour - startHour)
+    const slotCount = Math.max(1, Math.floor(operatingHours / 2))
+    const totalMaxDaily = slotCount * maxPerSlot
+
+    // Payload bar percentage
+    const maxCapacityScale = 2000
+    const payloadPercent = Math.min(100, Math.round((capacity / maxCapacityScale) * 100))
+
+    let payloadTierLabel = 'Muatan Ringan'
+    let payloadTierColor = 'bg-emerald-500'
+    if (capacity > 900) {
+      payloadTierLabel = 'Muatan Tonase Komersial'
+      payloadTierColor = 'bg-purple-600'
+    } else if (capacity > 300) {
+      payloadTierLabel = 'Muatan Berat'
+      payloadTierColor = 'bg-blue-600'
+    } else if (capacity > 80) {
+      payloadTierLabel = 'Muatan Menengah'
+      payloadTierColor = 'bg-teal-600'
+    }
+
+    const copyCoords = () => {
+      if (colLat != null && colLng != null) {
+        navigator.clipboard.writeText(`${colLat.toFixed(6)}, ${colLng.toFixed(6)}`)
+        setCopiedCoords(true)
+        toast.success('Koordinat GPS berhasil disalin ke papan klip! ✓')
+        setTimeout(() => setCopiedCoords(false), 2200)
+      } else {
+        toast.warning('Koordinat pangkalan belum tersedia.')
+      }
+    }
+
+    const gmapsUrl = (colLat != null && colLng != null)
+      ? `https://www.google.com/maps?q=${colLat},${colLng}`
+      : `https://www.google.com/maps?q=-7.4726,110.2198`
+
+    return (
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-5 pb-16 px-1 sm:px-0">
+        {/* ── 1. Page Title & Action Bar (Clean, Light, Professional) ── */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
           <div>
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <span className="text-emerald-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+            <h2 className="text-base sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <span className="p-1.5 sm:p-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/60 shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
               </span>
-              Lokasi Pangkalan & Wilayah Operasional
-            </h3>
+              Pengaturan Layanan
+            </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Atur titik pangkalan atau lokasi Anda saat ini. Titik ini menjadi pusat perhitungan jarak dan estimasi rute ke warung-warung.
+              Atur armada, pangkalan depot, dan jam operasional harian.
             </p>
           </div>
+
           <button
-            onClick={useMyLocation}
-            disabled={locating}
-            className="ws-btn-outline text-emerald-800 border-emerald-300 hover:bg-emerald-50 text-xs flex items-center gap-1.5 py-1.5 px-3 self-start sm:self-auto shrink-0"
-            title="Gunakan koordinat GPS perangkat saat ini"
+            type="button"
+            onClick={saveAllSettings}
+            disabled={savingAll}
+            className="ws-btn-primary text-xs py-2.5 px-4 shadow-2xs flex items-center justify-center gap-1.5 w-full sm:w-auto"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-            {locating ? 'Mencari GPS...' : 'Deteksi GPS Perangkat'}
+            {savingAll ? (
+              <>
+                <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Simpan Semua</span>
+              </>
+            )}
           </button>
         </div>
 
-        {/* Status Lokasi Aktif */}
-        <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-xs">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+        {/* ── 2. Metric Summary Cards (Light, Clean) ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-semibold">
+              <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              <span>Armada Aktif</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-emerald-950 text-sm">{serviceArea || 'Belum Diberi Nama'}</span>
-                <span className="bg-emerald-200/80 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">Aktif</span>
-              </div>
-              <p className="text-emerald-800 text-[11px] mt-0.5 font-mono">
-                Lat: {colLat != null ? colLat.toFixed(6) : '-'} • Lng: {colLng != null ? colLng.toFixed(6) : '-'}
-              </p>
-            </div>
+            <div className="text-slate-900 font-bold text-xs sm:text-sm mt-1 truncate">{vehicleType}</div>
+            <div className="text-slate-500 text-[11px] mt-0.5">Maks. <strong className="text-emerald-800">{capacity} kg</strong></div>
           </div>
-          <div className="text-right sm:text-left text-xs text-emerald-900 font-medium bg-white/70 py-1.5 px-3 rounded-lg border border-emerald-200/60 self-start sm:self-auto">
-            Jemputan Terjangkau: <strong className="text-emerald-950">{available.length} Warung</strong>
+
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[11px] text-teal-800 font-semibold">
+              <svg className="w-3.5 h-3.5 text-teal-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Pangkalan Depot</span>
+            </div>
+            <div className="text-slate-900 font-bold text-xs sm:text-sm mt-1 truncate">{serviceArea || 'Depot Magelang'}</div>
+            <div className="text-slate-500 text-[11px] mt-0.5"><strong className="text-teal-700">{available.length}</strong> Warung di area</div>
+          </div>
+
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[11px] text-amber-800 font-semibold">
+              <svg className="w-3.5 h-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Jam Layanan</span>
+            </div>
+            <div className="text-slate-900 font-bold text-xs sm:text-sm mt-1 truncate">{serviceStart} – {serviceEnd} WIB</div>
+            <div className="text-slate-500 text-[11px] mt-0.5">{operatingHours} Jam / Hari</div>
+          </div>
+
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[11px] text-indigo-800 font-semibold">
+              <svg className="w-3.5 h-3.5 text-indigo-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>Kapasitas Slot</span>
+            </div>
+            <div className="text-slate-900 font-bold text-xs sm:text-sm mt-1 truncate">Maks. {maxPerSlot} Pickup</div>
+            <div className="text-slate-500 text-[11px] mt-0.5">Daya: ~{totalMaxDaily} warung/hari</div>
           </div>
         </div>
 
-        {/* Pilihan Cepat (Preset Wilayah) */}
-        <div>
-          <label className="text-xs font-bold text-slate-700 block mb-1.5">
-            Pilihan Cepat Wilayah Populer (Klik untuk pilih & simpan):
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {LOCATION_PRESETS.map((preset) => {
-              const isSelected = Math.abs((colLat ?? 0) - preset.lat) < 0.005 && Math.abs((colLng ?? 0) - preset.lng) < 0.005
-              return (
-                <button
-                  key={preset.name}
-                  type="button"
-                  onClick={() => {
-                    setInputLat(String(preset.lat))
-                    setInputLng(String(preset.lng))
-                    setServiceArea(preset.area)
-                    saveLocation(preset.lat, preset.lng, preset.area)
-                  }}
-                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs ring-2 ring-emerald-300'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-emerald-300'
-                  }`}
-                >
-                  <span>📍</span>
-                  <span>{preset.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Form Atur Bebas Manual */}
-        <div className="border-t border-slate-100 pt-4 space-y-3">
-          <div className="font-bold text-xs text-slate-800">Atur Koordinat & Wilayah Kustom:</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Nama Wilayah / Depot</label>
-              <input
-                type="text"
-                placeholder="Contoh: Depot Mertoyudan"
-                value={serviceArea}
-                onChange={(e) => setServiceArea(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs outline-hidden focus:border-emerald-500 shadow-2xs"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Latitude (Garis Lintang)</label>
-              <input
-                type="number"
-                step="any"
-                placeholder="-7.472600"
-                value={inputLat}
-                onChange={(e) => setInputLat(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-slate-600 block mb-1">Longitude (Garis Bujur)</label>
-              <input
-                type="number"
-                step="any"
-                placeholder="110.219800"
-                value={inputLng}
-                onChange={(e) => setInputLng(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
+        {/* ── 3. Tab Navigation — mobile-friendly stack with icon + label ── */}
+        <div className="flex items-center gap-1 p-1 sm:p-1.5 bg-slate-100 rounded-xl border border-slate-200/80">
+          {([
+            { key: 'all', label: 'Semua', icon: <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+            { key: 'vehicle', label: 'Armada', icon: <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
+            { key: 'location', label: 'Pangkalan', icon: <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> },
+            { key: 'schedule', label: 'Jadwal', icon: <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+          ] as const).map(tab => (
             <button
+              key={tab.key}
               type="button"
-              onClick={() => saveLocation()}
-              disabled={savingLocation}
-              className="ws-btn-primary text-xs flex items-center gap-1.5 py-2 px-4 shadow-xs"
+              onClick={() => setSettingsTab(tab.key)}
+              title={tab.label}
+              className={`flex-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${
+                settingsTab === tab.key
+                  ? 'bg-white text-emerald-900 shadow-xs border border-emerald-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
             >
-              {savingLocation ? 'Menyimpan Lokasi...' : 'Simpan Lokasi Pangkalan'}
+              {tab.icon}
+              <span className="whitespace-nowrap">{tab.label}</span>
             </button>
-          </div>
+          ))}
         </div>
+
+        {/* ── 4. Section 1: Armada Kendaraan & Kapasitas Angkut ── */}
+        {(settingsTab === 'all' || settingsTab === 'vehicle') && (
+          <div className="ws-card p-4 sm:p-6 space-y-5 sm:space-y-6 border border-emerald-100 shadow-xs">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800 shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  </span>
+                  Armada Kendaraan & Daya Angkut Muatan
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Pilih tipe armada. Kapasitas ini menjadi parameter utama perhitungan rute.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => saveVehicle()}
+                disabled={savingVehicle}
+                className="ws-btn-primary text-xs py-2 px-3.5 w-full sm:w-auto justify-center shrink-0 flex items-center gap-1.5"
+              >
+                {savingVehicle ? 'Menyimpan...' : 'Simpan Armada'}
+              </button>
+            </div>
+
+            {/* Vehicle Options Grid */}
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-2.5">
+                Pilih Tipe Kendaraan Operasional:
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {VEHICLE_OPTIONS.map((opt) => {
+                  const isSelected = vehicleType.toLowerCase().includes(opt.type.toLowerCase()) || opt.type.toLowerCase().includes(vehicleType.toLowerCase())
+                  return (
+                    <div
+                      key={opt.type}
+                      onClick={() => {
+                        setVehicleType(opt.type)
+                        if (capacity <= 0 || Math.abs(capacity - opt.defaultCap) > 100) {
+                          setCapacity(opt.defaultCap)
+                        }
+                      }}
+                      className={`cursor-pointer rounded-xl p-3.5 sm:p-4 border transition-all text-left relative group ${
+                        isSelected
+                          ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-2 ring-emerald-500/30'
+                          : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-slate-50/60'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+                        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-100 text-slate-600 group-hover:bg-emerald-100 group-hover:text-emerald-800'
+                          }`}>
+                            {opt.type.includes('Dua') ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-3l-2.5 4.5h4"/><path d="M9 17.5l2-6 4-2"/><path d="M12 9.5l4 8"/></svg>
+                            ) : opt.type.includes('Tiga') ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M8 17h8"/><path d="M10 7h8v7H10z"/><path d="M4 14l3-7h3"/></svg>
+                            ) : opt.type.includes('Pick-up') ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 13V7a1 1 0 0 1 1-1h10v7"/><path d="M14 8h4l3 3.5V13"/><rect x="2" y="11" width="19" height="4" rx="1"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/></svg>
+                            ) : (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="15" height="11" rx="1"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/></svg>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">{opt.title}</h4>
+                            <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{opt.subtitle}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            opt.isPopular
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {opt.badge}
+                          </span>
+                          {isSelected && (
+                            <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] shadow-xs">
+                              ✓
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-1 text-[11px] text-slate-600">
+                        <span>Standar Kapasitas: <strong className="text-emerald-900 font-bold">{opt.defaultCap} kg</strong></span>
+                        <span className="text-[10px] text-slate-400">Rentang: {opt.minCap}–{opt.maxCap} kg</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1 italic">
+                        {opt.recommendation}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Custom Capacity Controller & Visual Bar */}
+            <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200/80 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 block">
+                    Batas Kapasitas Muatan Maksimal (kg)
+                  </label>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Tentukan kapasitas aman kendaraan Anda dalam satuan kilogram.
+                  </p>
+                </div>
+
+                {/* Number Input with Stepper - Unified Mobile Pill */}
+                <div className="flex items-center justify-between sm:justify-start gap-2 bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-slate-200 shadow-2xs sm:shadow-none w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setCapacity(prev => Math.max(10, prev - 25))}
+                    className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-lg flex items-center justify-center shadow-2xs active:scale-95 shrink-0"
+                    title="Kurangi 25 kg"
+                  >
+                    −
+                  </button>
+                  <div className="flex items-center justify-center flex-1 sm:flex-initial">
+                    <input
+                      type="number"
+                      min={10}
+                      max={5000}
+                      step={5}
+                      value={capacity}
+                      onChange={(e) => setCapacity(Math.max(0, Number(e.target.value) || 0))}
+                      className="w-20 sm:w-24 text-center font-mono font-black text-lg sm:text-sm py-1 sm:py-2 px-1 bg-transparent sm:bg-white sm:border sm:border-slate-300 rounded-lg text-emerald-950 focus:border-emerald-600 outline-hidden"
+                    />
+                    <span className="text-xs font-bold text-slate-400 pointer-events-none -ml-1 sm:ml-1">kg</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCapacity(prev => prev + 25)}
+                    className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-lg flex items-center justify-center shadow-2xs active:scale-95 shrink-0"
+                    title="Tambah 25 kg"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Preset Buttons */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[11px] font-bold text-slate-600 block">Preset Cepat:</span>
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                  {[50, 100, 150, 300, 600, 1000, 1500].map((kg) => (
+                    <button
+                      key={kg}
+                      type="button"
+                      onClick={() => setCapacity(kg)}
+                      className={`text-xs py-2 px-1 text-center rounded-lg border font-mono font-bold transition-all ${
+                        capacity === kg
+                          ? 'bg-emerald-800 text-white border-emerald-800 shadow-2xs ring-2 ring-emerald-500/30'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-400 hover:bg-slate-50'
+                      }`}
+                    >
+                      {kg} kg
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Visual Payload Meter */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600 font-medium">Klasifikasi Muatan:</span>
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${payloadTierColor}`} />
+                    {payloadTierLabel} ({capacity} kg)
+                  </span>
+                </div>
+                <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden p-0.5">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${payloadTierColor}`}
+                    style={{ width: `${Math.max(5, Math.min(100, payloadPercent))}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>0 kg</span>
+                  <span>500 kg</span>
+                  <span>1.000 kg</span>
+                  <span>2.000 kg</span>
+                </div>
+              </div>
+
+              {/* Informative Safety Callout */}
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-lg p-3 text-xs text-emerald-900 flex items-start gap-2.5">
+                <span className="text-emerald-700 mt-0.5 shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </span>
+                <p className="text-[11px] leading-relaxed">
+                  <strong>Pemberitahuan Algoritma:</strong> Sistem rekomendasi rute (TSP Routing) menjumlahkan perkiraan berat sampah dari seluruh warung terpilih dan otomatis membatasi rute harian agar tidak melampaui <strong>{capacity} kg</strong> demi keselamatan berkendara.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 5. Section 2: Titik Pangkalan & Jangkauan Operasional ── */}
+        {(settingsTab === 'all' || settingsTab === 'location') && (
+          <div className="ws-card p-4 sm:p-6 space-y-5 sm:space-y-6 border border-emerald-100 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-teal-100 text-teal-800">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </span>
+                  Lokasi Pangkalan & Titik Pusat Operasional
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Titik depot pangkalan kurir menjadi titik awal (Start Hub) dan titik akhir saat sistem mengoptimalkan urutan kunjungan ke warung.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 self-stretch sm:self-auto shrink-0 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={useMyLocation}
+                  disabled={locating}
+                  className="ws-btn-outline text-emerald-800 border-emerald-300 hover:bg-emerald-50 text-xs flex items-center justify-center gap-1.5 py-2.5 px-3 w-full sm:w-auto"
+                  title="Gunakan koordinat GPS perangkat saat ini"
+                >
+                  <svg className={`w-3.5 h-3.5 ${locating ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                  {locating ? 'Mencari GPS...' : 'Deteksi GPS Saya'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveLocation()}
+                  disabled={savingLocation}
+                  className="ws-btn-primary text-xs py-2.5 px-3.5 flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                >
+                  {savingLocation ? 'Menyimpan...' : 'Simpan Pangkalan'}
+                </button>
+              </div>
+            </div>
+
+            {/* Active Location Showcase Card */}
+            <div className="bg-emerald-50/60 border border-emerald-200/90 rounded-xl p-3.5 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-emerald-950 text-sm sm:text-base truncate">{serviceArea || 'Belum Diberi Nama'}</span>
+                    <span className="bg-emerald-200/80 text-emerald-900 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-300 shrink-0">
+                      Pusat Rute Aktif
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-emerald-800 text-[11px] sm:text-xs font-mono font-medium">
+                      Lat: {colLat != null ? colLat.toFixed(6) : '-'} • Lng: {colLng != null ? colLng.toFixed(6) : '-'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={copyCoords}
+                      className="text-[11px] text-emerald-700 hover:text-emerald-900 underline font-medium cursor-pointer"
+                      title="Salin koordinat"
+                    >
+                      {copiedCoords ? '✓ Tersalin' : 'Salin'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+                <a
+                  href={gmapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ws-btn-outline bg-white text-slate-700 border-slate-200 hover:bg-slate-50 text-xs py-2 px-3 flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Buka di Google Maps
+                </a>
+                <div className="text-xs text-emerald-950 font-semibold bg-white py-2 px-3 rounded-lg border border-emerald-200/80 shadow-2xs text-center w-full sm:w-auto">
+                  Jemputan Terjangkau: <strong className="text-emerald-800">{available.length} Warung</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Pilihan Cepat (Preset Wilayah Populer) */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-slate-700">
+                  Pilihan Cepat Wilayah / Depot Populer (Klik untuk terapkan & simpan):
+                </label>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {LOCATION_PRESETS.map((preset) => {
+                  const isSelected = Math.abs((colLat ?? 0) - preset.lat) < 0.005 && Math.abs((colLng ?? 0) - preset.lng) < 0.005
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => {
+                        setInputLat(String(preset.lat))
+                        setInputLng(String(preset.lng))
+                        setServiceArea(preset.area)
+                        saveLocation(preset.lat, preset.lng, preset.area)
+                      }}
+                      className={`text-xs px-2.5 sm:px-3 py-2 rounded-xl border font-medium transition-all flex items-center justify-between gap-1 text-left ${
+                        isSelected
+                          ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs ring-2 ring-emerald-400'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-emerald-50/50 hover:border-emerald-300'
+                      }`}
+                    >
+                      <div className="truncate flex items-center gap-1.5">
+                        <svg className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-white' : 'text-emerald-700'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span className="font-semibold truncate">{preset.name}</span>
+                      </div>
+                      {isSelected && <span className="text-[10px] font-bold shrink-0">✓</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Manual Coordinate Form */}
+            <div className="border-t border-slate-100 pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-800">Atur Koordinat & Nama Depot Kustom:</span>
+                <span className="text-[11px] text-slate-400 font-mono">Format Desimal (WGS84)</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Nama Wilayah / Depot</label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: Depot Pusat Magelang"
+                    value={serviceArea}
+                    onChange={(e) => setServiceArea(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-hidden focus:border-emerald-500 shadow-2xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Latitude (Garis Lintang)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="-7.472600"
+                    value={inputLat}
+                    onChange={(e) => setInputLat(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">Longitude (Garis Bujur)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="110.219800"
+                    value={inputLng}
+                    onChange={(e) => setInputLng(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono outline-hidden focus:border-emerald-500 shadow-2xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 6. Section 3: Pengaturan Jadwal Layanan & Slot Waktu ── */}
+        {(settingsTab === 'all' || settingsTab === 'schedule') && (
+          <div className="ws-card p-4 sm:p-6 space-y-5 sm:space-y-6 border border-emerald-100 shadow-xs">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800 shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </span>
+                  Pengaturan Jam Operasional & Manajemen Slot
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Atur jam kerja harian dan kuota penjemputan per slot waktu.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={saveSchedule}
+                disabled={savingScheduleState}
+                className="ws-btn-primary text-xs py-2 px-3.5 w-full sm:w-auto justify-center shrink-0 flex items-center gap-1.5"
+              >
+                {savingScheduleState ? 'Menyimpan...' : 'Simpan Jadwal'}
+              </button>
+            </div>
+
+            {/* Schedule: 1-col on mobile, 3-col on md+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+              {/* Jam Mulai */}
+              <div className="bg-slate-50/80 rounded-xl p-3.5 sm:p-4 border border-slate-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">Jam Mulai Layanan</label>
+                  <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">WIB</span>
+                </div>
+                <input
+                  type="time"
+                  value={serviceStart}
+                  onChange={(e) => setServiceStart(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold outline-hidden focus:border-emerald-500 shadow-2xs"
+                />
+                <p className="text-[11px] text-slate-400">Kurir mulai beroperasi dan menerima penjemputan awal.</p>
+              </div>
+
+              {/* Jam Selesai */}
+              <div className="bg-slate-50/80 rounded-xl p-3.5 sm:p-4 border border-slate-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">Jam Selesai Layanan</label>
+                  <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">WIB</span>
+                </div>
+                <input
+                  type="time"
+                  value={serviceEnd}
+                  onChange={(e) => setServiceEnd(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold outline-hidden focus:border-emerald-500 shadow-2xs"
+                />
+                <p className="text-[11px] text-slate-400">Batas akhir slot penjemputan warung pada hari tersebut.</p>
+              </div>
+
+              {/* Kuota Pickup per Slot */}
+              <div className="bg-slate-50/80 rounded-xl p-3.5 sm:p-4 border border-slate-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">Maks. Pickup per Slot</label>
+                  <span className="text-[10px] font-bold text-slate-500">2 Jam / Slot</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMaxPerSlot(prev => Math.max(1, prev - 1))}
+                    className="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-base flex items-center justify-center shadow-2xs active:scale-95"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={maxPerSlot}
+                    onChange={(e) => setMaxPerSlot(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-full text-center rounded-lg border border-slate-300 bg-white py-2 text-sm font-extrabold text-emerald-950 focus:border-emerald-500 outline-hidden shadow-2xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMaxPerSlot(prev => prev + 1)}
+                    className="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-base flex items-center justify-center shadow-2xs active:scale-95"
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5 pt-1">
+                  {[3, 5, 8, 10].map(v => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setMaxPerSlot(v)}
+                      className={`text-[11px] py-1.5 rounded-lg font-bold border transition-colors text-center ${
+                        maxPerSlot === v
+                          ? 'bg-emerald-700 text-white border-emerald-700'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      {v} slot
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Visual Timeline & Warung Simulation (Light & Clean) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {/* Timeline Info */}
+              <div className="bg-emerald-50/60 border border-emerald-200/80 rounded-xl p-4 space-y-3">
+                <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-emerald-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Kalkulasi Operasional Harian:</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-emerald-900">
+                  <div className="flex justify-between">
+                    <span>Durasi Layanan Aktif:</span>
+                    <strong className="font-mono">{operatingHours} Jam / Hari</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Jumlah Slot Waktu (per 2 jam):</span>
+                    <strong className="font-mono">{slotCount} Slot Terbuka</strong>
+                  </div>
+                  <div className="flex justify-between border-t border-emerald-200/60 pt-1.5 text-emerald-950 font-bold">
+                    <span>Estimasi Maks. Permohonan Terlayani:</span>
+                    <strong className="font-mono text-emerald-800">{totalMaxDaily} Warung / Hari</strong>
+                  </div>
+                </div>
+                <p className="text-[11px] text-emerald-800/80 leading-relaxed italic">
+                  Slot waktu di warung akan otomatis diberi label &#34;Penuh&#34; jika sudah ada {maxPerSlot} warung yang memilih slot tersebut.
+                </p>
+              </div>
+
+              {/* Simulation of Warung View (Light Card) */}
+              <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between text-xs border-b border-slate-100 pb-2">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-emerald-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Simulasi Tampilan di Sisi Warung</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Pratinjau Live
+                  </span>
+                </div>
+
+                <div className="bg-emerald-50/70 rounded-lg p-3 border border-emerald-200/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {serviceStart} – {String(Math.min(23, startHour + 2)).padStart(2, '0')}:00 WIB
+                    </span>
+                    <span className="bg-emerald-200/80 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                      Tersedia ({maxPerSlot} Kuota)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-800">
+                    Sopir pengangkut beroperasi dari pangkalan {serviceArea || 'Magelang'}.
+                  </p>
+                </div>
+
+                <p className="text-[11px] text-slate-500">
+                  Warung hanya dapat memilih jadwal penjemputan di dalam batas {serviceStart} hingga {serviceEnd} WIB.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        
       </div>
-
-      {/* 2. Pengaturan Jadwal Layanan */}
-      <div className="ws-card p-6 space-y-4">
-        <div>
-          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">{IC.clock} Pengaturan Jadwal Layanan</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            Jadwal & kuota ini menentukan &#34;Jendela Waktu&#34; yang tampil di sisi warung. Warung hanya dapat memilih slot di dalam jam layanan Anda dan selama slot belum penuh.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1.5">Jam Mulai Layanan</label>
-            <input
-              type="time"
-              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm"
-              value={serviceStart}
-              onChange={(e) => setServiceStart(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1.5">Jam Selesai Layanan</label>
-            <input
-              type="time"
-              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm"
-              value={serviceEnd}
-              onChange={(e) => setServiceEnd(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1.5">Maks. Pickup per Slot</label>
-            <input
-              type="number"
-              min={1}
-              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm"
-              value={maxPerSlot}
-              onChange={(e) => setMaxPerSlot(Number(e.target.value) || 0)}
-            />
-          </div>
-        </div>
-
-        <p className="text-[11px] text-slate-400">
-          Contoh: jika jam layanan 07:00–23:00, maka slot yang tersedia di warung dapat dipilih dari 07:00–09:00 hingga 21:00–23:00 WIB.
-        </p>
-
-        <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-slate-100">
-          <button className="ws-btn-outline text-xs" onClick={() => setView('dashboard')}>
-            {IC.chevronLeft} Kembali ke Dashboard
-          </button>
-          <button className="ws-btn-primary text-xs" onClick={saveSchedule} disabled={loading}>
-            {loading ? 'Menyimpan...' : 'Simpan Jadwal'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <AppShell
@@ -2142,6 +3314,81 @@ export default function CollectorPage() {
       {view === 'current-stop' && renderCurrentStop()}
       {view === 'completed' && renderCompleted()}
       {(view === 'settings' || view === 'profile') && renderSettings()}
+
+      {/* Lightbox Modal Pratinjau Foto Sampel */}
+      {photoModal && (
+        <PhotoPreviewModal
+          photo={photoModal}
+          isVerified={Boolean(photoModal.pickupId && verifiedMap[photoModal.pickupId]?.categoryOk && verifiedMap[photoModal.pickupId]?.conditionOk && verifiedMap[photoModal.pickupId]?.weightOk)}
+          onVerify={photoModal.pickupId ? () => verifyAll(photoModal.pickupId!) : undefined}
+          onClose={() => setPhotoModal(null)}
+        />
+      )}
+      {/* Modal Konfirmasi Kosongkan Muatan */}
+      {unloadConfirmOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-5 animate-in fade-in duration-150">
+          <div className="bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-2xl border border-slate-100 overflow-hidden">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center gap-3">
+              <span className="w-10 h-10 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="15" height="13" rx="1"/>
+                  <path d="M16 8h4l3 3v5h-7V8z"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/>
+                  <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              </span>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Kosongkan Muatan Kendaraan?</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Pastikan sampah sudah diturunkan di TPS / depot</p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-3">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+                <span className="text-xs text-amber-800 font-medium">Total muatan saat ini</span>
+                <span className="text-sm font-black text-amber-900">{activeWeight.toFixed(1)} kg</span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Setelah dikonfirmasi, muatan kendaraan akan direset ke <strong>0 kg</strong> dan kapasitas tersedia kembali penuh. Aksi ini tidak bisa dibatalkan.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 pt-0 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setUnloadConfirmOpen(false)}
+                className="py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={async () => {
+                  setUnloadConfirmOpen(false)
+                  await emptyVehicleLoad()
+                }}
+                className="py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity=".25"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
+                    Mengosongkan...
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Ya, Kosongkan
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   )
 }

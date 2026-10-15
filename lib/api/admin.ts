@@ -44,7 +44,7 @@ export async function apiGetAdminPickups(opts?: { status?: string; page?: number
 
   let query = sb
     .from('pickup_requests')
-    .select('*, warung_profiles(business_name, address), waste_categories(category_name), collector_profiles(vehicle_type)', { count: 'exact' })
+    .select('*, warung_profiles(business_name, address), waste_categories(category_name, is_maggot_friendly), collector_profiles(vehicle_type)', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(from, to)
 
@@ -53,6 +53,57 @@ export async function apiGetAdminPickups(opts?: { status?: string; page?: number
   const { data, error, count } = await query
   if (error) throw new Error(error.message)
   return { pickups: data, total: count }
+}
+
+export async function apiApproveAdminPickup(id: string) {
+  const sb = createClient()
+  const { data: { user } } = await sb.auth.getUser()
+  const { data, error } = await sb
+    .from('pickup_requests')
+    .update({ status: 'pending' })
+    .eq('id', id)
+    .eq('status', 'awaiting_approval')
+    .select('*')
+    .single()
+  if (error) throw new Error(error.message)
+  await sb.from('audit_logs').insert({
+    user_id: user?.id,
+    action: 'ADMIN_APPROVE_PICKUP',
+    resource_type: 'pickup_requests',
+    resource_id: id,
+  })
+  return data
+}
+
+export async function apiRejectAdminPickup(id: string, reason?: string) {
+  const sb = createClient()
+  const { data: { user } } = await sb.auth.getUser()
+  const { data, error } = await sb
+    .from('pickup_requests')
+    .update({ status: 'cancelled' })
+    .eq('id', id)
+    .in('status', ['pending', 'awaiting_approval'])
+    .select('*')
+    .single()
+  if (error) throw new Error(error.message)
+  await sb.from('audit_logs').insert({
+    user_id: user?.id,
+    action: 'ADMIN_REJECT_PICKUP',
+    resource_type: 'pickup_requests',
+    resource_id: id,
+    metadata: { reason },
+  })
+  return data
+}
+
+export async function apiGetAdminCategoryStats() {
+  const sb = createClient()
+  const { data, error } = await sb
+    .from('pickup_requests')
+    .select('waste_category_id, actual_weight_kg, estimated_weight_kg, status, waste_categories(category_name, is_maggot_friendly)')
+    .not('waste_category_id', 'is', null)
+  if (error) throw new Error(error.message)
+  return data
 }
 
 export async function apiUpdateAdminPickup(id: string, update: Record<string, unknown>) {

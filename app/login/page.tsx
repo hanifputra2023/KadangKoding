@@ -811,7 +811,7 @@ function LoginContent({ defaultMode = 'login' }: { defaultMode?: Mode }) {
           {/* Quick Demo Credentials Info (Subtle) */}
           <div className="text-center">
             <span className="text-[11px] text-slate-400">
-              Perlu bantuan atau akun uji coba? Hubungi koordinator pangkalan maggot Anda.
+              Perlu bantuan atau akun uji coba? Hubungi koordinator sentra daur ulang Anda.
             </span>
           </div>
 

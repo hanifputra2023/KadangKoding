@@ -22,6 +22,9 @@ import {
   apiDeleteCategory,
   apiGetAdminRoutes,
   apiCancelAdminPickup,
+  apiApproveAdminPickup,
+  apiRejectAdminPickup,
+  apiGetAdminCategoryStats,
 } from '@/lib/api/admin'
 import {
   parseCategoryGuideline,
@@ -52,9 +55,13 @@ interface Pickup {
   created_at: string
   pickup_window_start?: string
   pickup_window_end?: string
+  notes?: string | null
+  sample_photo_url?: string | null
+  latitude?: number | null
+  longitude?: number | null
   warung_profiles?: { business_name: string; address?: string } | null
   collector_profiles?: { vehicle_type: string } | null
-  waste_categories?: { category_name: string } | null
+  waste_categories?: { category_name: string; is_maggot_friendly?: boolean } | null
 }
 
 interface UserRow {
@@ -72,6 +79,14 @@ interface CategoryRow {
   category_name: string
   description: string | null
   is_maggot_friendly: boolean
+}
+
+interface CategoryStat {
+  category_name: string
+  is_maggot_friendly: boolean
+  total_pickups: number
+  completed_pickups: number
+  total_kg: number
 }
 
 interface RouteStopRow {
@@ -110,6 +125,191 @@ interface AuditRow {
 
 type AdminView = 'overview' | 'management' | 'audit' | 'profile'
 type MgmtTab = 'pickups' | 'users' | 'categories' | 'routes'
+
+// ─── Photo Lightbox Component ───────────────────────────────────────────────
+function PhotoLightbox({ url, onClose }: { url: string; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <button
+        className="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 rounded-full p-2 transition-colors"
+        onClick={onClose}
+        aria-label="Tutup"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <img
+        src={url}
+        alt="Foto Pickup"
+        className="max-h-[85vh] max-w-full rounded-xl shadow-2xl object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  )
+}
+
+// ─── Pickup Detail Modal ─────────────────────────────────────────────────────
+function PickupDetailModal({
+  pickup,
+  onClose,
+  onApprove,
+  onReject,
+  onCancel,
+}: {
+  pickup: Pickup
+  onClose: () => void
+  onApprove?: (id: string) => void
+  onReject?: (id: string) => void
+  onCancel?: (id: string) => void
+}) {
+  const [lightbox, setLightbox] = useState<string | null>(null)
+
+  function StatusBadgeLocal({ status }: { status: string }) {
+    const s = status.toLowerCase()
+    if (s === 'completed' || s === 'success') return <span className="ws-badge-completed">COMPLETED</span>
+    if (s === 'in_progress' || s === 'assigned') return <span className="ws-badge-in-progress">{s === 'in_progress' ? 'IN PROGRESS' : 'ASSIGNED'}</span>
+    if (s === 'pending') return <span className="ws-badge-pending">PENDING</span>
+    if (s === 'critical' || s === 'failed' || s === 'cancelled') return <span className="ws-badge-critical">{s.toUpperCase()}</span>
+    if (s === 'awaiting_approval') return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-100 text-violet-800">MENUNGGU APPROVAL</span>
+    return <span className="ws-badge-pending">{status.toUpperCase()}</span>
+  }
+
+  return (
+    <>
+      {lightbox && <PhotoLightbox url={lightbox} onClose={() => setLightbox(null)} />}
+      <div
+        className="fixed inset-0 z-[998] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-150 max-h-[90vh]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0 bg-emerald-50">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Detail Pickup #{pickup.id.slice(-6).toUpperCase()}</h3>
+              <div className="mt-1"><StatusBadgeLocal status={pickup.status} /></div>
+            </div>
+            <button onClick={onClose} className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            {/* Photo */}
+            {pickup.sample_photo_url ? (
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-2">Foto Sampel Limbah dari Warung</p>
+                <div
+                  className="relative w-full h-52 rounded-xl overflow-hidden cursor-pointer group border border-slate-200"
+                  onClick={() => setLightbox(pickup.sample_photo_url!)}
+                >
+                  <img src={pickup.sample_photo_url} alt="Foto Pickup" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-full">
+                      🔍 Perbesar Foto
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                <svg className="w-5 h-5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <p className="text-xs text-amber-800 font-medium">Warung belum menyertakan foto sampel limbah.</p>
+              </div>
+            )}
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Warung</p>
+                <p className="text-xs font-bold text-slate-900 mt-0.5">{pickup.warung_profiles?.business_name ?? '–'}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{pickup.warung_profiles?.address ?? '–'}</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Kategori Limbah</p>
+                <p className="text-xs font-bold text-slate-900 mt-0.5">{pickup.waste_categories?.category_name ?? '–'}</p>
+                {pickup.waste_categories?.is_maggot_friendly !== undefined && (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-1 inline-block ${
+                    pickup.waste_categories.is_maggot_friendly
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {pickup.waste_categories.is_maggot_friendly ? 'DAUR ULANG' : 'B3/KHUSUS'}
+                  </span>
+                )}
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Estimasi Berat</p>
+                <p className="text-lg font-extrabold text-emerald-700">{pickup.estimated_weight_kg} kg</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Berat Aktual</p>
+                <p className="text-lg font-extrabold text-slate-900">{pickup.actual_weight_kg ? `${pickup.actual_weight_kg} kg` : '–'}</p>
+              </div>
+              {pickup.pickup_window_start && (
+                <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Jadwal Pickup</p>
+                  <p className="text-xs text-slate-700 mt-0.5">
+                    {new Date(pickup.pickup_window_start).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                    {pickup.pickup_window_end && ` – ${new Date(pickup.pickup_window_end).toLocaleString('id-ID', { timeStyle: 'short' })}`}
+                  </p>
+                </div>
+              )}
+              {pickup.notes && (
+                <div className="col-span-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500">Catatan dari Warung</p>
+                  <p className="text-xs text-blue-900 mt-0.5">{pickup.notes}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Actions Footer */}
+          <div className="flex items-center justify-between gap-2 px-5 py-3 border-t border-slate-100 bg-slate-50/70 shrink-0 flex-wrap">
+            <button onClick={onClose} className="ws-btn-outline text-xs">Tutup</button>
+            <div className="flex items-center gap-2">
+              {pickup.status === 'pending' && onCancel && (
+                <button
+                  onClick={() => { onCancel(pickup.id); onClose() }}
+                  className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs"
+                >
+                  Batalkan Pickup
+                </button>
+              )}
+              {pickup.status === 'awaiting_approval' && onReject && (
+                <button
+                  onClick={() => { onReject(pickup.id); onClose() }}
+                  className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs"
+                >
+                  Tolak
+                </button>
+              )}
+              {pickup.status === 'awaiting_approval' && onApprove && (
+                <button
+                  onClick={() => { onApprove(pickup.id); onClose() }}
+                  className="ws-btn-primary text-xs bg-emerald-700 hover:bg-emerald-800"
+                >
+                  ✓ Setujui Pickup
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -232,6 +432,7 @@ export default function AdminPage() {
   const [routes, setRoutes] = useState<RouteRow[]>([])
 
   const [showDeletedUsers, setShowDeletedUsers] = useState(false)
+  const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([])
 
   const [mgmtTab, setMgmtTab] = useState<MgmtTab>('pickups')
   const [searchFilter, setSearchFilter] = useState('')
@@ -252,6 +453,10 @@ export default function AdminPage() {
 
   const [routesPage, setRoutesPage] = useState(1)
   const [routesPageSize, setRoutesPageSize] = useState(10)
+
+  // ─── Photo Lightbox & Detail Modal ────────────────────────────────────────
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+  const [detailPickup, setDetailPickup] = useState<Pickup | null>(null)
 
   // ─── Form & Setting Kategori ───────────────────────────────────────────────
   const [catForm, setCatForm] = useState({ category_name: '', description: '', is_maggot_friendly: true })
@@ -309,6 +514,31 @@ export default function AdminPage() {
       if (Array.isArray(r)) setRoutes(r as unknown as RouteRow[])
     } catch { /* ignore */ }
   }
+  async function loadCategoryStats() {
+    try {
+      const raw = await apiGetAdminCategoryStats()
+      if (!Array.isArray(raw)) return
+      // Aggregate by category
+      const map = new Map<string, CategoryStat>()
+      for (const row of raw as Array<{
+        waste_categories?: { category_name: string; is_maggot_friendly: boolean } | null
+        status: string
+        actual_weight_kg?: number | null
+        estimated_weight_kg?: number | null
+      }>) {
+        const catName = row.waste_categories?.category_name ?? 'Tidak Diketahui'
+        const isMf = row.waste_categories?.is_maggot_friendly ?? true
+        const existing = map.get(catName) ?? { category_name: catName, is_maggot_friendly: isMf, total_pickups: 0, completed_pickups: 0, total_kg: 0 }
+        existing.total_pickups += 1
+        if (row.status === 'completed') {
+          existing.completed_pickups += 1
+          existing.total_kg += Number(row.actual_weight_kg ?? row.estimated_weight_kg ?? 0)
+        }
+        map.set(catName, existing)
+      }
+      setCategoryStats(Array.from(map.values()).sort((a, b) => b.total_kg - a.total_kg))
+    } catch { /* ignore */ }
+  }
 
   useEffect(() => {
     loadMe()
@@ -318,6 +548,7 @@ export default function AdminPage() {
     loadLogs()
     loadCategories()
     loadRoutes()
+    loadCategoryStats()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -331,6 +562,7 @@ export default function AdminPage() {
     loadLogs()
     loadCategories()
     loadRoutes()
+    loadCategoryStats()
   })
 
   // Notifikasi dinamis sistem untuk admin
@@ -490,6 +722,28 @@ export default function AdminPage() {
       loadPickups(); loadStats(); loadLogs()
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal membatalkan pickup')
+    }
+  }
+
+  async function approvePickup(id: string) {
+    try {
+      await apiApproveAdminPickup(id)
+      toast.success('Pickup disetujui ✓')
+      loadPickups(); loadStats(); loadLogs()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menyetujui pickup')
+    }
+  }
+
+  async function rejectPickup(id: string) {
+    const reason = prompt('Alasan penolakan (opsional):')
+    if (reason === null) return // user cancelled
+    try {
+      await apiRejectAdminPickup(id, reason || undefined)
+      toast.success('Pickup ditolak')
+      loadPickups(); loadStats(); loadLogs()
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal menolak pickup')
     }
   }
 
@@ -695,13 +949,25 @@ export default function AdminPage() {
       { label: 'Kulon Progo', value: 15, color: '#f59e0b' },
     ]
 
-    const totalWeightNum = stats?.total_waste_collected_kg ?? 42850
-    const collectorsNum = stats?.collector_count ?? 124
-    const warungNum = stats?.active_warung_count ?? 1842
+    const totalWeightNum = stats?.total_waste_collected_kg ?? 0
+    const collectorsNum = stats?.collector_count ?? 0
+    const warungNum = stats?.active_warung_count ?? 0
+    const pendingCount = stats?.status_breakdown?.pending ?? 0
+    const completedCount = stats?.total_completed_pickups ?? 0
+    const carbonOffset = stats?.estimated_carbon_offset_kg_co2e ?? 0
+
+    // Category donut segments from real data
+    const topCatColors = ['#064e3b', '#059669', '#34d399', '#f59e0b', '#3b82f6', '#8b5cf6']
+    const catDonutSegments = categoryStats.slice(0, 6).map((c, i) => ({
+      label: c.category_name,
+      value: Math.max(1, c.total_pickups),
+      color: topCatColors[i % topCatColors.length],
+    }))
+    const totalCatPickups = catDonutSegments.reduce((s, c) => s + c.value, 0)
 
     return (
       <div className="space-y-5">
-        {/* Light Hero Banner */}
+        {/* Hero Banner */}
         <div className="ws-card bg-gradient-to-r from-emerald-50 via-emerald-100 to-teal-100 text-emerald-950 p-6 sm:p-8 rounded-2xl">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="space-y-2 max-w-xl">
@@ -712,79 +978,142 @@ export default function AdminPage() {
                 WarungSirkular System Overview
               </h2>
               <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
-                Monitoring real-time alur logistik penjemputan, metrik reduksi sampah, dan performa kurir di seluruh jaringan warung.
+                Monitoring real-time alur logistik penjemputan limbah non-organik, metrik reduksi pencemaran, dan performa kurir di seluruh jaringan warung.
               </p>
-              <div className="flex flex-wrap gap-2.5 pt-2">
-                <button className="ws-btn-primary text-xs" onClick={() => setView('management')}>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 pt-2">
+                <button
+                  className="ws-btn-primary text-xs w-full sm:w-auto justify-center"
+                  onClick={() => setView('management')}
+                >
                   Buka Manajemen Data
                 </button>
-                <a
-                  className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs"
-                  href="/api/admin/export?type=pickups"
-                  download
-                >
-                  {IC.download} Unduh Laporan Pickup
-                </a>
-                <a
-                  className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs"
-                  href="/api/admin/export?type=users"
-                  download
-                >
-                  {IC.download} Pengguna
-                </a>
-                <a
-                  className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs"
-                  href="/api/admin/export?type=audit"
-                  download
-                >
-                  {IC.download} Audit Log
-                </a>
+                <div className="flex gap-2 sm:contents">
+                  <a
+                    className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs flex-1 sm:flex-none justify-center text-center"
+                    href="/api/admin/export?type=pickups"
+                    download
+                  >
+                    {IC.download} Laporan Pickup
+                  </a>
+                  <a
+                    className="ws-btn-outline text-emerald-900 border-emerald-300 hover:bg-emerald-100/60 text-xs flex-1 sm:flex-none justify-center text-center"
+                    href="/api/admin/export?type=users"
+                    download
+                  >
+                    {IC.download} Pengguna
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="shrink-0 opacity-25 text-slate-600"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            
           </div>
         </div>
 
-        {/* 4 Stat Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* 6 Stat Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[
-            { label: 'TOTAL BERAT TERKUMPUL', value: `${totalWeightNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} kg`, trend: '+12.5%', color: '#059669', icon: IC.box },
-            { label: 'COLLECTOR AKTIF', value: `${collectorsNum}`, trend: '+3.2%', color: '#059669', icon: IC.truck },
-            { label: 'WARUNG BERGABUNG', value: `${warungNum}`, trend: '+8.4%', color: '#059669', icon: IC.users },
-            { label: 'OFFSET KARBON', value: `${(stats?.estimated_carbon_offset_kg_co2e ?? 2400).toFixed(1)} kg`, trend: '+15%', color: '#059669', icon: IC.checkCircle },
+            { label: 'TOTAL BERAT TERKUMPUL', value: `${totalWeightNum.toLocaleString('id-ID')} kg`, sub: `${(totalWeightNum/1000).toFixed(2)} ton`, icon: IC.box, color: 'emerald' },
+            { label: 'PICKUP SELESAI', value: `${completedCount}`, sub: 'transaksi terverifikasi', icon: IC.checkCircle, color: 'emerald' },
+            { label: 'PICKUP PENDING', value: `${pendingCount}`, sub: 'menunggu kurir', icon: IC.clock, color: pendingCount > 10 ? 'amber' : 'emerald' },
+            { label: 'COLLECTOR AKTIF', value: `${collectorsNum}`, sub: 'kurir terdaftar', icon: IC.truck, color: 'blue' },
+            { label: 'WARUNG MITRA', value: `${warungNum}`, sub: 'partner aktif', icon: IC.users, color: 'blue' },
+            { label: 'OFFSET KARBON', value: `${carbonOffset.toFixed(1)} kg`, sub: 'CO₂e terhindarkan', icon: IC.checkCircle, color: 'teal' },
           ].map((s) => (
-            <div key={s.label} className="ws-card p-5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">{s.value}</p>
-              <span className="text-xs font-semibold text-emerald-700">{s.trend}</span>
+            <div key={s.label} className="ws-card p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-tight">{s.label}</span>
+                <span className={`text-slate-400 ${ s.color === 'amber' ? 'text-amber-500' : ''}`}>{s.icon}</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">{s.value}</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">{s.sub}</p>
             </div>
           ))}
         </div>
 
-        {/* Charts: Trends + Zone Distribution */}
+        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 ws-card p-5">
-            <h3 className="text-sm font-bold text-slate-800 mb-2">Tren Volume Pengumpulan Sampah (kg)</h3>
+            <h3 className="text-sm font-bold text-slate-800 mb-2">Tren Volume Pengumpulan Limbah Non-Organik (kg)</h3>
             <div className="h-64">
               <LineChart data={volumeData} labels={chartLabels} colors={['#059669', '#3b82f6']} height={250} />
             </div>
           </div>
 
-          <div className="ws-card p-5 flex flex-col justify-between">
-            <h3 className="text-sm font-bold text-slate-800 mb-2">Distribusi Wilayah</h3>
-            <div className="flex justify-center my-3">
-              <DonutChart segments={zoneSegments} size={140} />
+          <div className="ws-card p-5 flex flex-col">
+            <h3 className="text-sm font-bold text-slate-800 mb-1">Distribusi Wilayah</h3>
+            <div className="flex justify-center my-2">
+              <DonutChart segments={zoneSegments} size={120} />
             </div>
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1.5 text-xs flex-1">
               {zoneSegments.map(z => (
                 <div key={z.label} className="flex justify-between items-center">
                   <span className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: z.color }} />
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: z.color }} />
                     <span className="text-slate-600">{z.label}</span>
                   </span>
                   <span className="font-bold text-slate-800">{z.value}%</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Category Stats */}
+        {categoryStats.length > 0 && (
+          <div className="ws-card p-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Analitik Kategori Limbah Non-Organik</h3>
+                <p className="text-xs text-slate-500">Breakdown jumlah pickup dan berat terkumpul per kategori</p>
+              </div>
+              {catDonutSegments.length > 0 && (
+                <div className="shrink-0">
+                  <DonutChart segments={catDonutSegments} size={80} />
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              {categoryStats.slice(0, 8).map((cat, i) => {
+                const pct = totalCatPickups > 0 ? Math.round((cat.total_pickups / totalCatPickups) * 100) : 0
+                return (
+                  <div key={cat.category_name} className="flex items-center gap-3">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: topCatColors[i % topCatColors.length] }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <span className="text-xs font-semibold text-slate-800 truncate">{cat.category_name}</span>
+                        <span className="text-[11px] text-slate-500 shrink-0">{cat.total_pickups} pickup • {cat.total_kg.toFixed(1)} kg</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: topCatColors[i % topCatColors.length] }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-600 w-8 text-right shrink-0">{pct}%</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Limbah Berbahaya Info Card */}
+        <div className="ws-card p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              {IC.alert}
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-900">Limbah Pencemar Lingkungan — Prioritas Penanganan</h3>
+              <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                Plastik sachet, minyak jelantah, styrofoam, dan limbah B3 dari warung merupakan pencemar prioritas yang wajib ditangani secara terpisah. Pastikan collector memverifikasi foto sebelum penjemputan.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {['Plastik Sachet', 'Minyak Jelantah', 'Styrofoam', 'Kaleng Aerosol', 'Baterai Bekas', 'Lampu Neon'].map(tag => (
+                  <span key={tag} className="px-2 py-0.5 bg-amber-200/80 text-amber-900 text-[11px] font-semibold rounded-full">{tag}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1012,16 +1341,16 @@ export default function AdminPage() {
         {/* Form tambah kategori */}
         {mgmtTab === 'categories' && (
           <form onSubmit={createCategory} className="p-4 border-b border-slate-100 space-y-3">
-            <p className="text-xs font-bold text-slate-700">Tambah Kategori Sampah</p>
+            <p className="text-xs font-bold text-slate-700">Tambah Kategori Limbah Anorganik</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
-                placeholder="Nama kategori (mis. Sisa Minyak)"
+                placeholder="Nama kategori (mis. Kardus, Minyak Jelantah, Botol PET)"
                 value={catForm.category_name}
                 onChange={(e) => setCatForm({ ...catForm, category_name: e.target.value })}
                 className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-hidden w-full"
               />
               <input
-                placeholder="Deskripsi kelayakan (opsional)"
+                placeholder="Deskripsi daur ulang / penanganan (opsional)"
                 value={catForm.description}
                 onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
                 className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-hidden w-full"
@@ -1035,7 +1364,7 @@ export default function AdminPage() {
                   onChange={(e) => setCatForm({ ...catForm, is_maggot_friendly: e.target.checked })}
                   className="accent-emerald-700"
                 />
-                Ramah maggot
+                Bernilai Daur Ulang Sirkular
               </label>
               <button type="submit" disabled={busy} className="ws-btn-primary text-xs disabled:opacity-50">
                 {IC.plus} Tambah
@@ -1057,20 +1386,46 @@ export default function AdminPage() {
                       <span className="font-mono text-xs font-bold">#{p.id.slice(-6).toUpperCase()}</span>
                       <StatusBadge status={p.status} />
                     </div>
-                    <p className="text-xs font-semibold">{p.warung_profiles?.business_name ?? 'Warung Partner'}</p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                      <span>Estimasi: <strong className="text-slate-800">{p.estimated_weight_kg} kg</strong></span>
-                      <span>Aktual: <strong className="text-slate-800">{p.actual_weight_kg ? `${p.actual_weight_kg} kg` : '–'}</strong></span>
-                      <span>{formatWIBDate(p.created_at)}</span>
+                    <div className="flex items-start gap-3">
+                      {p.sample_photo_url ? (
+                        <button
+                          onClick={() => setLightboxUrl(p.sample_photo_url!)}
+                          className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0"
+                        >
+                          <img src={p.sample_photo_url} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ) : (
+                        <span className="w-16 h-16 rounded-lg bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-[10px] shrink-0">No Photo</span>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold">{p.warung_profiles?.business_name ?? 'Warung Partner'}</p>
+                        <p className="text-[11px] text-slate-500">{p.waste_categories?.category_name ?? '–'}</p>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 mt-1">
+                          <span>Est: <strong className="text-slate-800">{p.estimated_weight_kg} kg</strong></span>
+                          <span>Aktual: <strong className="text-slate-800">{p.actual_weight_kg ? `${p.actual_weight_kg} kg` : '–'}</strong></span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">{formatWIBDate(p.created_at)}</p>
+                      </div>
                     </div>
-                    {p.status === 'pending' && (
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
-                        onClick={() => cancelPickup(p.id)}
-                        className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs"
+                        onClick={() => setDetailPickup(p as unknown as Pickup)}
+                        className="ws-btn-outline text-xs text-emerald-800 border-emerald-200 hover:bg-emerald-50"
                       >
-                        {IC.trash} Batalkan
+                        {IC.search} Detail
                       </button>
-                    )}
+                      {p.status === 'awaiting_approval' && (
+                        <>
+                          <button onClick={() => approvePickup(p.id)} className="ws-btn-outline text-xs text-emerald-700 border-emerald-300 hover:bg-emerald-50">✓ Setujui</button>
+                          <button onClick={() => rejectPickup(p.id)} className="ws-btn-outline text-xs text-rose-600 border-rose-200 hover:bg-rose-50">✕ Tolak</button>
+                        </>
+                      )}
+                      {p.status === 'pending' && (
+                        <button onClick={() => cancelPickup(p.id)} className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs">
+                          {IC.trash} Batalkan
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               )}
@@ -1082,7 +1437,9 @@ export default function AdminPage() {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>FOTO</th>
                     <th>WARUNG</th>
+                    <th>KATEGORI</th>
                     <th>ESTIMASI</th>
                     <th>AKTUAL</th>
                     <th>STATUS</th>
@@ -1093,26 +1450,65 @@ export default function AdminPage() {
                 <tbody>
                   {pagedPickups.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center py-8 text-xs text-slate-400">Tidak ada data pickup.</td>
+                      <td colSpan={9} className="text-center py-8 text-xs text-slate-400">Tidak ada data pickup.</td>
                     </tr>
                   )}
                   {pagedPickups.map((p) => (
                     <tr key={p.id}>
                       <td className="font-mono text-xs font-bold">#{p.id.slice(-6).toUpperCase()}</td>
+                      <td>
+                        {p.sample_photo_url ? (
+                          <button
+                            onClick={() => setLightboxUrl(p.sample_photo_url!)}
+                            className="relative w-10 h-10 rounded-lg overflow-hidden border border-slate-200 hover:border-emerald-400 hover:shadow-md transition-all group shrink-0"
+                            title="Lihat foto"
+                          >
+                            <img src={p.sample_photo_url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          </button>
+                        ) : (
+                          <span className="w-10 h-10 rounded-lg bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center text-slate-400" title="Tidak ada foto">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="3" y="3" width="18" height="18" rx="2"/>
+                              <circle cx="8.5" cy="8.5" r="1.5"/>
+                              <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                          </span>
+                        )}
+                      </td>
                       <td className="text-xs font-semibold">{p.warung_profiles?.business_name ?? 'Warung Partner'}</td>
+                      <td className="text-xs">
+                        <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                          p.waste_categories?.is_maggot_friendly
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {p.waste_categories?.category_name ?? '–'}
+                        </span>
+                      </td>
                       <td className="text-xs">{p.estimated_weight_kg} kg</td>
                       <td className="text-xs font-bold">{p.actual_weight_kg ? `${p.actual_weight_kg} kg` : '–'}</td>
                       <td><StatusBadge status={p.status} /></td>
                       <td className="text-xs text-slate-500">{formatWIBDate(p.created_at)}</td>
                       <td>
-                        {p.status === 'pending' && (
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <button
-                            onClick={() => cancelPickup(p.id)}
-                            className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs"
+                            onClick={() => setDetailPickup(p as unknown as Pickup)}
+                            className="ws-btn-outline text-xs text-emerald-800 border-emerald-200 hover:bg-emerald-50"
                           >
-                            {IC.trash} Batalkan
+                            {IC.search} Detail
                           </button>
-                        )}
+                          {p.status === 'awaiting_approval' && (
+                            <>
+                              <button onClick={() => approvePickup(p.id)} className="ws-btn-outline text-xs text-emerald-700 border-emerald-300 hover:bg-emerald-50">✓ Setujui</button>
+                              <button onClick={() => rejectPickup(p.id)} className="ws-btn-outline text-xs text-rose-600 border-rose-200 hover:bg-rose-50">✕ Tolak</button>
+                            </>
+                          )}
+                          {p.status === 'pending' && (
+                            <button onClick={() => cancelPickup(p.id)} className="ws-btn-outline text-rose-600 border-rose-200 hover:bg-rose-50 text-xs">
+                              {IC.trash}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1136,12 +1532,18 @@ export default function AdminPage() {
               {pagedUsers.length === 0 ? (
                 <p className="p-6 text-center text-xs text-slate-400">Tidak ada data pengguna.</p>
               ) : (
-                pagedUsers.map((u) => (
-                  <div key={u.id} className="p-4 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-bold">{u.name}</p>
-                      <div className="flex items-center gap-1.5">
-                        {u.is_deleted && <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-200 text-slate-600">NONAKTIF</span>}
+                 pagedUsers.map((u) => (
+                  <div key={u.id} className={`p-4 space-y-3 ${u.is_deleted ? 'opacity-60' : ''}`}>
+                    {/* Header: nama + badge */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">{u.name}</p>
+                        <p className="text-[11px] text-slate-500 break-all">{u.email}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {u.is_deleted && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-200 text-slate-600">NONAKTIF</span>
+                        )}
                         <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                           u.role === 'admin' ? 'bg-rose-100 text-rose-800' : u.role === 'collector' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
                         }`}>
@@ -1149,18 +1551,39 @@ export default function AdminPage() {
                         </span>
                       </div>
                     </div>
-                    <p className="text-xs text-slate-600 break-all">{u.email}</p>
+
+                    {/* Info */}
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                       <span>HP: {u.phone_number || '–'}</span>
                       <span>Gabung: {formatWIBDate(u.created_at)}</span>
                     </div>
+
+                    {/* Aksi */}
                     {me?.id !== u.id && (
-                      <button
-                        onClick={() => toggleUserActive(u)}
-                        className={`ws-btn-outline text-xs ${u.is_deleted ? 'text-emerald-700 border-emerald-200 hover:bg-emerald-50' : 'text-rose-600 border-rose-200 hover:bg-rose-50'}`}
-                      >
-                        {u.is_deleted ? `${IC.power} Aktifkan` : `${IC.power} Nonaktifkan`}
-                      </button>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Ganti Role */}
+                        <select
+                          value={u.role}
+                          onChange={(e) => changeRole(u, e.target.value)}
+                          className="flex-1 p-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-bold outline-none"
+                        >
+                          <option value="warung">Warung</option>
+                          <option value="collector">Collector</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        {/* Aktifkan / Nonaktifkan */}
+                        <button
+                          onClick={() => toggleUserActive(u)}
+                          className={`ws-btn-outline text-xs flex items-center gap-1 ${
+                            u.is_deleted
+                              ? 'text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+                              : 'text-rose-600 border-rose-200 hover:bg-rose-50'
+                          }`}
+                        >
+                          {IC.power}
+                          {u.is_deleted ? 'Aktifkan' : 'Nonaktifkan'}
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))
@@ -1213,13 +1636,22 @@ export default function AdminPage() {
                       </td>
                       <td className="text-xs text-slate-500">{formatWIBDate(u.created_at)}</td>
                       <td>
-                        {me?.id !== u.id && (
-                          <button
-                            onClick={() => toggleUserActive(u)}
-                            className={`ws-btn-outline text-xs ${u.is_deleted ? 'text-emerald-700 border-emerald-200 hover:bg-emerald-50' : 'text-rose-600 border-rose-200 hover:bg-rose-50'}`}
-                          >
-                            {u.is_deleted ? `${IC.power} Aktifkan` : `${IC.power} Nonaktifkan`}
-                          </button>
+                        {me?.id !== u.id ? (
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => toggleUserActive(u)}
+                              className={`ws-btn-outline text-xs flex items-center gap-1 ${
+                                u.is_deleted
+                                  ? 'text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+                                  : 'text-rose-600 border-rose-200 hover:bg-rose-50'
+                              }`}
+                            >
+                              {IC.power}
+                              {u.is_deleted ? 'Aktifkan' : 'Nonaktifkan'}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 italic">Akun sendiri</span>
                         )}
                       </td>
                     </tr>
@@ -1250,12 +1682,12 @@ export default function AdminPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-bold text-slate-900">{c.category_name}</span>
                       {c.is_maggot_friendly ? (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
-                          RAMAH MAGGOT
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          DAUR ULANG SIRKULAR
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-200 text-slate-700">
-                          KOMPOS STANDAR
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                          PENANGANAN KHUSUS / B3
                         </span>
                       )}
                     </div>
@@ -1364,6 +1796,20 @@ export default function AdminPage() {
       {view === 'management' && renderManagement()}
       {view === 'audit' && renderAudit()}
 
+      {/* ─── Photo Lightbox ────────────────────────────────────────────── */}
+      {lightboxUrl && <PhotoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+
+      {/* ─── Pickup Detail Modal ───────────────────────────────────────── */}
+      {detailPickup && (
+        <PickupDetailModal
+          pickup={detailPickup}
+          onClose={() => setDetailPickup(null)}
+          onApprove={approvePickup}
+          onReject={rejectPickup}
+          onCancel={cancelPickup}
+        />
+      )}
+
       {/* ─── Modal Setting Pedoman Daur Ulang Kategori ───────────────── */}
       {editingCat && editGuideline && (
         <div
@@ -1418,7 +1864,7 @@ export default function AdminPage() {
                         onChange={(e) => setEditGuideline({ ...editGuideline, is_maggot_friendly: e.target.checked })}
                         className="accent-emerald-700 w-4 h-4"
                       />
-                      <span>Ramah Biokonversi Maggot BSF</span>
+                      <span>Bernilai Daur Ulang Sirkular (Non-Organik)</span>
                     </label>
                   </div>
                 </div>
@@ -1428,7 +1874,7 @@ export default function AdminPage() {
                     rows={2}
                     value={editGuideline.summary}
                     onChange={(e) => setEditGuideline({ ...editGuideline, summary: e.target.value })}
-                    placeholder="Deskripsi singkat jenis sampah..."
+                    placeholder="Deskripsi singkat jenis limbah anorganik..."
                     className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-emerald-500 resize-none"
                   />
                 </div>
