@@ -245,3 +245,10 @@ export async function apiRecommendRoute(body: { pickup_ids: string[]; start?: { 
   return { route: route.id, recommended }
 }
 
+export async function apiGetCategories() {
+  const sb = createClient()
+  const { data, error } = await sb.from('waste_categories').select('*').order('category_name')
+  if (error) throw new Error(error.message)
+  return data
+}
+

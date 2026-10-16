@@ -23,6 +23,7 @@ import {
   apiCompleteRoute,
   apiFailPickup,
   apiRecommendRoute,
+  apiGetCategories,
 } from '@/lib/api/collector'
 import { apiUpload } from '@/lib/api/upload'
 import {
@@ -35,6 +36,13 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface WasteCategoryItem {
+  id: string
+  category_name: string
+  is_maggot_friendly?: boolean
+  description?: string | null
+}
+
 interface AvailablePickup {
   id: string
   latitude: number
@@ -42,6 +50,7 @@ interface AvailablePickup {
   estimated_weight_kg: number
   pickup_window_start: string
   pickup_window_end: string
+  waste_category_id?: string | null
   notes?: string | null
   sample_photo_url?: string | null
   warung_profiles?: { business_name: string; address: string } | null
@@ -458,18 +467,20 @@ export default function CollectorPage() {
   const [proofUrl, setProofUrl] = useState('')
   const [uploading, setUploading] = useState(false)
 
-  const [catFilter, setCatFilter] = useState<'all' | 'Jelantah' | 'Plastik' | 'Kardus' | 'Logam'>('all')
+  const [categories, setCategories] = useState<WasteCategoryItem[]>([])
+  const [catFilter, setCatFilter] = useState<string>('all')
   const [searchFilter, setSearchFilter] = useState('')
   const [availPage, setAvailPage] = useState(1)
   const [availPageSize, setAvailPageSize] = useState(6)
 
   async function load() {
     try {
-      const [meUser, av, rt, cap] = await Promise.all([
+      const [meUser, av, rt, cap, cats] = await Promise.all([
         apiGetMe(),
         apiGetCollectorPickups().catch(() => []),
         apiGetCollectorRoutes().catch(() => []),
         apiGetCollectorCapacity().catch(() => null),
+        apiGetCategories().catch(() => []),
       ])
 
       if (!meUser) { router.replace('/login'); return }
@@ -478,6 +489,7 @@ export default function CollectorPage() {
 
       if (Array.isArray(av)) setAvailable(av as unknown as AvailablePickup[])
       if (Array.isArray(rt)) setRoutes(rt as unknown as Route[])
+      if (Array.isArray(cats)) setCategories(cats as WasteCategoryItem[])
       if (cap) {
         const p = cap as {
           vehicle_type?: string
@@ -511,7 +523,18 @@ export default function CollectorPage() {
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useRealtimeTables(['pickup_requests', 'routes', 'route_stops', 'collector_profiles'], load)
+  // Sinkronisasi realtime: pickup_requests, routes, route_stops, collector_profiles, dan waste_categories (dari admin)
+  useRealtimeTables(['pickup_requests', 'routes', 'route_stops', 'collector_profiles', 'waste_categories'], load)
+
+  // Otomatis reset filter kategori jika kategori yang dipilih dihapus oleh admin
+  useEffect(() => {
+    if (catFilter !== 'all' && categories.length > 0) {
+      const exists = categories.some(
+        (c) => c.id === catFilter || c.category_name.toLowerCase() === catFilter.toLowerCase()
+      )
+      if (!exists) setCatFilter('all')
+    }
+  }, [categories, catFilter])
 
   // Notifikasi dinamis berbasis data riil collector
   const notifications = useMemo<AppNotification[]>(() => {
@@ -925,9 +948,30 @@ export default function CollectorPage() {
   const sorted = withDistance.sort((a, b) => a.distance_km - b.distance_km)
   const filtered = sorted.filter((a) => a.distance_km <= radius)
 
-  const catFiltered = catFilter === 'all' ? filtered : filtered.filter(
-    (p) => (p.waste_categories?.category_name || '').toLowerCase().includes(catFilter.toLowerCase())
-  )
+  // Hitung jumlah per kategori (dari filtered radius)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const p of filtered) {
+      if (p.waste_category_id) {
+        counts[p.waste_category_id] = (counts[p.waste_category_id] || 0) + 1
+      }
+      const name = p.waste_categories?.category_name
+      if (name) {
+        counts[name] = (counts[name] || 0) + 1
+      }
+    }
+    return counts
+  }, [filtered])
+
+  const catFiltered = useMemo(() => {
+    if (catFilter === 'all') return filtered
+    return filtered.filter((p) => {
+      if (p.waste_category_id && p.waste_category_id === catFilter) return true
+      const catName = (p.waste_categories?.category_name || '').toLowerCase()
+      const target = catFilter.toLowerCase()
+      return catName === target || catName.includes(target)
+    })
+  }, [catFilter, filtered])
 
   const todayStr = getWibDateString()
   const tomorrowStr = getWibTomorrowString()
@@ -1342,19 +1386,49 @@ export default function CollectorPage() {
 
       {/* Filter & Search bar */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap">
-          {(['all', 'Jelantah', 'Plastik', 'Kardus', 'Logam'] as const).map((cat) => (
-            <button
-              key={cat}
-              onClick={() => { setCatFilter(cat); setAvailPage(1) }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${catFilter === cat
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                }`}
-            >
-              {cat === 'all' ? 'Semua Kategori' : cat}
-            </button>
-          ))}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar flex-nowrap max-w-full">
+          <button
+            onClick={() => { setCatFilter('all'); setAvailPage(1) }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${catFilter === 'all'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+          >
+            <span>Semua Kategori</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${catFilter === 'all' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {filtered.length}
+            </span>
+          </button>
+
+          {categories.length === 0 ? (
+            <div className="flex items-center gap-1.5 animate-pulse">
+              <div className="h-7 w-28 bg-slate-100 rounded-lg border border-slate-200"></div>
+              <div className="h-7 w-24 bg-slate-100 rounded-lg border border-slate-200"></div>
+              <div className="h-7 w-20 bg-slate-100 rounded-lg border border-slate-200"></div>
+            </div>
+          ) : (
+            categories.map((cat) => {
+              const count = categoryCounts[cat.id] ?? categoryCounts[cat.category_name] ?? 0
+              const isActive = catFilter === cat.id || catFilter.toLowerCase() === cat.category_name.toLowerCase()
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => { setCatFilter(cat.id); setAvailPage(1) }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${isActive
+                      ? 'bg-emerald-800 text-white shadow-xs'
+                      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                >
+                  <span>{cat.category_name}</span>
+                  {count > 0 && (
+                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              )
+            })
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
