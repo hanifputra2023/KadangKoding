@@ -1031,8 +1031,12 @@ export default function CollectorPage() {
   const activeRoute = routes
     .filter(r => r.status === 'active')
     .sort((a, b) => (a.created_at && b.created_at ? String(b.created_at).localeCompare(String(a.created_at)) : 0))[0]
-  const totalPickups = routes.reduce((s, r) => s + r.route_stops.length, 0)
-  const totalWeight = routes.reduce((s, r) => s + Number(r.total_weight_kg), 0)
+  const totalPickups = routes.reduce((s, r) => s + (r.route_stops?.length || 0), 0)
+  const completedPickupsCount = routes.reduce(
+    (s, r) => s + (r.route_stops?.filter(st => st.status === 'completed' || st.pickup_requests?.status === 'completed').length || 0),
+    0
+  )
+  const totalWeight = routes.reduce((s, r) => s + Number(r.total_weight_kg || 0), 0)
 
   const breadcrumbMap: Record<View, string> = {
     'dashboard': 'Overview',
@@ -1049,8 +1053,28 @@ export default function CollectorPage() {
   // ─── 1. Dashboard ─────────────────────────────────────────────────────────
 
   const renderDashboard = () => {
-    const weekData = [{ label: 'Weight', values: [70, 150, 210, 140, 280, 250, 140] }]
-    const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    // Hitung performa 7 hari terakhir berbasis data riil rute/pickup
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+    const last7Days: { label: string; dateStr: string; weight: number }[] = []
+    const now = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      const label = dayNames[d.getDay()]
+      last7Days.push({ label, dateStr, weight: 0 })
+    }
+
+    for (const r of routes) {
+      const rDate = r.created_at ? r.created_at.split('T')[0] : ''
+      const dayEntry = last7Days.find(d => d.dateStr === rDate)
+      if (dayEntry) {
+        dayEntry.weight += Number(r.total_weight_kg || 0)
+      }
+    }
+
+    const weekLabels = last7Days.map(d => d.label)
+    const weekData = [{ label: 'Muatan (kg)', values: last7Days.map(d => Math.round(d.weight * 10) / 10) }]
 
     const mapCenter: [number, number] = colLat && colLng ? [colLat, colLng] : [-7.4726, 110.2198]
     const markers = filtered.map(p => ({
@@ -1159,18 +1183,121 @@ export default function CollectorPage() {
 
         {/* 4 Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: 'TOTAL PICKUPS', value: `${totalPickups}`, trend: '+12%', color: '#059669' },
-            { label: 'TOTAL MUATAN', value: `${totalWeight.toFixed(1)} kg`, trend: '+8.5%', color: '#059669' },
-            { label: 'KAPASITAS KENDARAAN', value: `${capacity} kg`, trend: 'Maks', color: '#0891b2' },
-            { label: 'RUTE AKTIF', value: routeInProgress ? `${activeRoute.route_stops.length} Titik` : '0 Aktif', trend: routeInProgress ? 'In Progress' : 'Idle', color: '#7c3aed' },
-          ].map((s) => (
-            <div key={s.label} className="ws-card p-5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">{s.value}</p>
-              <span className="text-xs font-semibold text-emerald-700">{s.trend}</span>
+          <div className="ws-card p-5 flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL PICKUPS</span>
+                <p className="text-2xl font-extrabold text-slate-900 mt-1">{totalPickups}</p>
+              </div>
+              <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
+                  <polyline points="3.29 7 12 12 20.71 7" />
+                  <polyline points="16 16 19 19 22 13" />
+                </svg>
+              </span>
             </div>
-          ))}
+            <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="font-semibold text-emerald-700">
+                {totalPickups > 0 ? `${completedPickupsCount} Selesai (${Math.round((completedPickupsCount / totalPickups) * 100)}%)` : '0 Selesai'}
+              </span>
+              <span className="text-[10px] text-slate-400">Riwayat Armada</span>
+            </div>
+          </div>
+
+          <div className="ws-card p-5 flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MUATAN SAAT INI</span>
+                <p className={`text-2xl font-extrabold mt-1 ${activeWeight > capacity * 0.85 ? 'text-rose-600' : activeWeight > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
+                  {activeWeight.toFixed(1)} kg
+                </p>
+              </div>
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${activeWeight > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="15" height="13" rx="1" />
+                  <path d="M16 8h4l3 3v5h-7V8z" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+              </span>
+            </div>
+            <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex flex-col gap-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className={`font-bold ${activeWeight > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                  {activeWeight === 0 ? 'Kosong (0% Terisi)' : `${Math.round((activeWeight / capacity) * 100)}% Terisi`}
+                </span>
+                <span className="text-[10px] text-slate-400">Total: {totalWeight.toFixed(1)} kg</span>
+              </div>
+              {activeWeight > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setUnloadConfirmOpen(true)}
+                  className="text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2 py-1 rounded-md flex items-center justify-center gap-1 transition-colors mt-1 w-full"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  Kosongkan Muatan di Sini
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="ws-card p-5 flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">KAPASITAS KENDARAAN</span>
+                <p className="text-2xl font-extrabold text-slate-900 mt-1">{capacity} kg</p>
+              </div>
+              <span className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v20" />
+                  <path d="m17 5-5-3-5 3" />
+                  <path d="m17 19-5 3-5-3" />
+                  <path d="M2 12h20" />
+                  <path d="m5 7-3 5 3 5" />
+                  <path d="m19 7 3 5-3 5" />
+                </svg>
+              </span>
+            </div>
+            <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className={`font-semibold ${remainingCapacity > 0 ? 'text-cyan-800' : 'text-rose-600'}`}>
+                Sisa {remainingCapacity.toFixed(1)} kg
+              </span>
+              <span className="text-[10px] text-slate-400">{vehicleType || 'Motor'}</span>
+            </div>
+          </div>
+
+          <div className="ws-card p-5 flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RUTE AKTIF</span>
+                <p className="text-2xl font-extrabold text-slate-900 mt-1">
+                  {routeInProgress ? `${activeRoute?.route_stops?.filter(s => s.status !== 'completed' && s.pickup_requests?.status !== 'completed').length || 0} Titik` : '0 Aktif'}
+                </p>
+              </div>
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${routeInProgress ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-400'}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="6" cy="19" r="3" />
+                  <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                  <circle cx="18" cy="5" r="3" />
+                </svg>
+              </span>
+            </div>
+            <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className={`font-semibold ${routeInProgress ? 'text-purple-700 font-bold' : 'text-slate-500'}`}>
+                {routeInProgress ? 'Sedang Berjalan' : 'Standby (Idle)'}
+              </span>
+              {routeInProgress && (
+                <button
+                  type="button"
+                  onClick={() => setView('current-stop')}
+                  className="text-[10px] font-bold text-purple-700 hover:underline"
+                >
+                  Buka Rute &rarr;
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Real Leaflet Map & Weekly Performance */}
