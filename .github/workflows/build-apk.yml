@@ -1,10 +1,11 @@
 name: Build Android APK
 
 on:
-  push:
-    branches:
-      - '**'
-  workflow_dispatch:
+  # Dimatikan agar tidak otomatis build dan spam email error setiap kali git push.
+  # push:
+  #   branches:
+  #     - '**'
+  workflow_dispatch: # Jalankan manual kapan saja dari GitHub: Actions -> Build Android APK -> Run workflow
 
 jobs:
   build:
@@ -35,6 +36,7 @@ jobs:
 
       - name: Build Next.js static export
         env:
+          CAPACITOR: 'true'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://xygrvocyxcniwztdcmlu.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5Z3J2b2N5eGNuaXd6dGRjbWx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjQzODAsImV4cCI6MjEwNTE0MDM4MH0.xooTA3vZlwDmSOlEHIoM598ZFRoK0dAJ9I-aQXCen4U' }}
         run: npm run build
