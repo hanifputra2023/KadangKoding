@@ -2,9 +2,9 @@
 
 # 🌿 WarungSirkular
 
-### Platform Micro-Logistics & Ekosistem Sirkular Sampah Organik
+### Platform Micro-Logistics & Ekosistem Sirkular Limbah Anorganik & Minyak Jelantah
 
-**Menghubungkan warung makan, kurir pengumpul, dan pembudidaya maggot BSF**  
+**Menghubungkan warung makan, kurir sirkular pengumpul, dan sentra daur ulang / pengolah biodiesel**  
 **dalam satu platform digital terintegrasi yang transparan & terukur.**
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-kadang--koding.vercel.app-10b981?style=for-the-badge)](https://kadang-koding.vercel.app)
@@ -23,6 +23,7 @@
    - [2.1 Alur Rantai Sirkular Sistem](#21-alur-rantai-sirkular-sistem)
    - [2.2 Alur Pengguna & Sistem (End-to-End User Journey)](#22-alur-pengguna--sistem-end-to-end-user-journey)
    - [2.3 Matriks Peran & Hak Akses (Role Matrix)](#23-matriks-peran--hak-akses-role-matrix)
+   - [2.4 Kategori Limbah Sirkular yang Dikelola](#24-kategori-limbah-sirkular-yang-dikelola)
 3. [Cara Menjalankan Solusi](#3-cara-menjalankan-solusi)
    - [Opsi A: Jalankan Langsung (Cloud Live Demo — Rekomendasi Juri)](#opsi-a-jalankan-langsung-cloud-live-demo--rekomendasi-juri)
    - [Opsi B: Jalankan Secara Lokal (Localhost Development)](#opsi-b-jalankan-secara-lokal-localhost-development)
@@ -38,17 +39,19 @@
 
 ## 1. Latar Belakang & Masalah
 
-Setiap hari, ribuan kilogram **sampah organik sisa makanan dari warung makan dan UMKM kuliner** berakhir di Tempat Pembuangan Akhir (TPA). Tumpukan sampah basah ini membusuk secara anaerobik dan melepaskan **gas metana (CH₄)** — gas rumah kaca dengan potensi pemanasan global hingga 28x lebih berbahaya dibanding CO₂.
+Setiap hari, warung makan dan UMKM kuliner menghasilkan limbah anorganik bernilai sirkular tinggi (kardus kemasan bahan baku, botol plastik PET/PP cup, kaleng seng/aluminium, dan botol kaca), serta limbah pencemar lingkungan kritis seperti **Minyak Jelantah (Used Cooking Oil / UCO)** dan **Limbah B3 Domestik** (baterai timbangan digital, lampu neon mati).
 
-Di sisi lain, terdapat pembudidaya **larva Black Soldier Fly (Maggot BSF)** yang membutuhkan pasokan bahan organik dalam jumlah besar setiap hari sebagai biomassa pakan berprotein tinggi untuk perikanan dan peternakan.
+Jika tidak dikelola dengan benar:
+- **Pencemaran Air & Drainase:** Minyak jelantah yang dibuang ke wastafel membeku menjadi sumbatan pipa masif (*fatberg*), dan 1 liter minyak jelantah dapat meracuni hingga 1 juta liter air bersih serta merusak ekosistem perairan.
+- **Beban TPA & Hilangnya Nilai Ekonomi:** Kardus, plastik PET, dan kaleng yang berakhir di TPA membutuhkan waktu puluhan hingga ratusan tahun terurai, padahal bernilai ekonomis tinggi jika didaur ulang menjadi bahan baku sekunder (rPET, *pulp* kertas, peleburan logam, dan biofuel).
 
 ### Inti Masalah:
-- ❌ **Warung Makan:** Kesulitan membuang sampah organik harian, tidak memiliki sarana pilah yang terfasilitasi, dan sampah berbau jika menumpuk.
-- ❌ **Kurir / Collector:** Tidak memiliki transparansi rute, jadwal penjemputan tidak terkoordinasi, dan ketidakpastian volume sampah.
-- ❌ **Pembudidaya BSF:** Pasokan pakan larva fluktuatif dan tidak terstandarisasi.
-- ❌ **Pemerintah & Publik:** Ketiadaan data audit jejak karbon dan volume sampah organik yang berhasil dialihkan dari TPA.
+- ❌ **Warung Makan:** Kesulitan menyalurkan limbah anorganik dan minyak jelantah terpilah, keterbatasan ruang penyimpanan, dan kebiasaan membuang jelantah ke saluran air.
+- ❌ **Kurir Sirkular (Collector):** Tidak memiliki transparansi rute penjemputan, jadwal tidak terkoordinasi, dan ketidakpastian volume limbah siap jemput.
+- ❌ **Sentra Daur Ulang & Pengolah Biodiesel:** Pasokan bahan baku sirkular terpilah dari sektor UMKM kuliner belum terintegrasi dan sulit diakses langsung dari sumbernya.
+- ❌ **Pemerintah & Publik:** Ketiadaan data audit jejak limbah, pencegahan pencemaran air, dan jejak karbon yang berhasil diselamatkan dari TPA.
 
-> **WarungSirkular** hadir menyelesaikan hambatan ini melalui digitalisasi mikro-logistik rantai dingin sampah organik, menghubungkan seluruh pihak dalam satu aplikasi terintegrasi.
+> **WarungSirkular** hadir menyelesaikan hambatan ini melalui digitalisasi mikro-logistik pengelolaan limbah anorganik dan pencegahan pencemaran lingkungan terintegrasi.
 
 ---
 
@@ -57,26 +60,26 @@ Di sisi lain, terdapat pembudidaya **larva Black Soldier Fly (Maggot BSF)** yang
 ### 2.1 Alur Rantai Sirkular Sistem
 
 ```
-┌─────────────────┐       ┌─────────────────┐       ┌──────────────────┐       ┌──────────────────────┐
-│  WARUNG MAKAN   │ ───►  │  WARUNGSIRKULAR │ ───►  │  KURIR MITRA     │ ───►  │  PEMBUDIDAYA MAGGOT  │
-│  (Produsen Sisa │       │  (Platform B2B  │       │  (Mikro-Logistik │       │  (Biokonversi Larva  │
-│   Organik Kuliner)      │   Koordinasi)   │       │   Jemput & Timbang)      │   BSF & Pakan Ternak)│
-└─────────────────┘       └─────────────────┘       └──────────────────┘       └──────────────────────┘
-         │                                                                                 │
-         └──────────────────◄ Nilai Tambah & Laporan Dampak ESG ◄──────────────────────────┘
+┌──────────────────┐       ┌─────────────────┐       ┌──────────────────┐       ┌───────────────────────────────┐
+│   WARUNG MAKAN   │ ───►  │  WARUNGSIRKULAR │ ───►  │  KURIR SIRKULAR  │ ───►  │  SENTRA DAUR ULANG & REFINERY │
+│ (Produsen Limbah │       │  (Platform B2B  │       │  (Mikro-Logistik │       │ (Pengolahan Biodiesel, Pabrik │
+│ Anorganik & UCO) │       │   Koordinasi)   │       │   Jemput & Timbang)      │  rPET, Peleburan Logam/Pulp)  │
+└──────────────────┘       └─────────────────┘       └──────────────────┘       └───────────────────────────────┘
+         │                                                                                      │
+         └───────────────────◄ Nilai Tambah & Laporan Dampak ESG ◄──────────────────────────────┘
 ```
 
 ---
 
 ### 2.2 Alur Pengguna & Sistem (End-to-End User Journey)
 
-Berikut adalah tahapan operasional dari awal sampah dipilah hingga dikonversi menjadi maggot BSF:
+Berikut adalah tahapan operasional dari pemilahan limbah di warung hingga disalurkan ke sentra pengolahan:
 
 ```
 [ TAHAP 1: REQUEST OLEH WARUNG ]
-  1. Mitra Warung memilah sisa makanan (sayur, nasi, sisa dapur).
+  1. Mitra Warung memilah limbah anorganik (kardus, botol plastik, kaleng, kaca) dan menampung minyak jelantah dingin dalam jerigen tertutup.
   2. Buka Dashboard Warung -> Klik "Buat Penjemputan".
-  3. Memilih kategori sampah, estimasi berat (kg), waktu penjemputan, pin lokasi via peta, dan upload foto sampel.
+  3. Memilih kategori limbah, estimasi berat (kg/liter), waktu penjemputan, pin lokasi via peta, dan upload foto sampel.
   4. Sistem menyimpan data ke database -> Status: PENDING.
   5. Notifikasi realtime langsung muncul di feed mitra Kurir.
              │
@@ -95,17 +98,17 @@ Berikut adalah tahapan operasional dari awal sampah dipilah hingga dikonversi me
              │
              ▼
 [ TAHAP 4: PENIMBANGAN AKTUAL & SERAH TERIMA ]
-  1. Kurir tiba di warung dan melakukan penimbangan fisik.
+  1. Kurir tiba di warung dan melakukan verifikasi kondisi limbah serta penimbangan fisik.
   2. Kurir memasukkan **Berat Aktual (kg)** dan mengunggah **Foto Bukti Penimbangan**.
   3. Konfirmasi penyelesaian -> Status berubah: COMPLETED.
-  4. Sampah organik diangkut menuju fasilitas biokonversi Maggot BSF.
+  4. Limbah disalurkan menuju sentra daur ulang atau refinery biodiesel ramah lingkungan.
              │
              ▼
 [ TAHAP 5: ANALYTICS & AUDIT OLEH ADMIN ]
-  1. Sistem otomatis mengkalkulasi dampak lingkungan:
+  1. Sistem otomatis mengkalkulasi dampak lingkungan & sirkularitas:
      - Estimasi offset emisi karbon (kg CO₂e).
-     - Penghematan air dari air lindi yang tercegah (kL).
-     - Potensi biomassa pakan maggot yang dihasilkan.
+     - Pencegahan pencemaran air bersih dari minyak jelantah yang terselamatkan.
+     - Total tonase limbah sirkular bernilai tinggi yang dialihkan dari TPA.
   2. Seluruh metrik tampil di Dashboard Admin untuk keperluan audit dan sertifikasi ESG.
 ```
 
@@ -115,9 +118,23 @@ Berikut adalah tahapan operasional dari awal sampah dipilah hingga dikonversi me
 
 | Peran (Role) | Akses URL | Fitur Utama | Tanggung Jawab Operasional |
 |---|---|---|---|
-| **🏪 Warung Makan** | `/warung` | Buat jadwal jemput, peta pin lokasi, tracking live status, riwayat penjemputan, metrik reduksi sampah pribadi. | Memilah sampah dari sumber dan membuat permintaan saat wadah siap angkut. |
-| **🛵 Kurir (Collector)** | `/collector` | Feed pickup tersedia, klaim pickup multi-titik, petunjuk arah peta, input berat riil, upload foto bukti serah terima. | Melakukan verifikasi fisik, penimbangan, dan pengantaran ke biokonversi. |
-| **🛡️ Administrator** | `/admin` | Ringkasan operasional real-time, verifikasi seluruh transaksi, grafik analitik ESG (CO₂e & Kg), audit log pengguna. | Menjaga kestabilan sistem, manajemen pengguna, dan penerbitan laporan dampak. |
+| **🏪 Warung Makan** | `/warung` | Buat jadwal jemput, peta pin lokasi, tracking live status, riwayat penjemputan, metrik reduksi limbah pribadi. | Memilah limbah anorganik & jelantah dari sumber, membuat permintaan jemput saat wadah siap angkut. |
+| **🛵 Kurir (Collector)** | `/collector` | Feed pickup tersedia, klaim pickup multi-titik, petunjuk arah peta, input berat riil, upload foto bukti serah terima. | Melakukan verifikasi fisik, penimbangan, dan pengantaran ke sentra daur ulang / refinery. |
+| **🛡️ Administrator** | `/admin` | Ringkasan operasional real-time, verifikasi seluruh transaksi, grafik analitik ESG (CO₂e & Kg), audit log pengguna. | Menjaga kestabilan sistem, manajemen pengguna, dan penerbitan laporan dampak lingkungan. |
+
+---
+
+### 2.4 Kategori Limbah Sirkular yang Dikelola
+
+| Kategori Limbah | Penanganan di Warung | Pemanfaatan Sirkular & Dampak |
+|---|---|---|
+| **🛢️ Minyak Jelantah (UCO)** | Disaring dingin, ditampung dalam jerigen tertutup rapat. | Bahan baku energi terbarukan (Biodiesel); mencegah penyumbatan pipa & pencemaran jutaan liter air. |
+| **📦 Kardus & Karton Kemasan** | Boks dus mie, minyak, telur dilipat pipih dan diikat rapi. | Didaur ulang menjadi bubur kertas (*pulp*) untuk mencegah deforestasi hutan. |
+| **🧴 Botol Plastik PET & Cup** | Botol dan cup plastik dibilas bersih dan diremas pipih. | Diolah menjadi serat tekstil, dakron, dan botol daur ulang rPET baru. |
+| **🥫 Kaleng Seng & Logam** | Kaleng susu kental, sarden, dan minuman dibilas. | Material logam bernilai tinggi yang dapat dilebur ulang 100% secara sirkular. |
+| **🛍️ Plastik Sachet & Kresek** | Sachet bumbu dan kantong kresek dipadatkan dalam kantong. | Diolah menjadi material komposit, *ecobrick*, dan bahan campuran aspal plastik. |
+| **🍾 Botol Kaca & Pecah Belah** | Botol kecap, sirup beling dibersihkan dan disimpan tegak. | Disterilisasi untuk guna ulang (*reuse*) atau dilebur ulang menjadi kaca baru. |
+| **⚠️ Limbah B3 Domestik** | Baterai timbangan digital dan lampu neon mati disimpan kering. | Menjamin penanganan aman agar zat beracun (merkuri, timbal) tidak meracuni air tanah. |
 
 ---
 
@@ -299,18 +316,18 @@ warungsirkular-app/
 
 Platform WarungSirkular tidak hanya mencatat transaksi logistik, tetapi juga secara otomatis mengonversinya menjadi indikator keberlanjutan terukur:
 
-| Indikator Dampak | Formula Perhitungan Rata-Rata | Signifikansi Lingkungan |
+| Indikator Dampak | Parameter & Formula Perhitungan | Signifikansi Lingkungan & Sirkularitas |
 |---|---|---|
-| **Pengalihan Sampah TPA** | $\sum \text{Berat Aktual (Kg)}$ | Mencegah penumpukan sampah organik di TPA kota. |
-| **Reduksi Emisi Metana** | $\approx 2.1\text{ kg CO}_2\text{e} \times \text{Kg Sampah}$ | Mengurangi efek gas rumah kaca penyebab pemanasan global. |
-| **Pencegahan Air Lindi** | $\approx 0.4\text{ Liter Air} \times \text{Kg Sampah}$ | Mencegah pencemaran air tanah akibat lindi sampah membusuk. |
-| **Produksi Pakan Ternak** | $\approx 0.2\text{ Kg Maggot BSF} \times \text{Kg Sampah}$ | Menghasilkan larva protein tinggi sebagai pakan ayam dan ikan. |
+| **Pengalihan Limbah TPA** | $\sum \text{Berat Aktual (Kg)}$ | Mencegah penumpukan limbah anorganik di TPA kota. |
+| **Offset Emisi Karbon** | $\approx 0.3 - 2.1\text{ kg CO}_2\text{e} \times \text{Kg Limbah}$ | Menurunkan jejak emisi karbon melalui substitusi bahan baku daur ulang sekunder. |
+| **Pencegahan Pencemaran Air** | $1\text{ Liter Jelantah} \approx 1.000.000\text{ Liter Air}$ | Mencegah pencemaran air tanah & sungai akibat pembuangan minyak jelantah dan limbah B3 ke saluran drainase. |
+| **Bahan Baku Biodiesel & Daur Ulang** | $\sum \text{Kg/Liter Terkumpul}$ | Memasok bahan baku energi terbarukan (Biodiesel) serta mendukung ekonomi daur ulang lokal. |
 
 ---
 
 <div align="center">
 
-**WarungSirkular** — *Inovasi Digital Mewujudkan Nol Sampah Organik ke TPA.*
+**WarungSirkular** — *Inovasi Digital Mewujudkan Ekosistem Daur Ulang & Nol Limbah ke TPA.*
 
 [🌐 Buka Live Demo](https://kadang-koding.vercel.app) • [📂 Repositori GitHub](https://github.com/hanifputra2023/KadangKoding) • [🐛 Laporkan Kendala](https://github.com/hanifputra2023/KadangKoding/issues)
 
